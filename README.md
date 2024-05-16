@@ -45,5 +45,5 @@ To get SmileChef up and running locally, follow these steps:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/SmileChef.git
+git clone https://github.com/kopilkaiser/SmileChef
 cd SmileChef
