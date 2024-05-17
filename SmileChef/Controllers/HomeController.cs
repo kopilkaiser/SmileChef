@@ -19,42 +19,43 @@ namespace ChefApp.Controllers
         public IActionResult Index()
         {
             var chefsWithDetails = _context.Chefs
-                .Include(c => c.Recipes)
-                    .ThenInclude(r => r.Instructions)
-                .Include(c => c.SubscribedTo)
-                .Include(c => c.PublishedSubscriptions)
-                .Select(c => new
-                {
-                    c.ChefId,
-                    ChefName = $"{c.FirstName} {c.LastName}",
-                    Recipes = c.Recipes.Select(r => new
-                    {
-                        r.RecipeId,
-                        r.Name,
-                        Instructions = r.Instructions.OrderBy(i => i.OrderId).Select(i => new
-                        {
-                            i.Description,
-                            i.OrderId
-                        })
-                    }),
-                    SubscribedTo = c.SubscribedTo.Select(s => new
-                    {
-                        s.SubscriptionId,
-                        s.SubscriptionDate,
-                        s.Amount,
-                        s.SubscriptionType,
-                        PublisherName = $"{s.Publisher!.FirstName} {s.Publisher.LastName}"
-                    }),
-                    PublishedSubscriptions = c.PublishedSubscriptions.Select(s => new
-                    {
-                        s.SubscriptionId,
-                        s.SubscriptionDate,
-                        s.Amount,
-                        s.SubscriptionType,
-                        SubscriberName = $"{s.Subscriber!.FirstName} {s.Subscriber.LastName}"
-                    })
-                })
-                .ToList();
+       .Include(c => c.Recipes)
+           .ThenInclude(r => r.Instructions)
+       .Include(c => c.SubscribedTo)
+       .Include(c => c.PublishedSubscriptions)
+       .Select(c => new
+       {
+           c.ChefId,
+           ChefName = $"{c.FirstName} {c.LastName}",
+           Recipes = c.Recipes.Select(r => new
+           {
+               r.RecipeId,
+               r.Name,
+               Instructions = r.Instructions.OrderBy(i => i.OrderId).Select(i => new
+               {
+                   i.Description,
+                   i.OrderId,
+                   i.Duration // Include the Duration field
+               })
+           }),
+           SubscribedTo = c.SubscribedTo.Select(s => new
+           {
+               s.SubscriptionId,
+               s.SubscriptionDate,
+               s.Amount,
+               s.SubscriptionType,
+               PublisherName = $"{s.Publisher.FirstName} {s.Publisher.LastName}"
+           }),
+           PublishedSubscriptions = c.PublishedSubscriptions.Select(s => new
+           {
+               s.SubscriptionId,
+               s.SubscriptionDate,
+               s.Amount,
+               s.SubscriptionType,
+               SubscriberName = $"{s.Subscriber.FirstName} {s.Subscriber.LastName}"
+           })
+       })
+       .ToList();
 
             foreach (var chef in chefsWithDetails)
             {
@@ -64,7 +65,7 @@ namespace ChefApp.Controllers
                     Console.WriteLine($"  Recipe ID: {recipe.RecipeId}, Name: {recipe.Name}");
                     foreach (var instruction in recipe.Instructions)
                     {
-                        Console.WriteLine($"    Order ID: {instruction.OrderId}, Description: {instruction.Description}");
+                        Console.WriteLine($"    Order ID: {instruction.OrderId}, Description: {instruction.Description}, Duration: {(instruction.Duration.HasValue ? instruction.Duration.Value.ToString() : "N/A")}");
                     }
                 }
                 foreach (var subscription in chef.SubscribedTo)

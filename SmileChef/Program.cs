@@ -1,6 +1,7 @@
 using ChefApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using SmileChef.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<SqlSettings>(builder.Configuration.GetRequiredSection("SqlSettings"));
 //builder.Services.AddSingleton<ISqlSettings>(sp => sp.GetRequiredService<IOptions<SqlSettings>>().Value);
-builder.Services.AddSingleton<ISqlSettings>(sp => sp.GetRequiredService<IConfiguration>().GetRequiredSection("SqlSettings").Get<SqlSettings>());
+builder.Services.AddSingleton<ISqlSettings>(sp => sp.GetRequiredService<IOptions<SqlSettings>>().Value);
 builder.Services.AddDbContext<ChefAppContext>();
+builder.Services.AddAutoMapper(config =>
+{
+    config.AddProfile<AutoMapperProfile>();
+}); // Add AutoMapper
 
 builder.Services.AddControllersWithViews();
 
@@ -49,3 +54,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+// Explicitly declare the partial Program class
+public partial class Program { }
