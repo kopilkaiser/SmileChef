@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34902.65
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmileChef", "SmileChef\SmileChef.csproj", "{7AE587B8-7844-49E0-9961-B4920FCC34A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChefAppTestProject", "ChefAppTestProject\ChefAppTestProject.csproj", "{8A11EC6D-64CD-421D-A136-E20FE9F1C668}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChefAppTestProject", "ChefAppTestProject\ChefAppTestProject.csproj", "{8A11EC6D-64CD-421D-A136-E20FE9F1C668}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

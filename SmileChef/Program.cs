@@ -1,12 +1,16 @@
 using ChefApp.Models;
+using ChefApp.Models.DbModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using SmileChef;
+using SmileChef.Repository;
 using SmileChef.Services;
+using SmileChef.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
+#region  Configuring Services
 // Add services to the container.
-
 builder.Services.Configure<SqlSettings>(builder.Configuration.GetRequiredSection("SqlSettings"));
 //builder.Services.AddSingleton<ISqlSettings>(sp => sp.GetRequiredService<IOptions<SqlSettings>>().Value);
 builder.Services.AddSingleton<ISqlSettings>(sp => sp.GetRequiredService<IOptions<SqlSettings>>().Value);
@@ -17,6 +21,23 @@ builder.Services.AddAutoMapper(config =>
 }); // Add AutoMapper
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddHttpContextAccessor();
+
+//builder.Services.AddScoped(typeof(IRepository<>), implementationType: typeof(GenericRepository<>)); // remove this if you want to mark GenericRepository<T> as abstract
+// Register the specific repository for Chef
+builder.Services.AddScoped<IChefRepository, ChefRepository>();
+builder.Services.AddScoped<IRepository<Recipe>, RecipeRepository>();
+builder.Services.AddScoped<IRepository<Instruction>, InstructionRepository>();
+builder.Services.AddScoped<IRepository<Subscription>, SubscriptionRepository>();
+#endregion
 
 var app = builder.Build();
 
@@ -27,7 +48,8 @@ using (var scope = app.Services.CreateScope())
     try
     {
         dbContext.Database.Migrate(); // Apply any pending migrations
-    } catch (Exception ex)
+    }
+    catch (Exception ex)
     {
         // Log the error (add logging mechanism)
         Console.WriteLine($"An error occurred while migrating the database: {ex.Message}");
@@ -44,14 +66,13 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
+app.UseSession();
 app.UseAuthorization();
-
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+    );
 
 app.Run();
 

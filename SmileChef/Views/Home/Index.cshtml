@@ -1,8 +1,97 @@
-﻿@{
+﻿@using SmileChef.ViewModels
+@model ChefViewModel
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
+<style>
+    a {
+        cursor: pointer;
+    }
+</style>
+
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-5">All Recipes for:</h1>
+    <p class="fs-3">@Model.ChefName</p>
+    <p>Current User Email: @Model.User.Email</p>
 </div>
+
+@if (TempData["RecipeSuccess"] != null)
+{
+    var isSuccess = (bool)TempData["RecipeSuccess"];
+    <div class="alert @(isSuccess ? "alert-success" : "alert-danger") alert-dismissible" id="recipeAlert">
+        @TempData["RecipeSuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="container">@Html.ActionLink("Add Recipe", "AddRecipe", "Home", new{@stringVal = "some value"}, new {@class = "btn btn-primary"})</div>
+<div class="d-flex flex-row flex-wrap gap-2 p-2">
+    @if(Model.Recipes != null && Model.Recipes.Count > 0){
+    @foreach (var recipe in Model.Recipes)
+    {
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-1 py-2">
+                    @* <i class="bi bi-apple fs-4 pe-1"></i> *@
+                    <i class="fa-solid fa-bowl-food fs-4 pe-1"></i>
+                    <span class="my-1">Recipe:</span>
+                    <a asp-action="AddRecipe" asp-controller="Home" asp-route-recipeId="@recipe.RecipeId"><span class="fw-bold">@recipe.Name</span></a>
+                </div>
+                <a class="btn btn-danger p-1 ms-4" asp-action="DeleteRecipe" asp-controller="Home" asp-route-id="@recipe.RecipeId"><i class="bi bi-x"></i></a>
+            </div>
+            <div class="card-body">
+                <!-- AnchorTag to trigger modal -->
+                <a class="fw-bold ps-1 text-decoration-none" data-bs-toggle="modal" data-bs-target="#exampleModal@(recipe.RecipeId)">Show Instructions</a>
+                <!-- Modal: Show Instructions for each Recipe -->
+                <div class="modal fade" id="exampleModal@(recipe.RecipeId)" tabindex="-1" aria-labelledby="exampleModalLabel@(recipe.RecipeId)" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header d-flex align-items-center">
+                                <span class="pe-2 fw-light">Instructions for:</span>
+                                <span class="modal-title h5" id="exampleModalLabel@(recipe.RecipeId)">@recipe.Name</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <ul class="list-group">
+                                    @foreach (var instruction in recipe.Instructions)
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <div>@instruction.Description</div>
+                                            <div>@(instruction.Duration.HasValue ? instruction.Duration.Value.Minutes.ToString() + " mins" : "NA")</div>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        }
+
+    }
+    else
+    {
+        <div class="container">
+            <p class="text-bg-danger fst-italic">No Recipes found. Add a new recipe</p>
+        </div>
+    }
+</div>
+
+@section Scripts{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var recipeSuccessMessage = '@ViewBag.RecipeSuccessMessage';
+            if (recipeSuccessMessage && recipeSuccessMessage !== '') {
+                $('#recipeSuccessMessageModal').show();
+            }
+        });
+
+        function showAddInstructionModal() {
+            var modal = new bootstrap.Modal(document.getElementById('addInstructionModal'));
+            modal.show();
+        }
+    </script>
+}

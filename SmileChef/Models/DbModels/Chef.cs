@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SmileChef.Models.DbModels;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ChefApp.Models.DbModels
@@ -20,5 +21,10 @@ namespace ChefApp.Models.DbModels
         public List<Subscription> PublishedSubscriptions { get; set; } = new();
 
         public List<Recipe> Recipes { get; set; } = new();
+
+        [ForeignKey(nameof(User))]
+        public int UserId { get; set; }
+
+        public User User { get; set; }
     }
 }

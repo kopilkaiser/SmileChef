@@ -18,5 +18,28 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
 }
+
+.container-main {
+    flex-grow: 1;
+}
+
+main {
+    padding-top: 70px; /* Adjust if needed for your navbar height */
+}
+
+footer {
+    background-color: aqua;
+    height: 60px; /* Adjust as needed */
+}
+
+/*.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1030;*/ /* Ensure the navbar is above other elements */
+/*}*/

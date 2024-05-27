@@ -13,7 +13,7 @@ namespace ChefApp.Models.DbModels
         public int RecipeId { get; set; }
 
         public int OrderId { get; set; }
-        public TimeOnly? Duration { get; set; }
+        public TimeSpan? Duration { get; set; }
         public Recipe Recipe { get; set; }
     }
 }

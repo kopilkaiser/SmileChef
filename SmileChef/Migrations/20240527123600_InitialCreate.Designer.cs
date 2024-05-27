@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace ChefApp.Migrations
+namespace SmileChef.Migrations
 {
     [DbContext(typeof(ChefAppContext))]
-    [Migration("20240516231044_Added_SeedData_To_ChefApplication")]
-    partial class Added_SeedData_To_ChefApplication
+    [Migration("20240527123600_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,7 +41,12 @@ namespace ChefApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("ChefId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Chefs");
 
@@ -50,37 +55,43 @@ namespace ChefApp.Migrations
                         {
                             ChefId = 1,
                             FirstName = "Gordon",
-                            LastName = "Ramsay"
+                            LastName = "Ramsay",
+                            UserId = 1
                         },
                         new
                         {
                             ChefId = 2,
                             FirstName = "Jamie",
-                            LastName = "Oliver"
+                            LastName = "Oliver",
+                            UserId = 2
                         },
                         new
                         {
                             ChefId = 3,
                             FirstName = "Wolfgang",
-                            LastName = "Puck"
+                            LastName = "Puck",
+                            UserId = 3
                         },
                         new
                         {
                             ChefId = 4,
                             FirstName = "Alice",
-                            LastName = "Waters"
+                            LastName = "Waters",
+                            UserId = 4
                         },
                         new
                         {
                             ChefId = 5,
                             FirstName = "Thomas",
-                            LastName = "Keller"
+                            LastName = "Keller",
+                            UserId = 5
                         },
                         new
                         {
                             ChefId = 6,
                             FirstName = "Emeril",
-                            LastName = "Lagasse"
+                            LastName = "Lagasse",
+                            UserId = 6
                         });
                 });
 
@@ -95,6 +106,9 @@ namespace ChefApp.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeSpan?>("Duration")
+                        .HasColumnType("time");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
@@ -113,6 +127,7 @@ namespace ChefApp.Migrations
                         {
                             InstructionId = 1,
                             Description = "Prepare beef",
+                            Duration = new TimeSpan(0, 0, 10, 0, 0),
                             OrderId = 1,
                             RecipeId = 1
                         },
@@ -127,6 +142,7 @@ namespace ChefApp.Migrations
                         {
                             InstructionId = 3,
                             Description = "Bake",
+                            Duration = new TimeSpan(0, 0, 20, 0, 0),
                             OrderId = 3,
                             RecipeId = 1
                         },
@@ -134,6 +150,7 @@ namespace ChefApp.Migrations
                         {
                             InstructionId = 4,
                             Description = "Cook pasta",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
                             OrderId = 1,
                             RecipeId = 2
                         },
@@ -148,6 +165,7 @@ namespace ChefApp.Migrations
                         {
                             InstructionId = 6,
                             Description = "Combine and serve",
+                            Duration = new TimeSpan(0, 0, 3, 0, 0),
                             OrderId = 3,
                             RecipeId = 2
                         },
@@ -162,6 +180,7 @@ namespace ChefApp.Migrations
                         {
                             InstructionId = 8,
                             Description = "Roll sushi",
+                            Duration = new TimeSpan(0, 0, 5, 0, 0),
                             OrderId = 2,
                             RecipeId = 3
                         },
@@ -183,6 +202,7 @@ namespace ChefApp.Migrations
                         {
                             InstructionId = 11,
                             Description = "Cook lentils",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
                             OrderId = 2,
                             RecipeId = 4
                         },
@@ -204,6 +224,7 @@ namespace ChefApp.Migrations
                         {
                             InstructionId = 14,
                             Description = "Roast chicken",
+                            Duration = new TimeSpan(0, 0, 45, 0, 0),
                             OrderId = 2,
                             RecipeId = 5
                         },
@@ -218,6 +239,7 @@ namespace ChefApp.Migrations
                         {
                             InstructionId = 16,
                             Description = "Prepare bananas",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
                             OrderId = 1,
                             RecipeId = 6
                         },
@@ -234,6 +256,68 @@ namespace ChefApp.Migrations
                             Description = "Serve with ice cream",
                             OrderId = 3,
                             RecipeId = 6
+                        },
+                        new
+                        {
+                            InstructionId = 19,
+                            Description = "Cook Mince Beef",
+                            Duration = new TimeSpan(0, 0, 10, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 7
+                        },
+                        new
+                        {
+                            InstructionId = 20,
+                            Description = "Cook Tomato Sauce",
+                            Duration = new TimeSpan(0, 0, 25, 0, 0),
+                            OrderId = 2,
+                            RecipeId = 7
+                        },
+                        new
+                        {
+                            InstructionId = 21,
+                            Description = "Boil Sphagetti",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
+                            OrderId = 3,
+                            RecipeId = 7
+                        },
+                        new
+                        {
+                            InstructionId = 22,
+                            Description = "Mix Cooked Beef, Suace, and Sphagetti",
+                            OrderId = 4,
+                            RecipeId = 7
+                        },
+                        new
+                        {
+                            InstructionId = 23,
+                            Description = "Cook Chicken Soup",
+                            Duration = new TimeSpan(0, 0, 35, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 8
+                        },
+                        new
+                        {
+                            InstructionId = 24,
+                            Description = "Add chopped Mushroom, Cillantro, Corriander",
+                            Duration = new TimeSpan(0, 0, 2, 0, 0),
+                            OrderId = 2,
+                            RecipeId = 8
+                        },
+                        new
+                        {
+                            InstructionId = 25,
+                            Description = "Simmer the ingredients",
+                            Duration = new TimeSpan(0, 0, 5, 0, 0),
+                            OrderId = 3,
+                            RecipeId = 8
+                        },
+                        new
+                        {
+                            InstructionId = 26,
+                            Description = "Plate the soup with sprinkled corriander and chillies",
+                            OrderId = 4,
+                            RecipeId = 8
                         });
                 });
 
@@ -294,6 +378,18 @@ namespace ChefApp.Migrations
                             RecipeId = 6,
                             ChefId = 6,
                             Name = "Bananas Foster"
+                        },
+                        new
+                        {
+                            RecipeId = 7,
+                            ChefId = 1,
+                            Name = "Beef Bolognese"
+                        },
+                        new
+                        {
+                            RecipeId = 8,
+                            ChefId = 1,
+                            Name = "Chicken Mushroom Soup"
                         });
                 });
 
@@ -343,7 +439,7 @@ namespace ChefApp.Migrations
                             Amount = 99.99m,
                             PublisherId = 1,
                             SubscriberId = 3,
-                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 10, 44, 159, DateTimeKind.Local).AddTicks(3432),
+                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 0, 0, 0, DateTimeKind.Local),
                             SubscriptionType = "Monthly"
                         },
                         new
@@ -352,7 +448,7 @@ namespace ChefApp.Migrations
                             Amount = 99.99m,
                             PublisherId = 1,
                             SubscriberId = 4,
-                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 10, 44, 159, DateTimeKind.Local).AddTicks(3492),
+                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 0, 0, 0, DateTimeKind.Local),
                             SubscriptionType = "Monthly"
                         },
                         new
@@ -361,7 +457,7 @@ namespace ChefApp.Migrations
                             Amount = 99.99m,
                             PublisherId = 1,
                             SubscriberId = 5,
-                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 10, 44, 159, DateTimeKind.Local).AddTicks(3494),
+                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 0, 0, 0, DateTimeKind.Local),
                             SubscriptionType = "Monthly"
                         },
                         new
@@ -370,7 +466,7 @@ namespace ChefApp.Migrations
                             Amount = 199.99m,
                             PublisherId = 2,
                             SubscriberId = 4,
-                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 10, 44, 159, DateTimeKind.Local).AddTicks(3496),
+                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 0, 0, 0, DateTimeKind.Local),
                             SubscriptionType = "Yearly"
                         },
                         new
@@ -379,7 +475,7 @@ namespace ChefApp.Migrations
                             Amount = 199.99m,
                             PublisherId = 2,
                             SubscriberId = 5,
-                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 10, 44, 159, DateTimeKind.Local).AddTicks(3498),
+                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 0, 0, 0, DateTimeKind.Local),
                             SubscriptionType = "Yearly"
                         },
                         new
@@ -388,9 +484,80 @@ namespace ChefApp.Migrations
                             Amount = 199.99m,
                             PublisherId = 2,
                             SubscriberId = 6,
-                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 10, 44, 159, DateTimeKind.Local).AddTicks(3500),
+                            SubscriptionDate = new DateTime(2024, 5, 17, 0, 0, 0, 0, DateTimeKind.Local),
                             SubscriptionType = "Yearly"
                         });
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.User", b =>
+                {
+                    b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            Email = "gordan@gmail.com",
+                            Password = "123"
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            Email = "jamie@gmail.com",
+                            Password = "123"
+                        },
+                        new
+                        {
+                            UserId = 3,
+                            Email = "wolfgang@gmail.com",
+                            Password = "123"
+                        },
+                        new
+                        {
+                            UserId = 4,
+                            Email = "alice@gmail.com",
+                            Password = "123"
+                        },
+                        new
+                        {
+                            UserId = 5,
+                            Email = "thomas@gmail.com",
+                            Password = "123"
+                        },
+                        new
+                        {
+                            UserId = 6,
+                            Email = "emeril@gmail.com",
+                            Password = "123"
+                        });
+                });
+
+            modelBuilder.Entity("ChefApp.Models.DbModels.Chef", b =>
+                {
+                    b.HasOne("SmileChef.Models.DbModels.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ChefApp.Models.DbModels.Instruction", b =>
