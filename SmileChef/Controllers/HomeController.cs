@@ -8,6 +8,7 @@ using SmileChef.Repository;
 using SmileChef.ViewModels;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace ChefApp.Controllers
 {
@@ -43,6 +44,15 @@ namespace ChefApp.Controllers
             }
 
             var chefVM = _chefRepo.GetChefsWithDetails().Find(c => c.User.UserId == _currentUserId);
+
+            if (HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail") == null)
+            {
+                HttpContext.Session.SetObjectAsJson("CurrentUserEmail", chefVM.User.Email);
+                HttpContext.Session.SetObjectAsJson("CurrentUserName", chefVM.ChefName);
+            }
+
+            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
+            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
             if (chefVM == null)
             {
                 // Handle the case where the chef is not found, perhaps redirect to an error page or return a default view.
@@ -61,6 +71,8 @@ namespace ChefApp.Controllers
         public IActionResult Privacy()
         {
             ViewBag.CurrentActive = "Privacy";
+            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
+            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
             return View();
         }
 
@@ -73,6 +85,9 @@ namespace ChefApp.Controllers
         [HttpGet]
         public IActionResult AddRecipe(int recipeId)
         {
+            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
+            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
+
             RecipeViewModel vm;
             if (recipeId == 0)
             {
@@ -203,6 +218,7 @@ namespace ChefApp.Controllers
         {
             AssignChefId();
             var chef = _chefRepo.GetById(_chefId);
+            if (chef == null) throw new Exception($"Chef not found with chefId: {_chefId}");
             Recipe recipe;
 
             if (recipeId == 0)
@@ -210,7 +226,7 @@ namespace ChefApp.Controllers
                 // Create a new recipe if recipeId is 0
                 recipe = new Recipe
                 {
-                    Name = "New Recipe",
+                    Name = recipeName,
                     Instructions = new List<Instruction>()
                 };
                 chef.Recipes.Add(recipe);
@@ -229,7 +245,7 @@ namespace ChefApp.Controllers
             // Add the new instruction
             var newInstruction = new Instruction
             {
-                Description = instruction.Description,
+                Description = instruction.Description ?? "No Description Given",
                 OrderId = recipe.Instructions.Count + 1,
             };
             if (instruction.Duration != null)
@@ -324,6 +340,30 @@ namespace ChefApp.Controllers
 
             // Proceed with valid model
             return RedirectToAction("Success");
+        }
+
+        [HttpPost]
+        //public IActionResult CustomAjaxTest(string message)
+        public IActionResult CustomAjaxTest([FromBody] JsonElement data)
+        {
+            var message = data.GetProperty("filterString").GetString();
+
+            AssignChefId();
+            var chefVM = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == _chefId);
+
+            if (chefVM == null)
+            {
+                return Json("Error");
+            }
+
+            chefVM.Recipes = chefVM.Recipes.Where(r => r.Name.Contains(message, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (chefVM.Recipes.Count == 0)
+            {
+                return Json("Error");
+            }
+
+            return PartialView("_RecipesPartial", chefVM);
         }
 
         private void AssignChefId()

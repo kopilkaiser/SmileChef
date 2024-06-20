@@ -24,14 +24,25 @@
                             <a class="nav-link text-dark @(ViewBag.CurrentActive == "Home" ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark @(ViewBag.CurrentActive == "Privacy" ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark @(ViewBag.CurrentActive == "Privacy" ? "active" : "")" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark @(ViewBag.CurrentActive == "ShowChefCards" ? "active" : "")" asp-controller="Chef" asp-action="ShowChefCards">View All Chefs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark @(ViewBag.CurrentActive == "ChefIndex" ? "active" : "")" asp-controller="Chef" asp-action="Index">Chef Index</a>
                         </li>
                     </ul>
                 </div>
             </div>
+            <div class="px-3 row">
+                <div class="col-12 text-decoration-underline">Current User Logged in</div>
+                <div class="col-auto"><b class="pe-2">Email:</b> @(ViewBag.CurrentUserEmail ?? "")</div>
+                <div class="col-auto"><b class="pe-2">Name:</b> @(ViewBag.CurrentUserName ?? "")</div>
+            </div>
         </nav>
     </header>
-    <div class="container container-main">
+    <div class="container container-main pt-5 pt-xl-4 pt-xxl-0">
         <main role="main" class="pb-3">
             @RenderBody()
            @*  <div class="bg-black mb-2" style="width:500px; height:500px;"></div>
@@ -40,7 +51,7 @@
         </main>     
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-muted d-flex align-items-center">
         <div class="container">
             &copy; 2024 - ChefApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
@@ -49,6 +60,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/fontawesome/js/all.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

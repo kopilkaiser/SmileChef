@@ -20,7 +20,7 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<AutoMapperProfile>();
 }); // Add AutoMapper
 
-builder.Services.AddControllersWithViews();
+var mvcBuilder = builder.Services.AddControllersWithViews();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -30,7 +30,12 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddHttpContextAccessor();
-
+//mvcBuilder.AddNewtonsoftJson(options =>
+//{
+//    // Configure Newtonsoft.Json settings here if necessary
+//    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+//    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+//});  // Add this line to configure Newtonsoft.Json
 //builder.Services.AddScoped(typeof(IRepository<>), implementationType: typeof(GenericRepository<>)); // remove this if you want to mark GenericRepository<T> as abstract
 // Register the specific repository for Chef
 builder.Services.AddScoped<IChefRepository, ChefRepository>();
@@ -71,7 +76,7 @@ app.UseSession();
 app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}"
+    pattern: "{controller=Chef}/{action=Index}/{id?}"
     );
 
 app.Run();

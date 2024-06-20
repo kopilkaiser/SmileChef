@@ -26,7 +26,7 @@ namespace ChefAppTestProject
         public async Task Get_Chefs_ReturnsSuccessStatusCode()
         {
             // Arrange
-            var request = "/chefs/"; // Adjust this based on your actual API endpoint
+            var request = "/tests"; // Adjust this based on your actual API endpoint
 
             // Act
             var response = await _client.GetAsync(request);
@@ -39,7 +39,7 @@ namespace ChefAppTestProject
         public async Task Get_ChefsInfo_ReturnsExpectedContentType()
         {
             // Arrange
-            var request = "/chefs/info"; // Adjust this based on your actual API endpoint
+            var request = "/tests/info"; // Adjust this based on your actual API endpoint
 
             // Act
             var response = await _client.GetAsync(request);
@@ -53,7 +53,7 @@ namespace ChefAppTestProject
         public async Task Get_ChefsInfoV2_ReturnsExpectedContentType()
         {
             // Arrange
-            var request = "/chefs/infov2"; // Adjust this based on your actual API endpoint
+            var request = "/tests/infov2"; // Adjust this based on your actual API endpoint
 
             // Act
             var response = await _client.GetAsync(request);

@@ -1,0 +1,83 @@
+﻿@using SmileChef.Controllers;
+@model List<Animal>;
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+   
+}
+
+<style>
+    .aniName {
+        background-color:seashell;
+        color: black;
+        margin-bottom: 5px;
+        position: relative;
+        padding: 5px;
+        /* display:flex; */
+        /* align-items: center; */
+        width : max-content;
+        z-index: 1;
+    }
+
+    .aniName::before{
+        content : "";
+        background-color: skyblue;
+        color:white;
+        position: absolute;
+        width:100%;
+        height:100%;
+        left:0%;
+        top:50%;
+        transform: scaleX(0) translateY(-50%);
+        transform-origin: left center;
+        transition: transform 0.3s ease;
+        z-index: -1; /* Lower than the text */
+    }
+
+    .aniName:hover::before{
+            transform: scaleX(1) translateY(-50%);
+    }
+
+
+    /*comment out below to show elements*/
+    /* .aniName::before {
+        content: "";
+        width: 10px;
+        height: 20px;
+        display: inline-flex;
+        background-color: black;
+        margin-right: 25px;
+    }
+
+    .aniName:hover{
+        color: red;
+    }
+
+    .aniName:hover::before {
+        background-color: red; /* Background color of ::before changes to red on hover */
+    }
+    */
+
+</style>
+<ul@*  style="display:inline-block;" *@>
+    @foreach (var item in Model)
+    {
+        <li class="aniName" data-id="@item.Id">@item.Name</li>
+    }
+</ul>
+
+@section Scripts {
+    <script>
+        $('document').ready(() => {
+            $('li.aniName').click(function () {
+                alert($(this).text());
+            })
+
+            $('li.aniName').css('background-color', '#f12');
+
+            $(document).on('click', 'li.aniName', function () {
+                alert($(this).text());
+            });
+    </script>
+}

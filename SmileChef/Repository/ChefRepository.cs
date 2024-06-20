@@ -30,6 +30,7 @@ namespace SmileChef.Repository
                 ChefId = c.ChefId,
                 ChefName = $"{c.FirstName} {c.LastName}",
                 User = c.User,
+                Rating = c.Rating,
                 Recipes = c.Recipes.Select(r => new RecipeViewModel
                 {
                     RecipeId = r.RecipeId,

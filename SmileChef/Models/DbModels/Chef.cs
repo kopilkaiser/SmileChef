@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SmileChef.Models.DbModels;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ChefApp.Models.DbModels
@@ -26,5 +27,9 @@ namespace ChefApp.Models.DbModels
         public int UserId { get; set; }
 
         public User User { get; set; }
+
+        [MinLength(0)]
+        [MaxLength(5)]
+        public int? Rating { get; set; }
     }
 }

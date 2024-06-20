@@ -12,8 +12,7 @@ namespace SmileChef.ViewModels
         public List<RecipeViewModel>? Recipes { get; set; }
         public List<SubscriptionViewModel>? SubscribedTo { get; set; }
         public List<SubscriptionViewModel>? PublishedSubscriptions { get; set; }
-
-
         public User User { get; set; }
+        public int? Rating { get; set; }
     }
 }

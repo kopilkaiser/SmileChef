@@ -1,0 +1,64 @@
+﻿@using SmileChef.ViewModels;
+@model List<ChefViewModel>
+
+
+@{
+}
+<style>
+    .card-header {
+        background: linear-gradient(55deg, crimson, beige 70%);
+        color: black;
+    }
+
+    .card-footer {
+        background: linear-gradient(65deg, crimson, beige 65%);
+        color: black;
+    }
+</style>
+<div class="container-md">
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 gx-3 gy-4 mt-3 pb-4 bg-secondary-subtle rounded-3">
+
+            @foreach (var chef in Model)
+            {
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <img class="img-thumbnail" src="~/images/chef.png" width="90" height="100" alt="@chef.ChefName Picture">
+                                </div>
+                                <div class="col-auto">
+                                    <div class="col-12"><b class="pe-1">Name:</b> @chef.ChefName</div>
+                                    <div class="col-12">
+                                        <b class="pe-1">Rating:</b>
+                                        @for (int i = 0; i < @chef.Rating; i++)
+                                        {
+                                            @Html.Raw("<b class=\"fs-5\">*</b>")
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div>Something about this chef <b>IS NICE</b>. He has total @chef.Recipes.Count() recipes.</div>
+                        </div>
+                        <div class="card-footer">
+                            <div><a class="btn btn-info" href="#">View More</a> <a class="btn btn-success" href="#">Subscribe</a></div>
+                        </div>
+                    </div>
+                </div>
+
+            }
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-auto">
+                <div class="text-bg-danger fst-italic p-2 rounded-3">No Chefs found. We will need to register new chefs</div>
+            </div>
+        </div>
+    }
+</div>
