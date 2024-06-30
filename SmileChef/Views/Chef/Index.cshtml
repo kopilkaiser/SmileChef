@@ -89,7 +89,11 @@
                     $('#animalsContainer').html(response);
                 },
                 error: function (error) {
-                    swal("Error occured", error, "error");
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: error,
+                        icon: "error"
+                    });
                 }            
             });
         });
@@ -117,7 +121,11 @@
                 error: function (xhr, status, error) {
                     var errorMessage = xhr.status + ': ' + xhr.statusText;
                     console.log('Error - ' + errorMessage);
-                    swal("Error occurred", errorMessage, "error");
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: errorMessage,
+                        icon: "error"
+                    });
                 }
             });
         });

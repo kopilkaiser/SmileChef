@@ -1,13 +1,13 @@
 ﻿@using SmileChef.ViewModels
 @model RecipeViewModel
 
-@using (Html.BeginForm("SaveRecipe", "Home", FormMethod.Post))
+@using (Html.BeginForm("SaveRecipe", "Chef", FormMethod.Post))
 {
     @Html.HiddenFor(m => m.RecipeId)
     <div class="container">
         <div class="row align-items-center my-4">
             <div class="col-12 fs-5 pb-1">@Html.LabelFor(m => m.Name, "Recipe name")</div>
-            <div class="col-12">@Html.TextBoxFor(m => m.Name, new { @class = "form-control", @placeholder = "Enter recipe name", id = "recipeName" })</div>
+            <div class="col-12">@Html.TextBoxFor(m => m.Name, new { @class = "form-control", @placeholder = "Enter recipe name", id = "recipeName", required = "required" })</div>
             <div class="col-12">@Html.ValidationMessageFor(m => m.Name)</div>
         </div>
         <div class="row bg-body-secondary">
@@ -31,8 +31,9 @@
                             <td>
                                 @Html.HiddenFor(m => m.Instructions[i].OrderId)
                                 @Html.HiddenFor(m => m.Instructions[i].InstructionId)
-                                @Html.TextBoxFor(m => m.Instructions[i].OrderId, new { @class = "form-control", @readonly = "readonly" })
-                                @Html.ValidationMessageFor(m => m.Instructions[i].OrderId)
+                                @*@Html.TextBoxFor(m => m.Instructions[i].OrderId, new { @class = "form-control", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(m => m.Instructions[i].OrderId)*@
+                                @Html.TextBox("Index", i + 1, "", new { @class = "form-control", @readonly = "readonly" })
                             </td>
                             <td>
                                 @Html.TextBoxFor(m => m.Instructions[i].Description, new { @class = "form-control" })
@@ -49,7 +50,7 @@
                                     @Html.HiddenFor(m => m.Instructions[i].InstructionId)
                                     <button type="submit" class="btn btn-danger">Remove</button>
                                 } *@
-                                @Html.ActionLink("Remove", "DeleteInstruction", "Home", new { @recipeId = Model.RecipeId, @instructionId = Model.Instructions[i].InstructionId }, new { @class = "btn btn-danger" })
+                                @Html.ActionLink("Remove", "DeleteInstruction", "Chef", new { @recipeId = Model.RecipeId, @instructionId = Model.Instructions[i].InstructionId }, new { @class = "btn btn-danger" })
                             </td>
                         </tr>
                     }
@@ -79,7 +80,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                @using (Html.BeginForm("AddInstruction", "Home", FormMethod.Post))
+                @using (Html.BeginForm("AddInstruction", "Chef", FormMethod.Post))
                 {
                     @Html.Hidden("RecipeName", "", new { @id = "recipeNameHidden" })
                     @Html.Hidden("RecipeId", Model.RecipeId)
@@ -106,6 +107,25 @@
     <script>
         function showAddInstructionModal() {
             var modal = new bootstrap.Modal(document.getElementById('addInstructionModal'));
+            let recipeName = $('#recipeName').val();
+            console.log(`recipeName: ${typeof recipeName}`)
+            if (recipeName === "" || recipeName === null) {
+                Swal.fire({
+                    title: "Invalid Recipe Name", 
+                    text: "Recipe Name cannot be left blank", 
+                    icon: "error"
+                }).then(function () {
+                    alert("Recipe name invalid validation has been shown successfully!");
+                });
+                return;
+            } else if (recipeName.length > 20){
+                Swal.fire({
+                    title: "Invalid Recipe Name",
+                    text: "Recipe Name cannot exceed 20 characters",
+                    icon: "error"
+                })
+                return;
+            }
             modal.show();
         }
 

@@ -32,9 +32,9 @@
                             <div class="d-flex align-items-center gap-1 py-2">
                                 <i class="fa-solid fa-bowl-food fs-4 pe-1"></i>
                                 <span class="my-1">Recipe:</span>
-                                <a asp-action="AddRecipe" asp-controller="Home" asp-route-recipeId="@recipe.RecipeId"><span class="fw-bold recipe-name">@recipe.Name</span></a>
+                                <a asp-action="AddRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId"><span class="fw-bold recipe-name">@recipe.Name</span></a>
                             </div>
-                            <a class="btn btn-danger p-1 ms-4" asp-action="DeleteRecipe" asp-controller="Home" asp-route-id="@recipe.RecipeId"><i class="bi bi-x"></i></a>
+                            <a class="btn btn-danger p-1 ms-4" asp-action="DeleteRecipe" asp-controller="Chef" asp-route-id="@recipe.RecipeId"><i class="bi bi-x"></i></a>
                         </div>
                         <div class="card-body">
                             <!-- AnchorTag to trigger modal -->
@@ -55,7 +55,7 @@
                                                 @foreach (var instruction in recipe.Instructions)
                                                 {
                                                     <li class="list-group-item d-flex justify-content-between">
-                                                        <div>@instruction.Description</div>
+                                                        <div><span class="me-2">@(recipe.Instructions.IndexOf(instruction) + 1). </span>@instruction.Description</div>
                                                         <div>@(instruction.Duration.HasValue ? instruction.Duration.Value.Minutes.ToString() + " mins" : "NA")</div>
                                                     </li>
                                                 }
