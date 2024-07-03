@@ -3,6 +3,7 @@ using ChefApp.Models.DbModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SmileChef;
+using SmileChef.ML;
 using SmileChef.Repository;
 using SmileChef.Services;
 using SmileChef.ViewModels;
@@ -12,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 #region  Configuring Services
 // Add services to the container.
 builder.Services.Configure<SqlSettings>(builder.Configuration.GetRequiredSection("SqlSettings"));
+builder.Services.AddSingleton<RecipeSmartModel>();
 //builder.Services.AddSingleton<ISqlSettings>(sp => sp.GetRequiredService<IOptions<SqlSettings>>().Value);
 builder.Services.AddSingleton<ISqlSettings>(sp => sp.GetRequiredService<IOptions<SqlSettings>>().Value);
 builder.Services.AddDbContext<ChefAppContext>();

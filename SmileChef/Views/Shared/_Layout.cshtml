@@ -29,6 +29,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark @(ViewBag.CurrentActive == "ManageRecipes" ? "active" : "")" asp-controller="Chef" asp-action="ManageRecipes">Manage Recipes</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark @(ViewBag.CurrentActive == "RecipeSmartAI" ? "active" : "")" asp-controller="Home" asp-action="RecipeSmartAI">Smart Chef</a>
+                        </li>
                     </ul>
                 </div>
             </div>

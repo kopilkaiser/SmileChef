@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using SmileChef.Extensions;
+using SmileChef.ML;
+using SmileChef.Models;
 using SmileChef.Repository;
 using SmileChef.ViewModels;
 using System.ComponentModel.DataAnnotations;
@@ -21,13 +23,15 @@ namespace ChefApp.Controllers
         private IRepository<Recipe> _recipeRepo;
         private static int? _currentUserId;
         private int _chefId;
-        public HomeController(ILogger<HomeController> logger, ChefAppContext context, IChefRepository chefRepo, IHttpContextAccessor httpContextAccessor, IRepository<Recipe> recipeRepo)
+        private readonly RecipeSmartModel _recipeModel;
+        public HomeController(ILogger<HomeController> logger, ChefAppContext context, IChefRepository chefRepo, IHttpContextAccessor httpContextAccessor, IRepository<Recipe> recipeRepo, RecipeSmartModel recipeModel)
         {
             _logger = logger;
             _context = context;
             _chefRepo = chefRepo;
             _recipeRepo = recipeRepo;
             _http = httpContextAccessor;
+            _recipeModel = recipeModel;
         }
 
         [HttpGet]
@@ -43,29 +47,74 @@ namespace ChefApp.Controllers
                 HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
             }
 
-            var chefVM = _chefRepo.GetChefsWithDetails().Find(c => c.User.UserId == _currentUserId);
+            return View();
+        }
 
-            if (HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail") == null)
+        #region Test Methods to be DELETED
+
+        [HttpGet]
+        public IActionResult LoadAnimals()
+        {
+            List<string> animals = new List<string>()
             {
-                HttpContext.Session.SetObjectAsJson("CurrentUserEmail", chefVM.User.Email);
-                HttpContext.Session.SetObjectAsJson("CurrentUserName", chefVM.ChefName);
-            }
+                "Tiger", "Lion", "Cheetah", "Spider", "Elephant", "Giraffe"
+            };
 
+            return Json(animals);
+        }
+
+        [HttpGet]
+        public IActionResult LoadHumans()
+        {
+            List<string> humans = new List<string>()
+            {
+                "John", "Perry", "Charson", "Norsan", "Melissa", "Natasha", "Samantha"
+            };
+
+            return Json(humans);
+        }
+
+        [HttpGet]
+        public IActionResult LoadAliens()
+        {
+
+            List<string> aliens = new List<string>()
+            {
+                "Yoga TX100", "Alien T-Rex 09", "OctaCore Specimen001"
+            };
+
+            return Json(aliens);
+        }
+
+        #endregion
+
+        [HttpGet]
+        public IActionResult RecipeSmartAI()
+        {
+            ViewBag.CurrentActive = "RecipeSmartAI";
             ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
             ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
-            if (chefVM == null)
+            var model = new PredictRecipeViewModel();
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Predict(PredictRecipeViewModel model)
+        {
+            // Manually remove the PredictedRecipe property from the ModelState
+            ModelState.Remove(nameof(PredictRecipeViewModel.PredictedRecipe));
+
+            if (!ModelState.IsValid)
             {
-                // Handle the case where the chef is not found, perhaps redirect to an error page or return a default view.
-                return RedirectToAction("Error", "Home");
+                // Return JSON response with error message
+                return Json(new { success = false, message = "Please enter valid ingredients." });
             }
 
-            if (json == true) return Json(chefVM);
+            var prediction = _recipeModel.Predict(model.Ingredients);
+            model.PredictedRecipe = prediction.PredictedLabel;
 
-            var recipeMessage = ViewBag.AddRecipeMessage;
-            var recipeIsSuccess = ViewBag.RecipeSuccess;
-            var tempRecipeMessage = TempData["RecipeSuccessMessage"];
-            var tempRecipeSuccess = TempData["RecipeSuccess"];
-            return View(chefVM);
+            // Return the partial view with the prediction result
+            return PartialView("_PredictionResultPartial", model);
         }
 
         public IActionResult Privacy()

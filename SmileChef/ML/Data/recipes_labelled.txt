@@ -1,0 +1,200 @@
+1	Chicken, garlic, onion, salt, pepper, olive oil, lemon	Grilled Chicken
+2	Flour, sugar, cocoa powder, eggs, butter, milk, vanilla extract	Chocolate Cake
+3	Tomatoes, basil, garlic, olive oil, salt, pepper, spaghetti	Spaghetti Marinara
+4	Beef, soy sauce, sugar, garlic, ginger, green onions	Beef Teriyaki
+5	Shrimp, garlic, butter, lemon, parsley, spaghetti	Shrimp Scampi
+6	Potatoes, butter, cream, salt, pepper, cheese	Mashed Potatoes
+7	Chicken, tortillas, cheese, salsa, onion, bell pepper	Chicken Quesadilla
+8	Salmon, soy sauce, honey, garlic, ginger, sesame oil	Teriyaki Salmon
+9	Beef, onion, garlic, carrots, potatoes, peas, beef broth	Beef Stew
+10	Chicken, curry powder, coconut milk, onion, garlic, ginger, cilantro	Chicken Curry
+11	Ground beef, tomato sauce, onion, garlic, chili powder, kidney beans	Chili
+12	Rice, chicken, onion, garlic, saffron, peas, bell pepper	Chicken Paella
+13	Pasta, tomatoes, basil, garlic, olive oil, parmesan	Caprese Pasta
+14	Ground beef, taco seasoning, lettuce, tomatoes, cheese, tortillas	Beef Tacos
+15	Chicken, lettuce, parmesan, croutons, Caesar dressing	Caesar Salad
+16	Ground beef, onions, garlic, ketchup, mustard, brown sugar	Sloppy Joes
+17	Beef, tortillas, onions, bell peppers, fajita seasoning	Beef Fajitas
+18	Chicken, rice, soy sauce, garlic, ginger, green onions	Chicken Fried Rice
+19	Pork, garlic, soy sauce, sugar, vinegar, bay leaves	Adobo Pork
+20	Eggs, milk, cheese, ham, bell pepper, onion	Omelette
+21	Chicken, soy sauce, ginger, garlic, sugar, green onions	Chicken Adobo
+22	Ground beef, breadcrumbs, eggs, onion, ketchup, mustard	Meatloaf
+23	Salmon, dill, lemon, garlic, olive oil	Herb Grilled Salmon
+24	Chicken, buffalo sauce, blue cheese, celery, tortillas	Buffalo Chicken Wrap
+25	Ground beef, onions, garlic, tomatoes, kidney beans	Beef Chili
+26	Pasta, cream, parmesan, garlic, butter, black pepper	Alfredo Pasta
+27	Chicken, pesto, mozzarella, tomatoes, basil	Pesto Chicken
+28	Shrimp, grits, butter, garlic, cheese, green onions	Shrimp and Grits
+29	Beef, red wine, carrots, onions, garlic, thyme, beef broth	Beef Bourguignon
+30	Chicken, teriyaki sauce, pineapple, bell pepper, onion	Teriyaki Chicken
+31	Pork, BBQ sauce, buns, coleslaw	Pulled Pork Sandwich
+32	Rice, chicken, soy sauce, vegetables, eggs, sesame oil	Chicken Stir Fry
+33	Ground beef, tomato sauce, mozzarella, pasta	Baked Ziti
+34	Chicken, garlic, lemon, butter, capers, white wine	Chicken Piccata
+35	Lentils, onion, garlic, carrots, celery, cumin, broth	Lentil Soup
+36	Ground beef, tomato sauce, spaghetti, garlic, onion	Spaghetti Bolognese
+37	Eggs, bacon, cheese, bell pepper, onions, tortillas	Breakfast Burrito
+38	Chicken, soy sauce, garlic, ginger, brown sugar	Chicken Teriyaki
+39	Beef, tortillas, lettuce, cheese, tomatoes, taco seasoning	Beef Tacos
+40	Chicken, hoisin sauce, soy sauce, garlic, ginger, green onions	Moo Shu Chicken
+41	Pork, soy sauce, garlic, sugar, pineapple, bell peppers	Sweet and Sour Pork
+42	Ground turkey, breadcrumbs, eggs, onion, garlic, tomato sauce	Turkey Meatballs
+43	Chicken, tikka masala sauce, rice, naan bread	Chicken Tikka Masala
+44	Shrimp, garlic, butter, white wine, parsley	Garlic Shrimp
+45	Beef, onion, garlic, carrots, potatoes, Guinness	Beef and Guinness Stew
+46	Chicken, black beans, corn, salsa, cheese	Burrito Bowl
+47	Lamb, garlic, rosemary, olive oil, potatoes	Roast Lamb
+48	Beef, noodles, soy sauce, garlic, ginger, broccoli	Beef and Broccoli
+49	Chicken, pasta, alfredo sauce, broccoli, parmesan	Chicken Alfredo
+50	Ground beef, tomatoes, kidney beans, chili powder, onions	Texas Chili
+51	Chicken, lemon, garlic, oregano, olive oil, potatoes	Greek Chicken
+52	Eggs, milk, cheese, spinach, mushrooms	Quiche
+53	Beef, onion, garlic, carrots, celery, potatoes, broth	Vegetable Beef Soup
+54	Chicken, soy sauce, garlic, ginger, honey, green onions	Sticky Chicken
+55	Ground beef, cheese, tomato sauce, lasagna noodles	Lasagna
+56	Pork, garlic, soy sauce, vinegar, sugar, bay leaves	Pork Adobo
+57	Chicken, rice, black beans, corn, salsa, avocado	Mexican Chicken Bowl
+58	Salmon, soy sauce, honey, garlic, ginger, sesame oil	Glazed Salmon
+59	Ground turkey, lettuce, tomato, cheese, wraps	Turkey Lettuce Wraps
+60	Pasta, tomatoes, basil, garlic, olive oil, parmesan	Spaghetti Pomodoro
+61	Chicken, BBQ sauce, pineapple, bell pepper, onion	Hawaiian Chicken
+62	Beef, tortillas, cheese, salsa, guacamole	Steak Tacos
+63	Pork, tortillas, pineapple, onions, cilantro	Pork Tacos Al Pastor
+64	Chicken, coconut milk, curry paste, vegetables	Thai Red Curry
+65	Beef, garlic, soy sauce, ginger, brown sugar, green onions	Korean Beef
+66	Ground beef, tomatoes, garlic, onion, basil	Bolognese Sauce
+67	Pasta, tomatoes, mozzarella, basil, balsamic vinegar	Caprese Pasta
+68	Chicken, garlic, honey, soy sauce, ginger, green onions	Honey Garlic Chicken
+69	Beef, onion, garlic, carrots, peas, mashed potatoes	Shepherd's Pie
+70	Chicken, tortillas, cheese, salsa, sour cream	Chicken Tacos
+71	Pork, soy sauce, garlic, vinegar, sugar, bay leaves	Filipino Adobo
+72	Shrimp, garlic, butter, lemon, parsley	Shrimp Scampi
+73	Chicken, rice, black beans, corn, salsa, avocado	Southwest Chicken Bowl
+74	Beef, tomato sauce, onions, garlic, chili powder	Chili Con Carne
+75	Salmon, dill, lemon, garlic, olive oil	Lemon Herb Salmon
+76	Chicken, lettuce, parmesan, croutons, Caesar dressing	Caesar Salad
+77	Ground beef, onions, garlic, ketchup, mustard, brown sugar	Sloppy Joes
+78	Pork, tortillas, onions, cilantro, salsa	Tacos Al Pastor
+79	Chicken, pesto, mozzarella, tomatoes, basil	Pesto Chicken
+80	Beef, tortillas, onions, bell peppers, fajita seasoning	Steak Fajitas
+81	Chicken, garlic, lemon, butter, capers, white wine	Chicken Piccata
+82	Pasta, tomatoes, basil, garlic, olive oil, parmesan	Spaghetti Aglio e Olio
+83	Ground beef, tomatoes, kidney beans, chili powder, onions	Classic Chili
+84	Chicken, soy sauce, garlic, ginger, honey, green onions	Honey Soy Chicken
+85	Beef, noodles, soy sauce, garlic, ginger, broccoli	Beef Noodle Stir Fry
+86	Chicken, tortillas, cheese, salsa, onion, bell pepper	Quesadilla
+87	Pork, soy sauce, garlic, sugar, vinegar, bay leaves	Adobo
+88	Eggs, milk, cheese, ham, bell pepper, onion	Western Omelette
+89	Chicken, soy sauce, ginger, garlic, sugar, green onions	Teriyaki Chicken
+90	Ground beef, breadcrumbs, eggs, onion, ketchup, mustard	Classic Meatloaf
+91	Salmon, dill, lemon, garlic, olive oil	Grilled Salmon
+92	Chicken, buffalo sauce, blue cheese, celery, tortillas	Buffalo Chicken Wrap
+93	Ground beef, onions, garlic, tomatoes, kidney beans	Chili
+94	Pasta, cream, parmesan, garlic, butter, black pepper	Fettuccine Alfredo
+95	Chicken, soy sauce, garlic, ginger, brown sugar	Teriyaki Chicken
+96	Pork, BBQ sauce, buns, coleslaw	BBQ Pulled Pork Sandwich
+97	Rice, chicken, soy sauce, vegetables, eggs, sesame oil	Fried Rice
+98	Ground beef, tomato sauce, mozzarella, pasta	Ziti
+99	Chicken, garlic, lemon, butter, capers, white wine	Piccata
+100	Eggs, milk, sugar, vanilla, cinnamon	French Toast
+101	Chicken, garlic, soy sauce, honey, green onions	Garlic Chicken
+102	Beef, flour, salt, pepper, onion, carrots, beef broth, potatoes	Beef Stew
+103	Shrimp, garlic, olive oil, lemon, parsley, linguine	Shrimp Linguine
+104	Rice, beans, avocado, tomatoes, corn, cilantro, lime	Vegetarian Burrito Bowl
+105	Chicken, bread crumbs, parmesan, garlic, parsley, butter	Chicken Parmesan
+106	Beef, onions, garlic, paprika, caraway seeds, beef broth, tomatoes	Goulash
+107	Salmon, brown sugar, soy sauce, garlic, ginger, sesame oil	Brown Sugar Salmon
+108	Chicken, yogurt, garlic, ginger, cumin, coriander, turmeric, garam masala	Chicken Tandoori
+109	Beef, soy sauce, brown sugar, garlic, ginger, green onions, sesame seeds	Korean Beef
+110	Sweet potatoes, black beans, corn, red onion, cilantro, lime	Sweet Potato Tacos
+111	Pork, garlic, soy sauce, vinegar, sugar, bay leaves, peppercorns	Pork Adobo
+112	Chicken, peanut butter, soy sauce, ginger, garlic, lime, cilantro, coconut milk	Chicken Satay
+113	Salmon, soy sauce, maple syrup, garlic, ginger, lemon	Soy Maple Salmon
+114	Beef, hoisin sauce, soy sauce, garlic, ginger, green onions	Mongolian Beef
+115	Chicken, orange juice, soy sauce, garlic, ginger, brown sugar	Orange Chicken
+116	Tofu, soy sauce, sesame oil, garlic, ginger, green onions	Stir-Fried Tofu
+117	Lamb, garlic, rosemary, thyme, lemon, olive oil, salt, pepper	Roast Lamb
+118	Beef, soy sauce, mirin, garlic, ginger, green onions, sugar	Beef Bulgogi
+119	Pork, soy sauce, brown sugar, garlic, ginger, sesame oil, green onions, ramen noodles	Pork Ramen
+120	Chicken, bell peppers, onions, soy sauce, garlic, ginger, chili sauce	Spicy Chicken Stir-Fry
+121	Salmon, olive oil, garlic, lemon, dill, salt, pepper	Lemon Dill Salmon
+122	Beef, soy sauce, garlic, ginger, green onions, sesame seeds	Beef Teriyaki
+123	Chicken, soy sauce, garlic, ginger, honey, green onions, sesame seeds	Honey Garlic Chicken
+124	Tofu, soy sauce, garlic, ginger, sesame oil, green onions	Tofu Stir-Fry
+125	Pork, soy sauce, garlic, ginger, brown sugar, hoisin sauce	Pork Stir-Fry
+126	Beef, soy sauce, garlic, ginger, sesame oil, green onions, rice	Beef Fried Rice
+127	Chicken, coconut milk, curry paste, garlic, ginger, lime, cilantro	Chicken Coconut Curry
+128	Salmon, soy sauce, honey, garlic, ginger, sesame oil, green onions	Honey Soy Salmon
+129	Beef, soy sauce, garlic, ginger, green onions, sesame oil, broccoli	Beef and Broccoli Stir-Fry
+130	Chicken, soy sauce, garlic, ginger, sesame oil, green onions	Chicken Stir-Fry
+131	Pork, soy sauce, garlic, ginger, sesame oil, green onions, rice	Pork Fried Rice
+132	Beef, soy sauce, garlic, ginger, green onions, sesame seeds	Beef Teriyaki Stir-Fry
+133	Chicken, soy sauce, garlic, ginger, sesame oil, green onions, vegetables	Chicken Fried Rice
+134	Salmon, soy sauce, garlic, ginger, sesame oil, green onions, rice	Salmon Fried Rice
+135	Beef, soy sauce, garlic, ginger, sesame oil, green onions, vegetables	Beef Fried Rice
+136	Chicken, soy sauce, garlic, ginger, sesame oil, green onions, noodles	Chicken Noodle Stir-Fry
+137	Salmon, soy sauce, garlic, ginger, sesame oil, green onions, noodles	Salmon Noodle Stir-Fry
+138	Beef, soy sauce, garlic, ginger, sesame oil, green onions, noodles	Beef Noodle Stir-Fry
+139	Chicken, soy sauce, garlic, ginger, sesame oil, green onions, udon noodles	Chicken Udon Stir-Fry
+140	Salmon, soy sauce, garlic, ginger, sesame oil, green onions, udon noodles	Salmon Udon Stir-Fry
+141	Beef, soy sauce, garlic, ginger, sesame oil, green onions, udon noodles	Beef Udon Stir-Fry
+142	Chicken, soy sauce, garlic, ginger, sesame oil, green onions, soba noodles	Chicken Soba Stir-Fry
+143	Salmon, soy sauce, garlic, ginger, sesame oil, green onions, soba noodles	Salmon Soba Stir-Fry
+144	Beef, soy sauce, garlic, ginger, sesame oil, green onions, soba noodles	Beef Soba Stir-Fry
+145	Chicken, soy sauce, garlic, ginger, sesame oil, green onions, rice noodles	Chicken Rice Noodle Stir-Fry
+146	Salmon, soy sauce, garlic, ginger, sesame oil, green onions, rice noodles	Salmon Rice Noodle Stir-Fry
+147	Beef, soy sauce, garlic, ginger, sesame oil, green onions, rice noodles	Beef Rice Noodle Stir-Fry
+148	Chicken, soy sauce, garlic, ginger, sesame oil, green onions, glass noodles	Chicken Glass Noodle Stir-Fry
+149	Salmon, soy sauce, garlic, ginger, sesame oil, green onions, glass noodles	Salmon Glass Noodle Stir-Fry
+150	Beef, soy sauce, garlic, ginger, sesame oil, green onions, glass noodles	Beef Glass Noodle Stir-Fry
+151	Chicken, soy sauce, garlic, ginger, sesame oil, green onions, sweet potato noodles	Chicken Sweet Potato Noodle Stir-Fry
+152	Salmon, soy sauce, garlic, ginger, sesame oil, green onions, sweet potato noodles	Salmon Sweet Potato Noodle Stir-Fry
+153	Beef, soy sauce, garlic, ginger, sesame oil, green onions, sweet potato noodles	Beef Sweet Potato Noodle Stir-Fry
+154	Chicken, soy sauce, garlic, ginger, sesame oil, green onions, zoodles	Chicken Zoodle Stir-Fry
+155	Salmon, soy sauce, garlic, ginger, sesame oil, green onions, zoodles	Salmon Zoodle Stir-Fry
+156	Beef, soy sauce, garlic, ginger, sesame oil, green onions, zoodles	Beef Zoodle Stir-Fry
+157	Chicken, soy sauce, garlic, ginger, sesame oil, green onions, shirataki noodles	Chicken Shirataki Noodle Stir-Fry
+158	Salmon, soy sauce, garlic, ginger, sesame oil, green onions, shirataki noodles	Salmon Shirataki Noodle Stir-Fry
+159	Beef, soy sauce, garlic, ginger, sesame oil, green onions, shirataki noodles	Beef Shirataki Noodle Stir-Fry
+160	Chicken, soy sauce, garlic, ginger, sesame oil, green onions,
+161	Beef, potatoes, carrots, onions, peas, thyme, beef broth	Beef Pot Pie
+162	Salmon, honey, mustard, dill, lemon, garlic	Honey Mustard Salmon
+163	Chicken, bell peppers, onions, fajita seasoning, tortillas	Chicken Fajitas
+164	Pasta, marinara sauce, mozzarella, parmesan, basil, oregano	Baked Ziti
+165	Ground beef, kidney beans, tomatoes, chili powder, cumin, onions	Classic Chili
+166	Chicken, peanut butter, coconut milk, soy sauce, lime, cilantro	Thai Peanut Chicken
+167	Salmon, dill, lemon, garlic, olive oil, salt, pepper	Lemon Dill Salmon
+168	Beef, onions, mushrooms, sour cream, beef broth, egg noodles	Beef Stroganoff
+169	Chicken, pineapple, bell peppers, soy sauce, brown sugar, garlic	Sweet and Sour Chicken
+170	Tofu, broccoli, carrots, soy sauce, sesame oil, garlic	Vegetable Stir-Fry
+171	Shrimp, garlic, butter, lemon, white wine, parsley	Garlic Butter Shrimp
+172	Pasta, olive oil, garlic, chili flakes, parsley, parmesan	Aglio e Olio
+173	Chicken, tomatoes, basil, garlic, balsamic vinegar, mozzarella	Caprese Chicken
+174	Salmon, soy sauce, honey, garlic, ginger, sesame oil	Honey Soy Glazed Salmon
+175	Beef, soy sauce, brown sugar, garlic, ginger, green onions, sesame seeds	Bulgogi Beef
+176	Chicken, curry powder, coconut milk, garlic, ginger, cilantro	Chicken Curry
+177	Pork, garlic, soy sauce, vinegar, sugar, bay leaves	Pork Adobo
+178	Shrimp, rice, bell peppers, onions, tomatoes, saffron, garlic	Shrimp Paella
+179	Lentils, carrots, onions, celery, garlic, cumin, broth	Lentil Soup
+180	Eggs, cheese, spinach, mushrooms, tomatoes, bell peppers	Vegetable Omelette
+181	Chicken, tortillas, lettuce, tomatoes, cheese, salsa	Chicken Tacos
+182	Salmon, soy sauce, honey, garlic, ginger, sesame oil	Asian Glazed Salmon
+183	Beef, tortillas, lettuce, cheese, salsa, guacamole	Beef Tacos
+184	Chicken, lemon, garlic, olive oil, rosemary, thyme	Lemon Garlic Chicken
+185	Pork, BBQ sauce, coleslaw, buns	Pulled Pork Sandwich
+186	Chicken, mushrooms, garlic, cream, white wine, parmesan	Chicken Alfredo
+187	Beef, red wine, carrots, onions, garlic, thyme, beef broth	Beef Bourguignon
+188	Chicken, buffalo sauce, blue cheese, lettuce, tortillas	Buffalo Chicken Wrap
+189	Salmon, dill, lemon, garlic, olive oil	Herb Grilled Salmon
+190	Chicken, soy sauce, garlic, ginger, brown sugar	Chicken Teriyaki
+191	Beef, tortillas, lettuce, tomatoes, cheese, taco seasoning	Beef Tacos
+192	Chicken, hoisin sauce, garlic, ginger, green onions	Moo Shu Chicken
+193	Pork, soy sauce, garlic, brown sugar, pineapple, bell peppers	Sweet and Sour Pork
+194	Turkey, breadcrumbs, eggs, onions, garlic, tomato sauce	Turkey Meatballs
+195	Chicken, tikka masala sauce, rice, naan bread	Chicken Tikka Masala
+196	Shrimp, garlic, butter, lemon, parsley	Garlic Shrimp
+197	Beef, onions, carrots, potatoes, Guinness	Beef and Guinness Stew
+198	Chicken, black beans, corn, salsa, cheese	Burrito Bowl
+199	Lamb, garlic, rosemary, olive oil, potatoes	Roast Lamb
+200	Beef, noodles, soy sauce, garlic, ginger, broccoli	Beef and Broccoli
