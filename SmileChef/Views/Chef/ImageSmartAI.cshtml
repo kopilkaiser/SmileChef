@@ -89,8 +89,15 @@
                     if (response.success) {
                         $('#file-preview').hide();
                         appendUploadedImages(response.uploadedImages);
+                        // Clear the file input field
+                        $('#file').val('');
                     } else {
-                        alert('File upload failed');
+                        Swal.fire({
+                            title: 'Upload failed',
+                            text: 'Please first choose an Image to upload',
+                            icon: 'error'
+                        })
+                        //alert('File upload failed');
                     }
                 },
                 error: function (xhr, status, error) {
