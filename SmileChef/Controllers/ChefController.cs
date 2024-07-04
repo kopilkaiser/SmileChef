@@ -1,6 +1,9 @@
 ﻿using ChefApp.Models.DbModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using SmileChef.Extensions;
+using SmileChef.ML;
+using SmileChef.Models;
 using SmileChef.Repository;
 using SmileChef.ViewModels;
 using System.ComponentModel.DataAnnotations;
@@ -19,8 +22,10 @@ namespace SmileChef.Controllers
         private IRepository<Subscription> _subRepo;
         private static int? _currentUserId;
         private int _chefId;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly RecipeSmartModel _recipeModel;
 
-        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo)
+        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
@@ -28,6 +33,8 @@ namespace SmileChef.Controllers
             _instructRepo = instructRepo;
             _recipeRepo = recipeRepo;
             _subRepo = subRepo;
+            _webHostEnvironment = webHostEnvironment;
+            _recipeModel = recipeModel;
         }
 
         //[HttpGet("X")]
@@ -59,6 +66,7 @@ namespace SmileChef.Controllers
             return View(chefs);
         }
 
+        #region Recipe Management
 
         [HttpGet("/")]
         [HttpGet("Index")]
@@ -72,7 +80,7 @@ namespace SmileChef.Controllers
 
             if (_currentUserId == 0)
             {
-                _currentUserId = 1; // Default user ID if not set
+                _currentUserId = 2; // Default user ID if not set
                 HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
             }
 
@@ -326,6 +334,124 @@ namespace SmileChef.Controllers
             return RedirectToAction("AddRecipe", new { recipeId = recipeId });
         }
 
+        [HttpPost]
+        //public IActionResult CustomAjaxTest(string message)
+        public IActionResult FilterRecipes([FromBody] JsonElement data)
+        {
+            var message = data.GetProperty("filterString").GetString();
+
+            AssignChefId();
+            var chefVM = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == _chefId);
+
+            if (chefVM == null)
+            {
+                return Json("Error");
+            }
+
+            chefVM.Recipes = chefVM.Recipes.Where(r => r.Name.Contains(message, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (chefVM.Recipes.Count == 0)
+            {
+                return Json("Error");
+            }
+
+            return PartialView("_RecipesPartial", chefVM);
+        }
+        #endregion
+
+        #region RECIPE & IMAGE AI
+
+        #region RECIPE AI
+        [HttpGet]
+        public IActionResult RecipeSmartAI()
+        {
+            ViewBag.CurrentActive = "RecipeSmartAI";
+            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
+            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
+            var model = new PredictRecipeViewModel();
+            //Thread.Sleep(millisecondsTimeout: 3000);
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Predict(PredictRecipeViewModel model)
+        {
+            // Manually remove the PredictedRecipe property from the ModelState
+            ModelState.Remove(nameof(PredictRecipeViewModel.PredictedRecipe));
+
+            if (!ModelState.IsValid)
+            {
+                // Return JSON response with error message
+                return Json(new { success = false, message = "Please enter valid ingredients." });
+            }
+
+            var prediction = _recipeModel.Predict(model.Ingredients);
+            model.PredictedRecipe = prediction.PredictedLabel;
+
+            // Return the partial view with the prediction result
+            return PartialView("_PredictionResultPartial", model);
+        }
+        #endregion
+
+        #region IMAGE AI      
+        [HttpGet]
+        public IActionResult ImageSmartAI()
+        {
+            ViewBag.CurrentActive = "ImageSmartAI";
+
+            _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUser");
+
+            if (_currentUserId == 0)
+            {
+                _currentUserId = 1; // Default user ID if not set
+                HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                ViewBag.Message = "No file selected";
+                return View("Index");
+            }
+
+            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var filePath = Path.Combine(uploadsFolder, file.FileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            ViewBag.Message = "File uploaded successfully!";
+            var fileUrl = Path.Combine("/uploads", file.FileName);
+            // Get the list of uploaded image URLs from the session
+            List<string> uploadedImages = HttpContext.Session.GetObjectFromJson<List<string>>("UploadedImages") ?? new List<string>();
+            uploadedImages.Add(fileUrl);
+
+            // Store the updated list back in the session
+            HttpContext.Session.SetObjectAsJson("UploadedImages", uploadedImages);
+
+            return Json(new { success = true, fileUrl, uploadedImages });
+            //return View("Index");
+        }
+
+        [HttpGet]
+        public IActionResult GetUploadedImages()
+        {
+            List<string> uploadedImages = HttpContext.Session.GetObjectFromJson<List<string>>("UploadedImages") ?? new List<string>();
+            return Json(new { success = true, uploadedImages });
+        }
+        #endregion
+
+        #endregion
+
         public IActionResult UnderstandingCustomValidation(ChefViewModel model)
         {
 
@@ -359,30 +485,6 @@ namespace SmileChef.Controllers
 
             // Proceed with valid model
             return RedirectToAction("Success");
-        }
-
-        [HttpPost]
-        //public IActionResult CustomAjaxTest(string message)
-        public IActionResult FilterRecipes([FromBody] JsonElement data)
-        {
-            var message = data.GetProperty("filterString").GetString();
-
-            AssignChefId();
-            var chefVM = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == _chefId);
-
-            if (chefVM == null)
-            {
-                return Json("Error");
-            }
-
-            chefVM.Recipes = chefVM.Recipes.Where(r => r.Name.Contains(message, StringComparison.OrdinalIgnoreCase)).ToList();
-
-            if (chefVM.Recipes.Count == 0)
-            {
-                return Json("Error");
-            }
-
-            return PartialView("_RecipesPartial", chefVM);
         }
 
         private void AssignChefId()

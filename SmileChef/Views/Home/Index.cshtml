@@ -41,6 +41,30 @@
             <div id="aliensContainer" class="box"></div>
         </div>
     </div>
+
+    <h2>Upload Image</h2>
+
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="file">Upload Image:</label>
+            <input type="file" name="file" id="file" onchange="previewFile()" />
+        </div>
+        <div>
+            <img id="file-preview" src="#" alt="Image Preview" style="display: none; max-width: 300px; max-height: 300px;" />
+        </div>
+        <button type="submit">Upload</button>
+    </form>
+    @if (ViewBag.Message != null)
+    {
+        <p>@ViewBag.Message</p>
+    }
+
+    <div id="uploadedImageDiv" style="margin-top:20px;">
+        <h3>Uploaded Images</h3>
+        <div class="uploaded-images-container" id="uploadedImagesContainer">
+            <!-- Uploaded images will be appended here -->
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -58,7 +82,6 @@
                 let idxString = index == null ? "" : `${index}. `
                 return $(`<li class="list-group-item col-12 border border-black rounded-2">${idxString}${text}</li>`);
             }
-
 
             function handleLoad(urlPassed, containerId) {
                 $.ajax({
@@ -106,6 +129,68 @@
 
                 console.error("Error: All the containers have been emptied");
             });
+
+
+            function previewFile() {
+                const preview = document.getElementById('file-preview');
+                const file = document.getElementById('file').files[0];
+                const reader = new FileReader();
+
+                reader.addEventListener("load", function () {
+                    // Convert image file to base64 string
+                    preview.src = reader.result;
+                    preview.style.display = 'block';
+                }, false);
+
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Bind the previewFile function to the global window object so it can be called from inline HTML
+            window.previewFile = previewFile;
+        });
+
+        // AJAX form submission for image upload
+        $('#uploadForm').on('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: '/Home/UploadImage',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        $('#file-preview').hide();
+                        appendUploadedImages(response.uploadedImages);
+                    } else {
+                        alert('File upload failed');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText;
+                    alert('Error - ' + errorMessage);
+                }
+            });
+        });
+
+        function appendUploadedImages(images) {
+            const container = $('#uploadedImagesContainer');
+            container.empty();
+            images.forEach(function (image) {
+                const imgElem = $('<img>').attr('src', image).attr('alt', 'Uploaded Image').attr('width', '200px').attr('height', '200px');
+                container.append(imgElem);
+            });
+        }
+
+        // On document ready, load the uploaded images from session
+        $.get('/Home/GetUploadedImages', function (data) {
+            if (data.success) {
+                appendUploadedImages(data.uploadedImages);
+            }
         });
     </script>
 }

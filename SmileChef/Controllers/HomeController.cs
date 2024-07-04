@@ -1,5 +1,6 @@
 using ChefApp.Models;
 using ChefApp.Models.DbModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,8 @@ namespace ChefApp.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
         private readonly ILogger<HomeController> _logger;
         private readonly ChefAppContext _context;
         private IHttpContextAccessor _http;
@@ -24,7 +27,7 @@ namespace ChefApp.Controllers
         private static int? _currentUserId;
         private int _chefId;
         private readonly RecipeSmartModel _recipeModel;
-        public HomeController(ILogger<HomeController> logger, ChefAppContext context, IChefRepository chefRepo, IHttpContextAccessor httpContextAccessor, IRepository<Recipe> recipeRepo, RecipeSmartModel recipeModel)
+        public HomeController(ILogger<HomeController> logger, ChefAppContext context, IChefRepository chefRepo, IHttpContextAccessor httpContextAccessor, IRepository<Recipe> recipeRepo, RecipeSmartModel recipeModel, IWebHostEnvironment webHostEnvironment)
         {
             _logger = logger;
             _context = context;
@@ -32,6 +35,7 @@ namespace ChefApp.Controllers
             _recipeRepo = recipeRepo;
             _http = httpContextAccessor;
             _recipeModel = recipeModel;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet]
@@ -88,6 +92,45 @@ namespace ChefApp.Controllers
 
         #endregion
 
+        [HttpPost]
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                ViewBag.Message = "No file selected";
+                return View("Index");
+            }
+
+            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var filePath = Path.Combine(uploadsFolder, file.FileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            ViewBag.Message = "File uploaded successfully!";
+            var fileUrl = Path.Combine("/uploads", file.FileName);
+            // Get the list of uploaded image URLs from the session
+            List<string> uploadedImages = HttpContext.Session.GetObjectFromJson<List<string>>("UploadedImages") ?? new List<string>();
+            uploadedImages.Add(fileUrl);
+
+            // Store the updated list back in the session
+            HttpContext.Session.SetObjectAsJson("UploadedImages", uploadedImages);
+
+            return Json(new { success = true, fileUrl, uploadedImages });
+            //return View("Index");
+        }
+
+        [HttpGet]
+        public IActionResult GetUploadedImages()
+        {
+            List<string> uploadedImages = HttpContext.Session.GetObjectFromJson<List<string>>("UploadedImages") ?? new List<string>();
+            return Json(new { success = true, uploadedImages });
+        }
+
         [HttpGet]
         public IActionResult RecipeSmartAI()
         {
@@ -95,6 +138,7 @@ namespace ChefApp.Controllers
             ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
             ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
             var model = new PredictRecipeViewModel();
+            Thread.Sleep(millisecondsTimeout: 3000);
             return View(model);
         }
 

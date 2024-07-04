@@ -31,7 +31,8 @@ namespace SmileChef.ML
                     Directory.CreateDirectory(Path.GetDirectoryName(_modelPath));
                 }
 
-                var data = _mlContext.Data.LoadFromTextFile<RecipeInput>(_dataPath, hasHeader: true, separatorChar: '\t'); (_trainedModel, _) = TrainAndSaveModel(data);
+                var data = _mlContext.Data.LoadFromTextFile<RecipeInput>(_dataPath, hasHeader: true, separatorChar: '\t');
+                (_trainedModel, _) = TrainAndSaveModel(data);
             }
         }
 

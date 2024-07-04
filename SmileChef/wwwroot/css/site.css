@@ -1,20 +1,20 @@
-html {
-  font-size: 14px;
+﻿html {
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
@@ -36,9 +36,62 @@ footer {
     height: 60px; /* Adjust as needed */
 }
 
-/*.navbar {
+.loading-spinner {
+    position: fixed;
+    height: 150px;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    background-color: rgb(33, 33, 33, 1);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.spinner-large {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3em;
+}
+
+
+
+/* 
+    Extra Small (xs): <576px - Navbar is collapsed.
+    Small (sm): ≥576px - Navbar is collapsed.
+    Medium (md): ≥768px - Navbar is expanded.
+    Large (lg): ≥992px - Navbar is expanded.
+    Extra Large (xl): ≥1200px - Navbar is expanded.
+    Extra Extra Large (xxl): ≥1400px - Navbar is expanded
+*/
+@media (max-width: 768px ) {
+    div .navbar-collapse > ul.navbar-nav > li > a.active {
+        background-color: rgb(33, 135, 230, 1);
+        color: white !important;
+        border-radius: 5px;
+    }
+
+    div.navbar-collapse > ul.navbar-nav > li > a:hover {
+        border-radius: 5px;
+    }
+
+    div.navbar-collapse > ul.navbar-nav > li > a {
+        padding: 0.75rem;
+        width: inherit;
+    }
+
+    div.navbar-collapse > ul.navbar-nav > li:last-child {
+        margin-bottom: 1rem;
+    }
+
+    /*.navbar {
     position: fixed;
     top: 0;
     width: 100%;
     z-index: 1030;*/ /* Ensure the navbar is above other elements */
-/*}*/
+    /*}*/
