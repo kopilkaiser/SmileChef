@@ -24,7 +24,7 @@ namespace SmileChef.Controllers
         private int _chefId;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly RecipeSmartModel _recipeModel;
-
+        private readonly ImageSmartModel _imageModel;
         public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel)
         {
             _logger = logger;
@@ -35,6 +35,7 @@ namespace SmileChef.Controllers
             _subRepo = subRepo;
             _webHostEnvironment = webHostEnvironment;
             _recipeModel = recipeModel;
+            _imageModel = new ImageSmartModel();
         }
 
         //[HttpGet("X")]
@@ -419,7 +420,9 @@ namespace SmileChef.Controllers
                 return View("Index");
             }
 
-            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+            //var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+            var uploadsFolder = Path.Combine(_webHostEnvironment.ContentRootPath, "ML", "ImageAI", "assets", "imagesNew");
+
             Directory.CreateDirectory(uploadsFolder);
 
             var filePath = Path.Combine(uploadsFolder, file.FileName);
@@ -430,7 +433,9 @@ namespace SmileChef.Controllers
             }
 
             ViewBag.Message = "File uploaded successfully!";
-            var fileUrl = Path.Combine("/uploads", file.FileName);
+            //var fileUrl = Path.Combine("/uploads", file.FileName);
+            // Construct the URL path for the frontend
+            var fileUrl = $"/imagesNew/{file.FileName}";
             // Get the list of uploaded image URLs from the session
             List<string> uploadedImages = HttpContext.Session.GetObjectFromJson<List<string>>("UploadedImages") ?? new List<string>();
             uploadedImages.Add(fileUrl);
@@ -447,6 +452,14 @@ namespace SmileChef.Controllers
         {
             List<string> uploadedImages = HttpContext.Session.GetObjectFromJson<List<string>>("UploadedImages") ?? new List<string>();
             return Json(new { success = true, uploadedImages });
+        }
+
+        [HttpPost]
+        public IActionResult PredictImage(string url)
+        {
+            var imageName = url.Replace("/imagesNew/", "");
+            var predictedImageName = _imageModel.ClassifySingleImage(imageName);
+            return Json(new { predictedImageName });
         }
         #endregion
 

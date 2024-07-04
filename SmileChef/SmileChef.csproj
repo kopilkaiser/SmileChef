@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ML\ImageAI\Data\**" />
+    <Content Remove="ML\ImageAI\Data\**" />
+    <EmbeddedResource Remove="ML\ImageAI\Data\**" />
+    <None Remove="ML\ImageAI\Data\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="CsvHelper" Version="33.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.6" />
@@ -26,8 +33,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.ML" Version="3.0.1" />
+    <PackageReference Include="Microsoft.ML.ImageAnalytics" Version="3.0.1" />
+    <PackageReference Include="Microsoft.ML.TensorFlow" Version="3.0.1" />
     <PackageReference Include="Microsoft.ML.TorchSharp" Version="0.21.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SciSharp.TensorFlow.Redist" Version="2.16.0" />
     <PackageReference Include="TorchSharp-cuda-windows" Version="0.102.6" />
     <PackageReference Include="xunit" Version="2.8.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.0">
@@ -37,9 +47,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ML\Model\" />
+    <Folder Include="ML\ImageAI\Model\" />
     <Folder Include="wwwroot\images\" />
-    <Folder Include="wwwroot\lib\jquery\dist\" />
   </ItemGroup>
 
 </Project>

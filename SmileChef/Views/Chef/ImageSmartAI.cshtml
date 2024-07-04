@@ -6,15 +6,16 @@
     .uploaded-images-container img {
         max-width: 150px;
         max-height: 150px;
-        border: 1px solid #ddd;
-        padding: 5px;
-        background: #fff;
+        border: 1px solid #ffffff;
+        padding: 2px;
+        background: white;
         cursor: pointer; /* Change cursor to pointer to indicate clickable images */
     }
+
+ 
 </style>
 
-
-<div class="container-md">
+<div class="container-md py-2 rounded-2" id="imageAIContainer">
 
     <h2>Upload Image</h2>
 
@@ -23,8 +24,8 @@
             <label for="file">Upload Image:</label>
             <input type="file" name="file" id="file" onchange="previewFile()" />
         </div>
-        <div>
-            <img id="file-preview" src="#" alt="Image Preview" style="display: none; max-width: 300px; max-height: 300px;" />
+        <div class="my-2">
+            <img id="file-preview" src="#" alt="Image Preview" style="display: none; max-width: 200px; max-height: 200px;" />
         </div>
         <button type="submit">Upload</button>
     </form>
@@ -40,8 +41,12 @@
         </div>
     </div>
 
-    <div>
+    <div class="my-2">
         Please select an Image to make a prediction of it
+    </div>
+    <div id="predictedImageLabel" class="mt-3 p-2 border rounded-2 overflow-auto" style="max-height:250px;">
+        <h3>Prediction made so far by the AI: </h3>
+        <hr class="mt-1">
     </div>
 </div>
 
@@ -99,12 +104,12 @@
             const container = $('#uploadedImagesContainer');
             container.empty();
             images.forEach(function (image) {
-                let imageTitle = image.replace("/uploads\\", "");
+                let imageTitle = image.replace("/imagesNew/", "");
                 const imgElem = $('<img>').attr('src', image)
                     // .attr('alt', 'Uploaded Image')
                     // .attr('width', '200px')
                     // .attr('height', '200px')
-                    .attr('onclick', `doSomethingToImage('${image}')`)
+                    .attr('onclick', `predictSelectedImage('${image}')`)
                     // .attr('style', 'cursor:pointer;')
                     .attr('title', `${imageTitle}`);
                 container.append(imgElem);
@@ -118,9 +123,28 @@
             }
         });
 
-        function doSomethingToImage(url) {
+        function predictSelectedImage(imageUrl) {
             // Implement your functionality here
-            alert("You clicked on: " + url);
+            $.ajax({
+                url: '@Url.Action("PredictImage", "Chef")',
+                type: 'POST',
+                data: ({ url : imageUrl}),
+                success: function (response) {
+                    let arrayOfResponse = ["It seems like a ", "Oh! I see it looks like a ", "Yummy! Seems like a "];                    
+                    let randomIndex = Math.floor(Math.random() * arrayOfResponse.length);
+                    let arrayOfColors = ["bg-primary-subtle", "bg-body-tertiary", "bg-white", "bg-warning-subtle"];
+                    let randomColorIndex = Math.floor(Math.random() * arrayOfColors.length);
+                    //${arrayOfColors[randomColorIndex]}
+                    let elem = $(`<div class="border p-2 mb-2 rounded-2 ${arrayOfColors[randomColorIndex]}">${arrayOfResponse[randomIndex]} <span class="fw-bold">${response.predictedImageName.toUpperCase()}</span></div>`);
+                    $(elem).hide();
+                    $('#predictedImageLabel').append(elem);
+                    $(elem).fadeIn();
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText;
+                    alert('Error - ' + errorMessage);
+                }
+            })
         }
     </script>
 }

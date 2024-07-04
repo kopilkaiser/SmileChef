@@ -1,6 +1,7 @@
 using ChefApp.Models;
 using ChefApp.Models.DbModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using SmileChef;
 using SmileChef.ML;
@@ -9,7 +10,8 @@ using SmileChef.Services;
 using SmileChef.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
-
+// Access IWebHostEnvironment
+var env = builder.Environment;
 #region  Configuring Services
 // Add services to the container.
 builder.Services.Configure<SqlSettings>(builder.Configuration.GetRequiredSection("SqlSettings"));
@@ -72,7 +74,18 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Serve static files from wwwroot
 app.UseStaticFiles();
+
+// Serve static files from ML/ImageAI/assets/imagesNew
+var imagesNewPath = Path.Combine(env.ContentRootPath, "ML", "ImageAI", "assets", "imagesNew");
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(imagesNewPath),
+    RequestPath = "/imagesNew"
+});
+
 app.UseRouting();
 app.UseSession();
 app.UseAuthorization();

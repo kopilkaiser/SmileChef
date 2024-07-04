@@ -27,6 +27,8 @@ namespace ChefApp.Controllers
         private static int? _currentUserId;
         private int _chefId;
         private readonly RecipeSmartModel _recipeModel;
+        private readonly ImageSmartModel _imageModel;
+
         public HomeController(ILogger<HomeController> logger, ChefAppContext context, IChefRepository chefRepo, IHttpContextAccessor httpContextAccessor, IRepository<Recipe> recipeRepo, RecipeSmartModel recipeModel, IWebHostEnvironment webHostEnvironment)
         {
             _logger = logger;
@@ -35,12 +37,14 @@ namespace ChefApp.Controllers
             _recipeRepo = recipeRepo;
             _http = httpContextAccessor;
             _recipeModel = recipeModel;
+            _imageModel = new ImageSmartModel();
             _webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet]
         public IActionResult Index(bool json = false)
         {
+
             ViewBag.CurrentActive = "Home";
 
             _currentUserId = _http.HttpContext?.Session.GetObjectFromJson<int>("CurrentUser");

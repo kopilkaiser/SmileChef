@@ -7,8 +7,8 @@ namespace SmileChef.ML
 {
     public class RecipeSmartModel
     {
-        private static readonly string _modelPath = Path.Combine("ML", "Model", "RecipeModel.zip");
-        private static readonly string _dataPath = Path.Combine("ML", "Data", "recipes_labelled.txt");
+        private static readonly string _modelPath = Path.Combine("ML", "RecipeAI", "Model", "RecipeModel.zip");
+        private static readonly string _dataPath = Path.Combine("ML", "RecipeAI", "Data", "recipes_labelled.txt");
         private readonly MLContext _mlContext;
         private ITransformer _trainedModel;
 
