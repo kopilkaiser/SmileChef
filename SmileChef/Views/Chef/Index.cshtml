@@ -1,4 +1,6 @@
 ﻿@using SmileChef.Controllers;
+@using SmileChef.ViewModels;
+@model ChefViewModel;
 @*ChefController.Index*@
 @*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,11 +12,42 @@
     animals.Add(new Animal() { Id = 3, Name = "Cheetah" });
 }
 
+@*#region NOTIFICATION LOGIC*@
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasWithBackdrop" aria-labelledby="offcanvasWithBackdropLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasWithBackdropLabel">Notification Center</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        @if (Model.Notifications.Count == 0)
+        {
+            <p>No new notifications...</p>
+        }
+        else
+        {
+            <div class="row gap-2">
+                @foreach (var n in Model.Notifications)
+                {
+                    <ul class="p-2 col-12 border border-black list-unstyled rounded-2">
+                        <li class="text-end"><button onclick="dismissNotification(@n.Id)" class="btn btn-sm btn-danger"><i class="fa-solid fa-x"></i></button></li>
+                        <li>Publisher: <b>@(n.Publisher.FirstName + " " + n.Publisher.LastName)</b></li>
+                        <li>Recipe Name: <b><a asp-action="ViewRecipe" asp-controller="Chef" asp-route-recipeId="@n.RecipeId">@n.Recipe.Name</a></b></li>
+                        <li>Published Date: <b>@n.PublishedDate.ToString("f")</b></li>
+                    </ul>          
+                }
+            </div>
 
+        }
+    </div>
+</div>
+@*#endregion NOTIFICATION LOGIC*@
 
 <div class="container-md">
+    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBackdrop" aria-controls="offcanvasWithBackdrop">
+        Show Notifications
+    </button>
     <div class="row gap-4 gap-md-2 justify-content-md-center gap-lg-4 justify-content-lg-between">
-        @for(int i = 0; i < 12; i++)
+        @for (int i = 0; i < 12; i++)
         {
             <div class="col-md-4 col-lg-3 card text-center">
                 <div class="card-header">
@@ -40,15 +73,13 @@
 
     <h2 class="mt-1">Each animal will be shown here...</h2>
     <div id="eachAnimalDetail">
-
     </div>
 
     <h3 class="mt-2">The Get ANimal will be show below</h3>
     <div id="getAnimalContainer">
-
     </div>
 </div>
-@section Scripts{
+@section Scripts {
     <script>
 
         $(document).ready(() => {
@@ -63,6 +94,39 @@
             $('li.aniName').css('cursor', 'pointer');
         });
 
+        function dismissNotification(notificationId) {
+            $.ajax({
+                url: '@Url.Action("DismissNotification", "Chef")',
+                type: "POST",
+                data: { notificationId },
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: "",
+                            text: response.message,
+                            icon: "success"
+                        })
+
+                        window.location.reload();
+                    } else {
+                        Swal.fire({
+                            title: "",
+                            text: response.message,
+                            icon: "error"
+                        })
+                    }
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText;
+                    console.log('Error - ' + errorMessage);
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: errorMessage,
+                        icon: "error"
+                    });
+                }
+            });
+        }
 
 
         $('#btnShowAnimal').click(() => {
@@ -72,29 +136,31 @@
                     5, 1005
                 ],
                 user: {
-                    name : "Randolf",
-                    listOfContacts : [123,444,555]
+                    name: "Randolf",
+                    listOfContacts: [123, 444, 555]
                 }
             };
 
             $.ajax({
-                type:"POST",
+                type: "POST",
                 // url: '@Url.Action("DisplayAnimals", "Test")',
                 url: '/tests/animals',
                 //data: JSON.stringify({ someValue : "Hello World", givenAge : 55}),
                 data: JSON.stringify(dataObj),
                 contentType: "application/json", // This needs to be set correctly
                 dataType: "html", // or "json" depending on what response you expect
-                success: function(response){
+                success: function (response) {
                     $('#animalsContainer').html(response);
                 },
-                error: function (error) {
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText;
+                    console.log('Error - ' + errorMessage);
                     Swal.fire({
                         title: "Error Occurred",
-                        text: error,
+                        text: errorMessage,
                         icon: "error"
                     });
-                }            
+                }
             });
         });
 
@@ -102,15 +168,15 @@
             var data = {
                 animalName: "Jackson",
                 listOfNumbers: [
-                    5, 1005,50000
+                    5, 1005, 50000
                 ]
             };
 
             $.ajax({
                 type: "GET",
                 //url: '/tests/animals/5?' + $.param(data, true), // Automatically serializing the data object including arrays
-                url : '/tests/animals/5',
-                data : $.param(data,true),
+                url: '/tests/animals/5',
+                data: $.param(data, true),
                 dataType: "json",
                 success: function (response) {
                     console.log(response);

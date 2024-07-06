@@ -51,5 +51,10 @@ namespace SmileChef.Repository
             _dbSet.Remove(entity);
             _context.SaveChanges();
         }
+
+        public virtual void SaveChanges()
+        {
+            _context.SaveChanges();
+        }
     }
 }

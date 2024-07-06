@@ -31,6 +31,8 @@ namespace SmileChef.Repository
                 ChefName = $"{c.FirstName} {c.LastName}",
                 User = c.User,
                 Rating = c.Rating,
+                SubscriptionCost = c.SubscriptionCost,
+                AccountBalance = c.AccountBalance,
                 Recipes = c.Recipes.Select(r => new RecipeViewModel
                 {
                     RecipeId = r.RecipeId,
@@ -41,7 +43,8 @@ namespace SmileChef.Repository
                         Description = i.Description,
                         OrderId = i.OrderId,
                         Duration = i.Duration
-                    }).ToList()
+                    }).ToList(),
+                    Reviews = r.Reviews
                 }).ToList(),
                 SubscribedTo = c.SubscribedTo.Select(s => new SubscriptionViewModel
                 {

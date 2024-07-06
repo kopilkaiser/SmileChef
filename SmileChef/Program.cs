@@ -5,6 +5,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using SmileChef;
 using SmileChef.ML;
+using SmileChef.Models.DbModels;
 using SmileChef.Repository;
 using SmileChef.Services;
 using SmileChef.ViewModels;
@@ -46,6 +47,7 @@ builder.Services.AddScoped<IChefRepository, ChefRepository>();
 builder.Services.AddScoped<IRepository<Recipe>, RecipeRepository>();
 builder.Services.AddScoped<IRepository<Instruction>, InstructionRepository>();
 builder.Services.AddScoped<IRepository<Subscription>, SubscriptionRepository>();
+builder.Services.AddScoped<IRepository<NotifySubscribers>, NotificationRepository>();
 #endregion
 
 var app = builder.Build();

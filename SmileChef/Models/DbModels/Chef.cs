@@ -31,5 +31,9 @@ namespace ChefApp.Models.DbModels
         [MinLength(0)]
         [MaxLength(5)]
         public int? Rating { get; set; }
+
+        public decimal? SubscriptionCost { get; set; }
+
+        public decimal? AccountBalance { get; set; }
     }
 }

@@ -48,9 +48,9 @@
                 </div>
             </div>
             <div class="px-3 row">
-                <div class="col-12 text-decoration-underline">Current User Logged in</div>
                 <div class="col-auto"><b class="pe-2">Email:</b> @(ViewBag.CurrentUserEmail ?? "")</div>
                 <div class="col-auto"><b class="pe-2">Name:</b> @(ViewBag.CurrentUserName ?? "")</div>
+                <div class="col-auto"><b class="pe-2">AccountBalance:</b> @("£" + (ViewBag.CurrentUserBalance ?? "0.00"))</div>
             </div>
         </nav>
     </header>

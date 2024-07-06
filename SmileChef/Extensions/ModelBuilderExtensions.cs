@@ -20,12 +20,12 @@ namespace ChefApp.Extensions
 
             // Seed Chefs
             modelBuilder.Entity<Chef>().HasData(
-                new Chef { ChefId = 1, FirstName = "Gordon", LastName = "Ramsay", UserId = 1, Rating = 3 },
-                new Chef { ChefId = 2, FirstName = "Jamie", LastName = "Oliver", UserId = 2, Rating = 1 },
-                new Chef { ChefId = 3, FirstName = "Wolfgang", LastName = "Puck", UserId = 3, Rating = 5 },
-                new Chef { ChefId = 4, FirstName = "Alice", LastName = "Waters", UserId = 4, Rating = 4 },
-                new Chef { ChefId = 5, FirstName = "Thomas", LastName = "Keller", UserId = 5, Rating = 2 },
-                new Chef { ChefId = 6, FirstName = "Emeril", LastName = "Lagasse", UserId = 6, Rating = 5 }
+                new Chef { ChefId = 1, FirstName = "Gordon", LastName = "Ramsay", UserId = 1, Rating = 3, SubscriptionCost = 12.99m, AccountBalance = 10000m },
+                new Chef { ChefId = 2, FirstName = "Jamie", LastName = "Oliver", UserId = 2, Rating = 1, SubscriptionCost = 11.99m, AccountBalance = 5500m },
+                new Chef { ChefId = 3, FirstName = "Wolfgang", LastName = "Puck", UserId = 3, Rating = 5, SubscriptionCost = 5.99m, AccountBalance = 9000m },
+                new Chef { ChefId = 4, FirstName = "Alice", LastName = "Waters", UserId = 4, Rating = 4, SubscriptionCost = 6.99m, AccountBalance = 15000m },
+                new Chef { ChefId = 5, FirstName = "Thomas", LastName = "Keller", UserId = 5, Rating = 2, SubscriptionCost = 15.99m, AccountBalance = 8000m },
+                new Chef { ChefId = 6, FirstName = "Emeril", LastName = "Lagasse", UserId = 6, Rating = 5, SubscriptionCost = 10.99m, AccountBalance = 7000m }
             );
 
             // Seed Recipes

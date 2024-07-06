@@ -4,6 +4,7 @@ using ChefApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SmileChef.Migrations
 {
     [DbContext(typeof(ChefAppContext))]
-    partial class ChefAppContextModelSnapshot : ModelSnapshot
+    [Migration("20240705224454_new_migration_added_PublishedDate_To_NotifySubscribers")]
+    partial class new_migration_added_PublishedDate_To_NotifySubscribers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -548,35 +551,6 @@ namespace SmileChef.Migrations
                     b.ToTable("NotifySubscribers");
                 });
 
-            modelBuilder.Entity("SmileChef.Models.DbModels.Review", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RecipeId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ReviewDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ReviewerId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RecipeId");
-
-                    b.HasIndex("ReviewerId");
-
-                    b.ToTable("Reviews");
-                });
-
             modelBuilder.Entity("SmileChef.Models.DbModels.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -716,25 +690,6 @@ namespace SmileChef.Migrations
                     b.Navigation("Subscriber");
                 });
 
-            modelBuilder.Entity("SmileChef.Models.DbModels.Review", b =>
-                {
-                    b.HasOne("ChefApp.Models.DbModels.Recipe", "Recipe")
-                        .WithMany("Reviews")
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ChefApp.Models.DbModels.Chef", "Reviewer")
-                        .WithMany()
-                        .HasForeignKey("ReviewerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Recipe");
-
-                    b.Navigation("Reviewer");
-                });
-
             modelBuilder.Entity("ChefApp.Models.DbModels.Chef", b =>
                 {
                     b.Navigation("PublishedSubscriptions");
@@ -747,8 +702,6 @@ namespace SmileChef.Migrations
             modelBuilder.Entity("ChefApp.Models.DbModels.Recipe", b =>
                 {
                     b.Navigation("Instructions");
-
-                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

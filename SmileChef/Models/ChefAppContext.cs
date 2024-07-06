@@ -2,6 +2,7 @@
 using ChefApp.Models.DbModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using SmileChef.Models.DbModels;
 
 namespace ChefApp.Models
 {
@@ -14,6 +15,9 @@ namespace ChefApp.Models
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<Instruction> Instructions { get; set; }
+        public DbSet<NotifySubscribers> NotifySubsribers { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+
 
         public ChefAppContext(DbContextOptions<ChefAppContext> options, IConfiguration config, ISqlSettings sqlSettings) : base(options)
         {
@@ -27,7 +31,8 @@ namespace ChefApp.Models
             {
                 optionsBuilder.UseInMemoryDatabase("chefAppDbInMemory");
                 return;
-            } else
+            }
+            else
             {
                 var connString = _sqlSettings.ConnectionString;
                 optionsBuilder.UseSqlServer(connString);

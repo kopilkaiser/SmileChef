@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using SmileChef.Extensions;
 using SmileChef.ML;
 using SmileChef.Models;
+using SmileChef.Models.DbModels;
 using SmileChef.Repository;
 using SmileChef.ViewModels;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using Tensorflow.Contexts;
 using static System.Net.WebRequestMethods;
 
 namespace SmileChef.Controllers
@@ -25,7 +27,8 @@ namespace SmileChef.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly RecipeSmartModel _recipeModel;
         private readonly ImageSmartModel _imageModel;
-        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel)
+        private IRepository<NotifySubscribers> _notifySubscribers;
+        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
@@ -36,21 +39,39 @@ namespace SmileChef.Controllers
             _webHostEnvironment = webHostEnvironment;
             _recipeModel = recipeModel;
             _imageModel = new ImageSmartModel();
+            _notifySubscribers = notifySubscribers;
         }
 
-        //[HttpGet("X")]
-        //public IActionResult Index()
-        //{
-        //    ViewBag.CurrentActive = "ChefIndex";
-        //    _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUser");
+        public IActionResult Index()
+        {
+            ViewBag.CurrentActive = "ChefIndex";
+            _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUser");
+            if (_currentUserId == 0)
+            {
+                _currentUserId = 4; // Default user ID if not set
+                HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
+            }
 
-        //    if (_currentUserId == 0)
-        //    {
-        //        _currentUserId = 1; // Default user ID if not set
-        //        HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
-        //    }
-        //    return View();
-        //}
+            var chefVM = _chefRepo.GetChefsWithDetails().Find(c => c.User.UserId == _currentUserId);
+
+            if (HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail") == null)
+            {
+                HttpContext.Session.SetObjectAsJson("CurrentUserEmail", chefVM.User.Email);
+                HttpContext.Session.SetObjectAsJson("CurrentUserName", chefVM.ChefName);
+                HttpContext.Session.SetObjectAsJson("CurrentUserBalance", chefVM.AccountBalance);
+
+            }
+
+            AssignCurrentPageStatus("");
+
+            var viewModel = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.User.UserId == _currentUserId);
+            var userNotifications = _notifySubscribers.GetAll().Where(n => n.SubscriberId == viewModel.ChefId);
+
+            if (userNotifications.Count() > 0) viewModel.Notifications = userNotifications.ToList();
+            else viewModel.Notifications = new List<NotifySubscribers>();
+
+            return View(viewModel);
+        }
 
         [HttpGet]
         public IActionResult ShowChefCards()
@@ -67,34 +88,32 @@ namespace SmileChef.Controllers
             return View(chefs);
         }
 
+        [HttpPost]
+        public IActionResult DismissNotification(int notificationId)
+        {
+            var notification = _notifySubscribers.GetById(notificationId);
+            if (notification == null) return Json(new { success = false, message = "Error occured on dismissing notification" });
+
+            _notifySubscribers.Delete(notification);
+
+            _notifySubscribers.SaveChanges();
+
+            return Json(new { success = true, message = "Notification dismissed" });
+        }
+
         #region Recipe Management
 
-        [HttpGet("/")]
-        [HttpGet("Index")]
+        [HttpGet]
+        public IActionResult ViewRecipe(int recipeId)
+        {
+            AssignChefId();
+            var recipe = _recipeRepo.GetById(recipeId);
+            return View(recipe);
+        }
         public IActionResult ManageRecipes(bool json = false)
         {
-            ViewBag.CurrentActive = "ManageRecipes";
-            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
-            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
-
-            _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUser");
-
-            if (_currentUserId == 0)
-            {
-                _currentUserId = 2; // Default user ID if not set
-                HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
-            }
-
+            AssignCurrentPageStatus("ManageRecipes");
             var chefVM = _chefRepo.GetChefsWithDetails().Find(c => c.User.UserId == _currentUserId);
-
-            if (HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail") == null)
-            {
-                HttpContext.Session.SetObjectAsJson("CurrentUserEmail", chefVM.User.Email);
-                HttpContext.Session.SetObjectAsJson("CurrentUserName", chefVM.ChefName);
-            }
-
-            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
-            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
             if (chefVM == null)
             {
                 // Handle the case where the chef is not found, perhaps redirect to an error page or return a default view.
@@ -113,8 +132,7 @@ namespace SmileChef.Controllers
         [HttpGet]
         public IActionResult AddRecipe(int recipeId)
         {
-            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
-            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
+            AssignCurrentPageStatus("");
 
             RecipeViewModel vm;
             if (recipeId == 0)
@@ -165,6 +183,20 @@ namespace SmileChef.Controllers
                 {
                     recipe = new Recipe();
                     chef.Recipes.Add(recipe);
+
+                    //create the notification
+                    foreach (var subscriber in chef.PublishedSubscriptions)
+                    {
+                        var notification = new NotifySubscribers()
+                        {
+                            PublisherId = chef.ChefId,
+                            SubscriberId = subscriber.SubscriberId,
+                            RecipeId = recipe.RecipeId,
+                            PublishedDate = DateTime.Now
+                        };
+
+                        _notifySubscribers.Add(notification);
+                    }
                 }
                 else // Update existing recipe
                 {
@@ -259,6 +291,19 @@ namespace SmileChef.Controllers
                 };
                 chef.Recipes.Add(recipe);
                 _chefRepo.Update(chef);
+                //create the notification
+                foreach (var subscriber in chef.PublishedSubscriptions)
+                {
+                    var notification = new NotifySubscribers()
+                    {
+                        PublisherId = chef.ChefId,
+                        SubscriberId = subscriber.SubscriberId,
+                        RecipeId = recipe.RecipeId,
+                        PublishedDate = DateTime.Now
+                    };
+
+                    _notifySubscribers.Add(notification);
+                }
             }
             else
             {
@@ -358,6 +403,7 @@ namespace SmileChef.Controllers
 
             return PartialView("_RecipesPartial", chefVM);
         }
+
         #endregion
 
         #region RECIPE & IMAGE AI
@@ -366,9 +412,7 @@ namespace SmileChef.Controllers
         [HttpGet]
         public IActionResult RecipeSmartAI()
         {
-            ViewBag.CurrentActive = "RecipeSmartAI";
-            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
-            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
+            AssignCurrentPageStatus("RecipeSmartAI");
             var model = new PredictRecipeViewModel();
             //Thread.Sleep(millisecondsTimeout: 3000);
             return View(model);
@@ -398,7 +442,7 @@ namespace SmileChef.Controllers
         [HttpGet]
         public IActionResult ImageSmartAI()
         {
-            ViewBag.CurrentActive = "ImageSmartAI";
+            AssignCurrentPageStatus("ImageSmartAI");
 
             _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUser");
 
@@ -510,6 +554,13 @@ namespace SmileChef.Controllers
 
             _chefId = getChef.ChefId;
         }
-    }
 
+        private void AssignCurrentPageStatus(string currentPageName)
+        {
+            ViewBag.CurrentActive = currentPageName;
+            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
+            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
+            ViewBag.CurrentUserBalance = HttpContext.Session.GetObjectFromJson<string>("CurrentUserBalance");
+        }
+    }
 }

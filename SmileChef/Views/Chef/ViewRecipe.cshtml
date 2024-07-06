@@ -1,0 +1,34 @@
+﻿@using ChefApp.Models.DbModels
+@model Recipe
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+}
+
+<div class="container-md">
+    <div class="bg-body-tertiary my-2 p-2">Recipe Id: @Model.RecipeId</div>
+    <div class="bg-body-tertiary mb-2 p-2">Name: @Model.Name</div>
+    <div class="bg-body-tertiary mb-2 p-2">
+        @if(Model.Instructions.Count == 0)
+        {
+            <p>No Instructions given...</p>
+        }else{
+            <ol class="list-group">
+                @foreach(var i in Model.Instructions)
+                {
+                    <li class="list-group-item">
+                        <div class="row">
+                            <span class="col-auto col-md-4">@(Model.Instructions.IndexOf(i) + 1). @i.Description</span>
+                            <b class="col-auto">@i.Duration</b>
+                        </div>
+                    </li>
+                }
+            </ol>
+        }
+    </div>
+    <div id="reviewsContainer" class="bg-body-tertiary mb-2 p-2">
+       @await Html.PartialAsync("_ViewRecipeReviews", Model.Reviews)
+    </div>
+</div>

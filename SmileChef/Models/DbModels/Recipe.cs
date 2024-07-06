@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using SmileChef.Models.DbModels;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ChefApp.Models.DbModels
 {
@@ -15,5 +16,7 @@ namespace ChefApp.Models.DbModels
         public Chef Chef { get; set; }
 
         public List<Instruction> Instructions { get; set; } = new();
+
+        public List<Review> Reviews { get; set; } = new();
     }
 }

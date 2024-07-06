@@ -1,0 +1,31 @@
+﻿@using SmileChef.Models.DbModels;
+@model List<Review>
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+}
+
+<ul>
+    @if (Model.Count == 0)
+    {
+        <li>No Reviews posted yet...</li>
+    }
+    else
+    {
+        foreach(var review in Model)
+        {
+            <li>
+                <div class="d-flex justify-content-between">
+                    <div>@review.ReviewDate</div>
+                    <div class="d-flex flex-column">
+                        <h4>@review.Reviewer.LastName</h4>
+                        <p>@review.Message</p>
+                    </div>
+                </div>
+            </li>
+        }
+    }
+</ul>
