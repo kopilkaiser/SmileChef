@@ -48,6 +48,7 @@ builder.Services.AddScoped<IRepository<Recipe>, RecipeRepository>();
 builder.Services.AddScoped<IRepository<Instruction>, InstructionRepository>();
 builder.Services.AddScoped<IRepository<Subscription>, SubscriptionRepository>();
 builder.Services.AddScoped<IRepository<NotifySubscribers>, NotificationRepository>();
+builder.Services.AddScoped<IRepository<Review>, ReviewRepository>();
 #endregion
 
 var app = builder.Build();

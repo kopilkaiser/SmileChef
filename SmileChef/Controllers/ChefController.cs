@@ -28,7 +28,8 @@ namespace SmileChef.Controllers
         private readonly RecipeSmartModel _recipeModel;
         private readonly ImageSmartModel _imageModel;
         private IRepository<NotifySubscribers> _notifySubscribers;
-        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers)
+        private IRepository<Review> _reviewRepo;
+        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers, IRepository<Review> reviewRepo)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
@@ -40,6 +41,7 @@ namespace SmileChef.Controllers
             _recipeModel = recipeModel;
             _imageModel = new ImageSmartModel();
             _notifySubscribers = notifySubscribers;
+            _reviewRepo = reviewRepo;
         }
 
         public IActionResult Index()
@@ -180,6 +182,7 @@ namespace SmileChef.Controllers
         {
             AssignChefId();
             var recipe = _recipeRepo.GetById(recipeId);
+            ViewBag.CurrentChefId = _chefId;
             return View(recipe);
         }
         public IActionResult ManageRecipes(bool json = false)
@@ -476,6 +479,26 @@ namespace SmileChef.Controllers
             return PartialView("_RecipesPartial", chefVM);
         }
 
+        #endregion
+
+        #region Review Management
+        [HttpPost]
+        public IActionResult AddReview(string message, int recipeId, int chefId)
+        {
+            var recipe = _recipeRepo.GetById(recipeId);
+
+            Review newReview = new Review();
+            newReview.Message = message;
+            newReview.ReviewerId = chefId;
+            newReview.RecipeId = recipeId;
+            newReview.ReviewDate = DateTime.Now;
+            recipe.Reviews.Add(newReview);
+            _recipeRepo.Update(recipe);
+
+            ReviewViewModel vm = new ReviewViewModel();
+            vm.Reviews = recipe.Reviews;
+            return PartialView("_ViewRecipeReviews", vm.Reviews);
+        }
         #endregion
 
         #region RECIPE & IMAGE AI

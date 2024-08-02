@@ -13,8 +13,10 @@ namespace SmileChef.Repository
         public override Recipe? GetById(int id)
         {
             var recipe = _context.Recipes
-                .Include(r => r.Instructions)
-                .FirstOrDefault(r => r.RecipeId == id);
+                .Include(recipe => recipe.Instructions)
+                .Include(recipe => recipe.Reviews)
+                .ThenInclude(review => review.Reviewer)
+                .FirstOrDefault(recipe => recipe.RecipeId == id);
 
             if (recipe == null) throw new Exception($"Recipe not found with id: {id}");
 

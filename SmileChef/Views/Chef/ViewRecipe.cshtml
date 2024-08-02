@@ -1,4 +1,5 @@
 ﻿@using ChefApp.Models.DbModels
+@using SmileChef.ViewModels;
 @model Recipe
 @*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -28,7 +29,45 @@
             </ol>
         }
     </div>
+    <div id="addReviewContainer" class="mb-2">
+        <form id="addReviewForm">
+            <input type="hidden" name="recipeId" value="@Model.RecipeId"/>
+            <input type="hidden" name="chefId" value="@Model.ChefId" />
+            <input type="text" value="" id="message" name="message" placeholder="Enter your message here..." />
+            <button type="submit">Add Review</button>
+        </form>
+    </div>
     <div id="reviewsContainer" class="bg-body-tertiary mb-2 p-2">
        @await Html.PartialAsync("_ViewRecipeReviews", Model.Reviews)
     </div>
-</div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $("#addReviewForm").on('submit', function(){
+                event.preventDefault();
+
+                var formData = $(this).serialize();
+                $.ajax({
+                    type: "POST",
+                    url: "/Chef/AddReview",
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    dataType: "html",
+                    data: formData,
+                    success: function(response){
+                        $('#reviewsContainer').html(response);
+                    },
+                    error: function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText;
+                        console.log('Error - ' + errorMessage);
+                        Swal.fire({
+                            title: "Error Occurred",
+                            text: errorMessage,
+                            icon: "error"
+                        });
+                    }
+                });
+            })
+        });
+    </script>
+}

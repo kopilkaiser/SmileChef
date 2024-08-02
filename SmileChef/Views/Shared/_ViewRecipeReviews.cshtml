@@ -1,4 +1,5 @@
 ﻿@using SmileChef.Models.DbModels;
+@using SmileChef.ViewModels;
 @model List<Review>
 
 @*
@@ -8,7 +9,7 @@
 
 }
 
-<ul>
+<ul class="list-unstyled">
     @if (Model.Count == 0)
     {
         <li>No Reviews posted yet...</li>
@@ -17,13 +18,13 @@
     {
         foreach(var review in Model)
         {
-            <li>
+            <li class="border-bottom pt-2">
                 <div class="d-flex justify-content-between">
-                    <div>@review.ReviewDate</div>
                     <div class="d-flex flex-column">
                         <h4>@review.Reviewer.LastName</h4>
                         <p>@review.Message</p>
                     </div>
+                    <div><b class="small">@string.Format("{0} {1}", review.ReviewDate.ToString("d"), review.ReviewDate.ToString("t"))</b></div>
                 </div>
             </li>
         }
