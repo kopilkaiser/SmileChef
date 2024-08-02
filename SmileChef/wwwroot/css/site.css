@@ -28,6 +28,11 @@ body {
     flex-grow: 1;
 }
 
+
+nav.navbar div.navbar-collapse ul{
+    border-bottom: 0;
+}
+
 main {
     padding-top: 70px; /* Adjust if needed for your navbar height */
 }
@@ -82,7 +87,8 @@ footer {
 }
 
 @media (max-width: 768px ) {
-    div .navbar-collapse > ul.navbar-nav > li > a.active {
+    div .navbar-collapse > ul.navbar-nav > li > a.active,
+    div .navbar-collapse > ul.navbar-nav > li > ul > li > a.active {
         background-color: rgb(33, 135, 230, 1);
         color: white !important;
         border-radius: 5px;

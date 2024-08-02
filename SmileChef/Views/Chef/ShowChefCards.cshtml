@@ -44,7 +44,6 @@
                             <option value="Yearly">Yearly</option>
                         </select>
                     </p>
-                    <p id="paraText">Modal body text goes here.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -87,7 +86,7 @@
                         </div>
                         <div class="card-footer">
                             <div>
-                                <a class="btn btn-info" href="#">View More</a>
+                                <a class="btn btn-info" asp-action="ViewChefDetails" asp-controller="Chef" asp-route-chefId="@chef.ChefId">View More</a>
                                 <a class="btn btn-success" asp-action="ManageSubscription" asp-route-chefId="@chef.ChefId" asp-route-listNum[0] ="5" asp-route-listNum[1]="10" asp-route-isDanger="true">
                                     @{
                                         var isChefSubscribed = Model.CurrentChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == chef.ChefName);

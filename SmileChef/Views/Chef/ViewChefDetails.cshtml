@@ -1,0 +1,203 @@
+﻿@using SmileChef.ViewModels;
+@model ChefViewModel
+
+@{
+    var currentAction = Url.ActionContext.RouteData.Values["action"].ToString();
+    var currentController = Url.ActionContext.RouteData.Values["controller"].ToString();
+    var currentUrl = Url.ActionContext.HttpContext.Request.Path + Url.ActionContext.HttpContext.Request.QueryString;
+}
+<style>
+    #chefDetailsContainer {
+        background-color: #cecece;
+        font-size: 1.5rem;
+    }
+
+    #chefImage {
+        height: 250px;
+    }
+</style>
+
+@* #region ShowSubscriptionModel *@
+<div id="subscriptionModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Subscription Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <span>Amount To Pay:</span>
+                    <select id="selectSubAmount">
+                        <option value="5.99" selected>£5.99</option>
+                        <option value="10.99">£10.99</option>
+                        <option value="15.99">£15.99</option>
+                    </select>
+                </p>
+                <p>
+                    <span>
+                        Subscription Type:
+                    </span>
+                    <select id="selectSubType">
+                        <option value="Weekly" selected>Weekly</option>
+                        <option value="Monthly">Monthly</option>
+                        <option value="Yearly">Yearly</option>
+                    </select>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="btnProcessSubscription" type="button" class="btn btn-primary">Process Subscription</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* #endregion *@
+
+<div id="chefDetailsContainer" class="container rounded-2">
+    <div class="row p-3">
+        <h1 class="col-12">@Model.ChefName</h1>
+        <div class="col-12">
+            <img id="chefImage" class="img-thumbnail" src="~/images/chef.png" alt="@Model.ChefName Picture">
+        </div>
+        <div class="col-12 d-flex align-items-center gap-0 mt-2">
+            <span class="pe-2">Rating: </span>
+            @for (int i = 0; i < Model.Rating; i++)
+            {
+                @Html.Raw($"<span style=\"height:25px; width:25px; color:black;\">*</span>")
+            }
+        </div>
+        <div class="col-12">
+            <p>
+                Subscription Costs: <b class="me-2">@string.Format("{0:C2}", Model.SubscriptionCost)</b> 
+                @if (ViewBag.IsSubscribed != null && ViewBag.IsSubscribed is bool)
+                {
+                    <a class="btn btn-success" asp-action="ManageSubscription" asp-route-chefId="@Model.ChefId" asp-route-returnUrl="@currentAction">
+                        @(Convert.ToBoolean(ViewBag.IsSubscribed) ? "Unsubscribe" : "Subscribe")
+                    </a>
+                }
+                else
+                {
+                    <p><span class="text-danger">Error:</span> Subscription status not available.</p>
+                }
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <hr style="opacity:100%; border-top-color: #FFF; border-top-width: 5px;" />
+    </div>
+    <div class="row p-3 pt-0">
+        <h3>All The Recipes:</h3>
+        <div class="col-12">
+            <div class="row gap-2 gap-md-0 g-md-3 py-3">
+                @foreach (var recipe in Model.Recipes)
+                {
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <p>@(Model.Recipes.IndexOf(recipe)+1). @recipe.Name</p>
+                            </div>
+                            <div class="card-body">
+                                @if (recipe.Instructions.Count > 0)
+                                {
+                                    <ul>
+                                        @for (int i = 0; i < recipe.Instructions.Count(); i++)
+                                        {
+
+                                            <li>@recipe.Instructions[i].Description -   @(recipe.Instructions[i].Duration.HasValue ? recipe.Instructions[i].Duration.Value.Minutes.ToString() + " mins" : "NA")</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p>No Instructions given for this recipe...</p>
+                                }
+                            </div>
+                            <div class="card-footer p-3">
+                                <p class="border-bottom pb-2" style="border-bottom-color: #cecece !important; border-bottom-width: 2px !important;">All Reviews: </p>
+                                @if (recipe.Reviews.Count > 0)
+                                {
+                                    <ul>
+                                        @for (int i = 0; i < recipe.Reviews.Count(); i++)
+                                        {
+                                            <li>
+                                                <p>@recipe.Reviews[i].Reviewer - @recipe.Reviews[i].ReviewDate</p>
+                                                <p>@recipe.Reviews[i].Message</p>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p>No Reviews posted for this recipe...</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let showModal = @(ViewBag.ShowSubscriptionModal.ToString().ToLower());
+            console.log("show subscription modal: " + showModal)
+            if (showModal) {
+                $('#subscriptionModal').modal('show');
+            }
+
+            $('#btnProcessSubscription').click(function () {
+                let subAmount = $('#selectSubAmount').val();
+                let subType = $('#selectSubType').val();
+                let urlLink = '@Url.ActionLink("ProcessSubscription", "Chef")';
+                console.log($`urlLink being posted: ${urlLink}`);
+                let dataObj = {
+                    subAmount: subAmount,
+                    subType: subType
+                }
+                $.ajax({
+                    type: "POST",
+                    url: urlLink,
+                    //data: JSON.stringify({ someValue : "Hello World", givenAge : 55}),
+                    data: JSON.stringify(dataObj),
+                    contentType: "application/json", // This needs to be set correctly
+                    dataType: "json", // or "json" depending on what response you expect
+                    success: function (response) {
+                        if (response.success) {
+                            $('#subscriptionModal').modal('hide');
+                            Swal.fire({
+                                title: "",
+                                text: "You have successfully subscribed to the chef",
+                                icon: "success"
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    console.log(`window.location.protocol: ${window.location.protocol}//`);
+                                    console.log(`window.location.host: ${window.location.host}`);
+                                    console.log(`window.location.pathname: ${window.location.pathname}`);
+                                    console.log(`window.location.search: ${window.location.search}`);
+                                    console.log(`window.location.hash: ${window.location.hash}`);
+
+                                    window.location.href = window.location.pathname;
+                                }
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText;
+                        console.log('Error - ' + errorMessage);
+                        Swal.fire({
+                            title: "Error Occurred",
+                            text: errorMessage,
+                            icon: "error"
+                        });
+                    }
+                });
+            })
+        });
+    </script>
+}
+

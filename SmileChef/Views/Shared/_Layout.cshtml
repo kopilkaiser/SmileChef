@@ -20,7 +20,7 @@
                 </button>
                 <div class="navbar-collapse collapse d-md-inline-flex justify-content-between">
                     <ul class="navbar-nav nav-tabs flex-grow-1">
-                        <li class="nav-item">
+                        <li class="nav-item mt-2 mt-md-0">
                             <a class="nav-link text-dark @(ViewBag.CurrentActive == "Home" ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
@@ -34,12 +34,12 @@
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Smart Chef
                             </a>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu p-2 pt-1 border-0">
                                 <li class="nav-item" id="homeNavButton">
-                                    <a class="nav-link text-dark @(ViewBag.CurrentActive == "RecipeSmartAI" ? "active" : "")" asp-controller="Chef" asp-action="RecipeSmartAI">Recipe Prediction</a>
+                                    <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "RecipeSmartAI" ? "active" : "")" asp-controller="Chef" asp-action="RecipeSmartAI">Recipe Prediction</a>
                                 </li>
                                 <li class="nav-item" id="homeNavButton">
-                                    <a class="nav-link text-dark @(ViewBag.CurrentActive == "ImageSmartAI" ? "active" : "")" asp-controller="Chef" asp-action="ImageSmartAI">Image Prediction</a>
+                                    <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "ImageSmartAI" ? "active" : "")" asp-controller="Chef" asp-action="ImageSmartAI">Image Prediction</a>
                                 </li>                                @* <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="#">Something else here</a></li> *@
                             </ul>

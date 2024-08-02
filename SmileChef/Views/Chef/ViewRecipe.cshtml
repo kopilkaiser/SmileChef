@@ -21,7 +21,7 @@
                     <li class="list-group-item">
                         <div class="row">
                             <span class="col-auto col-md-4">@(Model.Instructions.IndexOf(i) + 1). @i.Description</span>
-                            <b class="col-auto">@i.Duration</b>
+                            <b class="col-auto">@(i.Duration.HasValue ? i.Duration.Value.Minutes.ToString() + " mins" : "NA")</b>
                         </div>
                     </li>
                 }

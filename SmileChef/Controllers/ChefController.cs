@@ -74,7 +74,7 @@ namespace SmileChef.Controllers
         }
 
         [HttpGet]
-        public IActionResult ShowChefCards(bool showSubscriptionModel = false)
+        public IActionResult ShowChefCards(bool showSubscriptionModal = false)
         {
             AssignChefId();
             ViewBag.CurrentActive = "ShowChefCards";
@@ -91,7 +91,7 @@ namespace SmileChef.Controllers
             vm.Chefs = chefs;
             vm.CurrentChef = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == _chefId);
 
-            if (showSubscriptionModel)
+            if (showSubscriptionModal)
             {
                 @ViewBag.ShowSubscriptionModal = true;
             }
@@ -101,19 +101,18 @@ namespace SmileChef.Controllers
         }
 
         [HttpGet]
-        public IActionResult ManageSubscription(int chefId, int[] listNum, bool isDanger)
+        public IActionResult ManageSubscription(int chefId, string returnUrl)
         {
             var currentChef = GetCurrentChef();
             var destChef = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == chefId);
 
             var subscription = currentChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == destChef.ChefName);
+            HttpContext.Session.SetObjectAsJson(key: "ChefIdToSubscribe", destChef.ChefId);
 
-            if(subscription == null)
+            if (subscription == null)
             {
                 // means currentChef will subscribe to destChef (Subscript to subscription)
-
-                HttpContext.Session.SetObjectAsJson("ChefIdToSubscribe", destChef.ChefId);
-                return RedirectToAction(nameof(ShowChefCards), new { showSubscriptionModel = true });
+                return RedirectToAction(returnUrl, new { showSubscriptionModal = true });
             }
             else
             {
@@ -122,7 +121,7 @@ namespace SmileChef.Controllers
                 _subRepo.Delete(sub);
             }
 
-            return RedirectToAction(nameof(ShowChefCards));
+           return RedirectToAction(returnUrl);       
         }
 
         [HttpPost]
@@ -140,8 +139,25 @@ namespace SmileChef.Controllers
             }
 
             _subRepo.Add(subscription);
-            HttpContext.Session.SetObjectAsJson("ChefIdToSubscribe", null);
             return Json(new { success = true});
+        }
+
+        [HttpGet]
+        public IActionResult ViewChefDetails(int chefId, bool showSubscriptionModal = false)
+        {
+            AssignCurrentPageStatus("");
+
+            if (chefId == 0) chefId = HttpContext.Session.GetObjectFromJson<int>("ChefIdToSubscribe");
+            var chefViewModel = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == chefId);
+            var loggedChef = GetCurrentChef();
+
+            bool isSubscribed = loggedChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == chefViewModel.ChefName) != null;
+
+            ViewBag.IsSubscribed = isSubscribed;
+
+            ViewBag.ShowSubscriptionModal = showSubscriptionModal;
+
+            return View(chefViewModel);
         }
 
         [HttpPost]
