@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SmileChef.Extensions;
 using SmileChef.ML;
 using SmileChef.Models;
@@ -28,8 +29,8 @@ namespace ChefApp.Controllers
         private int _chefId;
         private readonly RecipeSmartModel _recipeModel;
         private readonly ImageSmartModel _imageModel;
-
-        public HomeController(ILogger<HomeController> logger, ChefAppContext context, IChefRepository chefRepo, IHttpContextAccessor httpContextAccessor, IRepository<Recipe> recipeRepo, RecipeSmartModel recipeModel, IWebHostEnvironment webHostEnvironment)
+        private readonly IConfiguration _config;
+        public HomeController(ILogger<HomeController> logger, ChefAppContext context, IChefRepository chefRepo, IHttpContextAccessor httpContextAccessor, IRepository<Recipe> recipeRepo, RecipeSmartModel recipeModel, IWebHostEnvironment webHostEnvironment, IConfiguration config)
         {
             _logger = logger;
             _context = context;
@@ -39,6 +40,7 @@ namespace ChefApp.Controllers
             _recipeModel = recipeModel;
             _imageModel = new ImageSmartModel();
             _webHostEnvironment = webHostEnvironment;
+            _config = config;
         }
 
         [HttpGet]
@@ -51,7 +53,7 @@ namespace ChefApp.Controllers
 
             if (_currentUserId == 0)
             {
-                _currentUserId = 1; // Default user ID if not set
+                _currentUserId = _config.GetValue<int>("CurrentChefId"); // Default user ID if not set
                 HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
             }
 

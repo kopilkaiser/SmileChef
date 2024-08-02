@@ -77,7 +77,8 @@ footer {
 
 /* Custom styles for medium (≥768px) to large (≤1199.98px) screens only */
 #imageAIContainer {
-    background: linear-gradient(#21a3d1 40%, #28c6ff);
+    background: linear-gradient(#f8f9fa 40%, #f8f9fa);
+    margin-top: 25px;
 }
 @media (min-width: 768px) and (max-width: 1199.98px) {
     #imageAIContainer {

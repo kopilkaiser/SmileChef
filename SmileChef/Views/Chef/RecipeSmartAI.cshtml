@@ -4,27 +4,28 @@
     ViewData["Title"] = "Recipe Prediction";
 }
 
-<h2 class="mt-4">Recipe Prediction</h2>
+<div class="row pb-4 mt-4 rounded-2" style="background-color: #f8f9fa;">
+    <h2 class="mt-4">Recipe Prediction</h2>
 
-@* <form asp-action="Predict" method="post">*@
-<form id="predictionForm" method="post">
-    <div class="form-group row gap-3 container-md">
-        <label asp-for="Ingredients" class="control-label ps-0"></label>
-        <input asp-for="Ingredients" class="form-control" id="ingredientsInput" />
-        <span asp-validation-for="Ingredients" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <input type="submit" value="Predict" class="btn btn-primary" />
-        <input value="Clear All" class="btn btn-primary" onclick="clearAllHistory()" />
-    </div>
-</form>
-
+    @* <form asp-action="Predict" method="post">*@
+    <form id="predictionForm" method="post">
+        <div class="form-group row gap-3 container-md">
+            <label asp-for="Ingredients" class="control-label ps-0"></label>
+            <input asp-for="Ingredients" class="form-control" id="ingredientsInput" />
+            <span asp-validation-for="Ingredients" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Predict" class="btn btn-primary" />
+            <input value="Clear All" class="btn btn-primary" onclick="clearAllHistory()" />
+        </div>
+    </form>
+</div>
 @* @if (Model.PredictedRecipe != null)
 { *@
     @* <div class="alert alert-success mt-3">
         <strong>Predicted Recipe:</strong> @Model.PredictedRecipe
     </div> *@
-    <div class="row gap-1 mt-5 border p-3" id="chatContainer">
+    <div class="row gap-1 mt-4 border p-3 rounded-2" id="chatContainer">
 
     </div>
 @* } *@

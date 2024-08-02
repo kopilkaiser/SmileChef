@@ -13,7 +13,14 @@
     }
 
     #chefImage {
-        height: 250px;
+        height: 300px;
+        width: 300px;
+    }
+
+    #reviewMessagePara{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 </style>
 
@@ -61,15 +68,14 @@
             <img id="chefImage" class="img-thumbnail" src="~/images/chef.png" alt="@Model.ChefName Picture">
         </div>
         <div class="col-12 d-flex align-items-center gap-0 mt-2">
-            <span class="pe-2">Rating: </span>
+            <span class="pe-2 small">Rating: </span>
             @for (int i = 0; i < Model.Rating; i++)
             {
-                @Html.Raw($"<span style=\"height:25px; width:25px; color:black;\">*</span>")
+                @Html.Raw($"<span class=\"fw-bold text-primary\" style=\"height:25px; width:25px; color:black;\">*</span>")
             }
         </div>
         <div class="col-12">
-            <p>
-                Subscription Costs: <b class="me-2">@string.Format("{0:C2}", Model.SubscriptionCost)</b> 
+            <p class="mt-2 mb-0">
                 @if (ViewBag.IsSubscribed != null && ViewBag.IsSubscribed is bool)
                 {
                     <a class="btn btn-success" asp-action="ManageSubscription" asp-route-chefId="@Model.ChefId" asp-route-returnUrl="@currentAction">
@@ -90,6 +96,7 @@
         <h3>All The Recipes:</h3>
         <div class="col-12">
             <div class="row gap-2 gap-md-0 g-md-3 py-3">
+                @if(Model.Recipes.Count > 0){
                 @foreach (var recipe in Model.Recipes)
                 {
                     <div class="col-12 col-md-6 col-lg-4">
@@ -114,26 +121,34 @@
                                 }
                             </div>
                             <div class="card-footer p-3">
-                                <p class="border-bottom pb-2" style="border-bottom-color: #cecece !important; border-bottom-width: 2px !important;">All Reviews: </p>
+                                <p class="border-bottom pb-2" style="border-bottom-color: #cecece !important; border-bottom-width: 2px !important;">Total Reviews: <span class="fw-bold">@recipe.Reviews.Count</span> </p>
                                 @if (recipe.Reviews.Count > 0)
                                 {
-                                    <ul>
-                                        @for (int i = 0; i < recipe.Reviews.Count(); i++)
+                                    <ol style="list-style:lower-roman;">
+                                        @for (int i = 0; i < recipe.Reviews.Take(2).Count(); i++)
                                         {
                                             <li>
-                                                <p>@recipe.Reviews[i].Reviewer - @recipe.Reviews[i].ReviewDate</p>
-                                                <p>@recipe.Reviews[i].Message</p>
+                                                <p class="mb-0">@recipe.Reviews[i].Reviewer.FirstName @recipe.Reviews[i].Reviewer.LastName </p>
+                                                <p class="my-0 border-bottom"><span class="small">@recipe.Reviews[i].ReviewDate</span></p>
+                                                <p id="reviewMessagePara">@recipe.Reviews[i].Message</p>
                                             </li>
                                         }
-                                    </ul>
+                                    </ol>
                                 }
                                 else
                                 {
                                     <p>No Reviews posted for this recipe...</p>
                                 }
+
+                                <div><a class="btn btn-outline-dark" asp-action="ViewRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId">Show More Details</a></div>
                             </div>
                         </div>
-                    </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                   <div>No Recipes has been posted yet...</div>   
                 }
             </div>
         </div>

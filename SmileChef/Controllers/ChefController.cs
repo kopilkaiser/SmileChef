@@ -29,7 +29,8 @@ namespace SmileChef.Controllers
         private readonly ImageSmartModel _imageModel;
         private IRepository<NotifySubscribers> _notifySubscribers;
         private IRepository<Review> _reviewRepo;
-        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers, IRepository<Review> reviewRepo)
+        private readonly IConfiguration _config;
+        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers, IRepository<Review> reviewRepo, IConfiguration config)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
@@ -42,6 +43,7 @@ namespace SmileChef.Controllers
             _imageModel = new ImageSmartModel();
             _notifySubscribers = notifySubscribers;
             _reviewRepo = reviewRepo;
+            _config = config;
         }
 
         public IActionResult Index()
@@ -50,7 +52,7 @@ namespace SmileChef.Controllers
             _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUser");
             if (_currentUserId == 0)
             {
-                _currentUserId = 1; // Default user ID if not set
+                _currentUserId = _config.GetValue<int>("CurrentChefId"); // Default user ID if not set
                 HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
             }
 
@@ -181,6 +183,7 @@ namespace SmileChef.Controllers
         public IActionResult ViewRecipe(int recipeId)
         {
             AssignChefId();
+            AssignCurrentPageStatus("");
             var recipe = _recipeRepo.GetById(recipeId);
             ViewBag.CurrentChefId = _chefId;
             return View(recipe);
@@ -483,12 +486,12 @@ namespace SmileChef.Controllers
 
         #region Review Management
         [HttpPost]
-        public IActionResult AddReview(string message, int recipeId, int chefId)
+        public IActionResult AddReview(string reviewMessage, int recipeId, int chefId)
         {
             var recipe = _recipeRepo.GetById(recipeId);
 
             Review newReview = new Review();
-            newReview.Message = message;
+            newReview.Message = reviewMessage;
             newReview.ReviewerId = chefId;
             newReview.RecipeId = recipeId;
             newReview.ReviewDate = DateTime.Now;

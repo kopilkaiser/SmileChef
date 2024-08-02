@@ -21,7 +21,7 @@
             <li class="border-bottom pt-2">
                 <div class="d-flex justify-content-between">
                     <div class="d-flex flex-column">
-                        <h4>@review.Reviewer.LastName</h4>
+                        <h6>@review.Reviewer.FirstName @review.Reviewer.LastName</h6>
                         <p>@review.Message</p>
                     </div>
                     <div><b class="small">@string.Format("{0} {1}", review.ReviewDate.ToString("d"), review.ReviewDate.ToString("t"))</b></div>

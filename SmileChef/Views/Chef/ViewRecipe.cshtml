@@ -8,10 +8,26 @@
 
 }
 
+<style>
+    #addReviewForm textarea:focus{
+        outline: none;
+        box-shadow: none;
+        border-color: #dee2e6;
+    }
+</style>
+
 <div class="container-md">
-    <div class="bg-body-tertiary my-2 p-2">Recipe Id: @Model.RecipeId</div>
-    <div class="bg-body-tertiary mb-2 p-2">Name: @Model.Name</div>
+    <div class="row mx-auto">
+        <div class="col-4 bg-white border border-2 p-2 rounded-2">
+            <img class="img-fluid" src="~/images/recipe1.jpeg" alt="@Model.Name" style="height: 400px; width: 100%;" />
+        </div>
+    </div>
+    <div class="bg-body-tertiary my-2 p-2">
+        <p>Recipe Id: @Model.RecipeId</p>
+        <p>Name: @Model.Name</p>
+    </div>
     <div class="bg-body-tertiary mb-2 p-2">
+        <p class="fs-5 border-bottom border-3 border-secondary">Instructions</p>
         @if(Model.Instructions.Count == 0)
         {
             <p>No Instructions given...</p>
@@ -33,8 +49,11 @@
         <form id="addReviewForm">
             <input type="hidden" name="recipeId" value="@Model.RecipeId"/>
             <input type="hidden" name="chefId" value="@Model.ChefId" />
-            <input type="text" value="" id="message" name="message" placeholder="Enter your message here..." />
-            <button type="submit">Add Review</button>
+            <div class="mb-3">
+                <label for="reviewMessage" class="form-label">Example textarea</label>
+                <textarea class="form-control" id="reviewMessage" name="reviewMessage" placeholder="Enter your review message here..." rows="4" style="resize: none;"></textarea>
+            </div>
+            <div><button class="btn btn-success" type="submit">Post Review</button></div>
         </form>
     </div>
     <div id="reviewsContainer" class="bg-body-tertiary mb-2 p-2">
@@ -55,7 +74,13 @@
                     dataType: "html",
                     data: formData,
                     success: function(response){
+                        $('#reviewMessage').val('');
                         $('#reviewsContainer').html(response);
+                        Swal.fire({
+                            title : "",
+                            text : "Your Review has been posted successfully",
+                            icon : "success"
+                        })
                     },
                     error: function (xhr, status, error) {
                         var errorMessage = xhr.status + ': ' + xhr.statusText;

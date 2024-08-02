@@ -20,6 +20,8 @@ namespace SmileChef.Repository
                 .Include(c => c.User)
                 .Include(c => c.Recipes)
                     .ThenInclude(r => r.Instructions)
+                .Include(c => c.Recipes)
+                    .ThenInclude(r => r.Reviews)
                 .Include(c => c.SubscribedTo)
                 .Include(c => c.PublishedSubscriptions)
                 .ToList();
