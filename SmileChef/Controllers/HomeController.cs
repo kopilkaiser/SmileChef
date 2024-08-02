@@ -55,116 +55,10 @@ namespace ChefApp.Controllers
                 HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
             }
 
-            return View();
+            return View("HomeIndex");
         }
 
-        #region Test Methods to be DELETED
-
-        [HttpGet]
-        public IActionResult LoadAnimals()
-        {
-            List<string> animals = new List<string>()
-            {
-                "Tiger", "Lion", "Cheetah", "Spider", "Elephant", "Giraffe"
-            };
-
-            return Json(animals);
-        }
-
-        [HttpGet]
-        public IActionResult LoadHumans()
-        {
-            List<string> humans = new List<string>()
-            {
-                "John", "Perry", "Charson", "Norsan", "Melissa", "Natasha", "Samantha"
-            };
-
-            return Json(humans);
-        }
-
-        [HttpGet]
-        public IActionResult LoadAliens()
-        {
-
-            List<string> aliens = new List<string>()
-            {
-                "Yoga TX100", "Alien T-Rex 09", "OctaCore Specimen001"
-            };
-
-            return Json(aliens);
-        }
-
-        #endregion
-
-        [HttpPost]
-        public async Task<IActionResult> UploadImage(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                ViewBag.Message = "No file selected";
-                return View("Index");
-            }
-
-            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-            Directory.CreateDirectory(uploadsFolder);
-
-            var filePath = Path.Combine(uploadsFolder, file.FileName);
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(fileStream);
-            }
-
-            ViewBag.Message = "File uploaded successfully!";
-            var fileUrl = Path.Combine("/uploads", file.FileName);
-            // Get the list of uploaded image URLs from the session
-            List<string> uploadedImages = HttpContext.Session.GetObjectFromJson<List<string>>("UploadedImages") ?? new List<string>();
-            uploadedImages.Add(fileUrl);
-
-            // Store the updated list back in the session
-            HttpContext.Session.SetObjectAsJson("UploadedImages", uploadedImages);
-
-            return Json(new { success = true, fileUrl, uploadedImages });
-            //return View("Index");
-        }
-
-        [HttpGet]
-        public IActionResult GetUploadedImages()
-        {
-            List<string> uploadedImages = HttpContext.Session.GetObjectFromJson<List<string>>("UploadedImages") ?? new List<string>();
-            return Json(new { success = true, uploadedImages });
-        }
-
-        [HttpGet]
-        public IActionResult RecipeSmartAI()
-        {
-            ViewBag.CurrentActive = "RecipeSmartAI";
-            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
-            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
-            var model = new PredictRecipeViewModel();
-            Thread.Sleep(millisecondsTimeout: 3000);
-            return View(model);
-        }
-
-        [HttpPost]
-        public IActionResult Predict(PredictRecipeViewModel model)
-        {
-            // Manually remove the PredictedRecipe property from the ModelState
-            ModelState.Remove(nameof(PredictRecipeViewModel.PredictedRecipe));
-
-            if (!ModelState.IsValid)
-            {
-                // Return JSON response with error message
-                return Json(new { success = false, message = "Please enter valid ingredients." });
-            }
-
-            var prediction = _recipeModel.Predict(model.Ingredients);
-            model.PredictedRecipe = prediction.PredictedLabel;
-
-            // Return the partial view with the prediction result
-            return PartialView("_PredictionResultPartial", model);
-        }
-
+ 
         public IActionResult Privacy()
         {
             ViewBag.CurrentActive = "Privacy";
@@ -212,30 +106,6 @@ namespace ChefApp.Controllers
 
             // Proceed with valid model
             return RedirectToAction("Success");
-        }
-
-        [HttpPost]
-        //public IActionResult CustomAjaxTest(string message)
-        public IActionResult CustomAjaxTest([FromBody] JsonElement data)
-        {
-            var message = data.GetProperty("filterString").GetString();
-
-            AssignChefId();
-            var chefVM = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == _chefId);
-
-            if (chefVM == null)
-            {
-                return Json("Error");
-            }
-
-            chefVM.Recipes = chefVM.Recipes.Where(r => r.Name.Contains(message, StringComparison.OrdinalIgnoreCase)).ToList();
-
-            if (chefVM.Recipes.Count == 0)
-            {
-                return Json("Error");
-            }
-
-            return PartialView("_RecipesPartial", chefVM);
         }
 
         private void AssignChefId()

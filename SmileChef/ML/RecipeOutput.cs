@@ -5,6 +5,6 @@ namespace SmileChef.ML
     public class RecipeOutput
     {
         [ColumnName(@"PredictedLabel")]
-        public string PredictedLabel { get; set; }
+        public string? PredictedLabel { get; set; }
     }
 }

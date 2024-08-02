@@ -1,5 +1,288 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using SmileChef.Controllers
+
 @{
+    List<Animal> animals = new List<Animal>();
+    animals.Add(new Animal() { Id = 1, Name = "Lion" });
+    animals.Add(new Animal() { Id = 2, Name = "Tiger" });
+    animals.Add(new Animal() { Id = 3, Name = "Cheetah" });
+}
+
+<div class="container-md mt-3">
+    <button id="btnShowAnimal">Show Animal</button>
+    <button id="btnGetAnimal">GetAnimal</button>
+    <h3 class="mt-1">Animals will be shown below</h3>
+    <div id="animalsContainer">
+        @await Html.PartialAsync("_DisplayAnimals", animals)
+    </div>
+
+    <h2 class="mt-1">Each animal will be shown here...</h2>
+    <div id="eachAnimalDetail">
+    </div>
+
+    <h3 class="mt-2">The Get ANimal will be show below</h3>
+    <div id="getAnimalContainer">
+    </div>
+
+    <!-- #region CODE FROM HOME CSHTML -->
+    @Html.ActionLink("RecipeSmartAI", "RecipeSmartAI", "Test", new { }, new { @class = "btn btn-info my-4" })
+
+    <div class="row">
+        <div class="col-auto">
+            <button id="loadAnimals" class="btn btn-primary">Load Animals</button>
+        </div>
+        <div class="col-auto">
+            <button id="loadHumans" class="btn btn-primary">Load Humans</button>
+        </div>
+        <div class="col-auto">
+            <button id="loadAliens" class="btn btn-primary">Load Aliens</button>
+        </div>
+        <div class="col-auto">
+            <button id="clearAll" class="btn btn-primary">Clear All</button>
+        </div>
+    </div>
+    <div class="row mt-3 mx-auto gap-5">
+        <div class="col-md-3 border border-black">
+            <h2 class="border-bottom border-2 border-black">Animals</h2>
+            <div id="animalsContainer2" class="box"></div>
+        </div>
+        <div class="col-md-3 border border-black">
+            <h2 class="border-bottom border-2 border-black">Humans</h2>
+            <div id="humansContainer" class="box"></div>
+        </div>
+        <div class="col-md-3 border border-black">
+            <h2 class="border-bottom border-2 border-black">Aliens</h2>
+            <div id="aliensContainer" class="box"></div>
+        </div>
+    </div>
+
+    <h2>Upload Image</h2>
+
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="file">Upload Image:</label>
+            <input type="file" name="file" id="file" onchange="previewFile()" />
+        </div>
+        <div>
+            <img id="file-preview" src="#" alt="Image Preview" style="display: none; max-width: 300px; max-height: 300px;" />
+        </div>
+        <button type="submit">Upload</button>
+    </form>
+    @if (ViewBag.Message != null)
+    {
+        <p>@ViewBag.Message</p>
+    }
+
+    <div id="uploadedImageDiv" style="margin-top:20px;">
+        <h3>Uploaded Images</h3>
+        <div class="uploaded-images-container" id="uploadedImagesContainer">
+            <!-- Uploaded images will be appended here -->
+        </div>
+    </div>
+
+    <!-- #endregion -->
+</div>
+
+
+@section Scripts {
+    <script>
+
+        $(document).ready(() => {
+            $('.aniName').css('background-color', '#f12 !important');
+        });
+
+        $(document).on('click', 'li.aniName', function () {
+            alert($(this).text());
+        });
+
+        $(document).on('hover', 'li.aniName', function () {
+            $('li.aniName').css('cursor', 'pointer');
+        });
+
+        $('#btnShowAnimal').click(() => {
+            var dataObj = {
+                animalName: "Jackson",
+                listOfNumbers: [
+                    5, 1005
+                ],
+                user: {
+                    name: "Randolf",
+                    listOfContacts: [123, 444, 555]
+                }
+            };
+
+            $.ajax({
+                type: "POST",
+                // url: '@Url.Action("DisplayAnimals", "Test")',
+                url: '/tests/animals',
+                //data: JSON.stringify({ someValue : "Hello World", givenAge : 55}),
+                data: JSON.stringify(dataObj),
+                contentType: "application/json", // This needs to be set correctly
+                dataType: "html", // or "json" depending on what response you expect
+                success: function (response) {
+                    $('#animalsContainer').html(response);
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText;
+                    console.log('Error - ' + errorMessage);
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: errorMessage,
+                        icon: "error"
+                    });
+                }
+            });
+        });
+
+        $('#btnGetAnimal').click(() => {
+            var data = {
+                animalName: "Jackson",
+                listOfNumbers: [
+                    5, 1005, 50000
+                ]
+            };
+
+            $.ajax({
+                type: "GET",
+                //url: '/tests/animals/5?' + $.param(data, true), // Automatically serializing the data object including arrays
+                url: '/tests/animals/5',
+                data: $.param(data, true),
+                dataType: "json",
+                success: function (response) {
+                    console.log(response);
+                    //$('#getAnimalContainer').html(response);
+                    // $('#getAnimalContainer').html('<h3>Header: ' + response.Header + '</h3><p>Paragraph: ' + response.Paragraph + '</p><p>Message: ' + response.Message + '</p>');
+                    $('#getAnimalContainer').html('<h3>Header: ' + response.header + '</h3><p>Paragraph: ' + response.paragraph + '</p><p>Message: ' + response.message + '</p>');
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText;
+                    console.log('Error - ' + errorMessage);
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: errorMessage,
+                        icon: "error"
+                    });
+                }
+            });
+        });
+
+
+        // #region JAVASCRIPT FROM Previous HOME
+
+        function createListItem(text, index) {
+            let idxString = index == null ? "" : `${index}. `
+            return $(`<li class="list-group-item col-12 border border-black rounded-2">${idxString}${text}</li>`);
+        }
+
+        function handleLoad(urlPassed, containerId) {
+            console.log(urlPassed);
+            $.ajax({
+                url: urlPassed,
+                type: "GET",
+                success: function (response) {
+                    console.log("Response sent from server:");
+                    console.log(response);
+                    let ulElem = $('<ul class="list-group py-2 gap-2 row px-2"></ul>');
+
+                    response.forEach((aItem, idx) => {
+                        let liElem = createListItem(aItem, idx + 1);
+                        $(ulElem).append(liElem);
+                    })
+                    $(containerId).html(ulElem);
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText;
+                    console.log('Error - ' + errorMessage);
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: errorMessage,
+                        icon: "error"
+                    });
+                }
+            });
+        }
+
+        $('#loadAnimals').on('click', function () {
+            handleLoad("/tests/LoadAnimals", '#animalsContainer2');
+        });
+
+        $('#loadHumans').on('click', function () {
+            handleLoad("/tests/LoadHumans", '#humansContainer');
+        });
+
+        $('#loadAliens').on('click', function () {
+            handleLoad("/tests/LoadAliens", '#aliensContainer');
+        });
+
+        $('#clearAll').click(() => {
+            $('#animalsContainer2').empty();
+            $('#humansContainer').empty();
+            $('#aliensContainer').empty();
+
+            console.error("Error: All the containers have been emptied");
+        });
+
+
+        function previewFile() {
+            const preview = document.getElementById('file-preview');
+            const file = document.getElementById('file').files[0];
+            const reader = new FileReader();
+
+            reader.addEventListener("load", function () {
+                // Convert image file to base64 string
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            }, false);
+
+            if (file) {
+                reader.readAsDataURL(file);
+                
+            }
+
+            // Bind the previewFile function to the global window object so it can be called from inline HTML
+            window.previewFile = previewFile;
+        }
+
+        // AJAX form submission for image upload
+        $('#uploadForm').on('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: '/tests/UploadImage',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        $('#file-preview').hide();
+                        appendUploadedImages(response.uploadedImages);
+                    } else {
+                        alert('File upload failed');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText;
+                    alert('Error - ' + errorMessage);
+                }
+            });
+        });
+
+        function appendUploadedImages(images) {
+            const container = $('#uploadedImagesContainer');
+            container.empty();
+            images.forEach(function (image) {
+                const imgElem = $('<img>').attr('src', image).attr('alt', 'Uploaded Image').attr('width', '200px').attr('height', '200px');
+                container.append(imgElem);
+            });
+        }
+
+        // On document ready, load the uploaded images from session
+        $.get('/tests/GetUploadedImages', function (data) {
+            if (data.success) {
+                appendUploadedImages(data.uploadedImages);
+            }
+        });
+        // #endregion
+    </script>
 }

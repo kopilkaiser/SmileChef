@@ -78,7 +78,7 @@
         $('#uploadForm').on('submit', function (e) {
             e.preventDefault();
             var formData = new FormData(this);
-
+            console.log(formData);
             $.ajax({
                 url: '/Chef/UploadImage',
                 type: 'POST',
@@ -91,6 +91,11 @@
                         appendUploadedImages(response.uploadedImages);
                         // Clear the file input field
                         $('#file').val('');
+                        Swal.fire({
+                            title: '',
+                            text: 'Image have been uploaded successfully',
+                            icon: 'success'
+                        })
                     } else {
                         Swal.fire({
                             title: 'Upload failed',

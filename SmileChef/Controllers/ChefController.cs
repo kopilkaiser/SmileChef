@@ -48,7 +48,7 @@ namespace SmileChef.Controllers
             _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUser");
             if (_currentUserId == 0)
             {
-                _currentUserId = 4; // Default user ID if not set
+                _currentUserId = 1; // Default user ID if not set
                 HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
             }
 
@@ -70,12 +70,13 @@ namespace SmileChef.Controllers
             if (userNotifications.Count() > 0) viewModel.Notifications = userNotifications.ToList();
             else viewModel.Notifications = new List<NotifySubscribers>();
 
-            return View(viewModel);
+            return View("ChefIndex", viewModel);
         }
 
         [HttpGet]
-        public IActionResult ShowChefCards()
+        public IActionResult ShowChefCards(bool showSubscriptionModel = false)
         {
+            AssignChefId();
             ViewBag.CurrentActive = "ShowChefCards";
             ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
             ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
@@ -85,7 +86,62 @@ namespace SmileChef.Controllers
                 currentChefUserId = _httpContextAccessor.HttpContext.Session.GetObjectFromJson<int>("CurrentUserId");
             }
             var chefs = _chefRepo.GetChefsWithDetails().Where(c => c.User.UserId != currentChefUserId).OrderByDescending(c => c.Rating).ToList();
-            return View(chefs);
+
+            ChefSubsciptionViewModel vm = new();
+            vm.Chefs = chefs;
+            vm.CurrentChef = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == _chefId);
+
+            if (showSubscriptionModel)
+            {
+                @ViewBag.ShowSubscriptionModal = true;
+            }
+            else @ViewBag.ShowSubscriptionModal = false;
+
+            return View(vm);
+        }
+
+        [HttpGet]
+        public IActionResult ManageSubscription(int chefId, int[] listNum, bool isDanger)
+        {
+            var currentChef = GetCurrentChef();
+            var destChef = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == chefId);
+
+            var subscription = currentChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == destChef.ChefName);
+
+            if(subscription == null)
+            {
+                // means currentChef will subscribe to destChef (Subscript to subscription)
+
+                HttpContext.Session.SetObjectAsJson("ChefIdToSubscribe", destChef.ChefId);
+                return RedirectToAction(nameof(ShowChefCards), new { showSubscriptionModel = true });
+            }
+            else
+            {
+                // means currentChef will unsubscribe to destChef (Unscribe to subscription)
+                var sub = _subRepo.GetById(subscription.SubscriptionId);
+                _subRepo.Delete(sub);
+            }
+
+            return RedirectToAction(nameof(ShowChefCards));
+        }
+
+        [HttpPost]
+        public IActionResult ProcessSubscription([FromBody] JsonElement query)
+        {
+            //create subscription
+            var destChefId = HttpContext.Session.GetObjectFromJson<int>("ChefIdToSubscribe");
+            var subscription = new Subscription();
+            subscription.PublisherId = destChefId;
+            subscription.SubscriberId = GetCurrentChef().ChefId;
+            subscription.SubscriptionDate = DateTime.Now;
+            subscription.Amount = Convert.ToDecimal(query.GetProperty("subAmount").GetString());
+            if (Enum.TryParse<SubscriptionType>(query.GetProperty("subType").GetString(), out var subType)){
+                subscription.SubscriptionType = subType;
+            }
+
+            _subRepo.Add(subscription);
+            HttpContext.Session.SetObjectAsJson("ChefIdToSubscribe", null);
+            return Json(new { success = true});
         }
 
         [HttpPost]
@@ -460,8 +516,7 @@ namespace SmileChef.Controllers
         {
             if (file == null || file.Length == 0)
             {
-                ViewBag.Message = "No file selected";
-                return View("Index");
+                return Json(new { success = false});
             }
 
             //var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
@@ -555,6 +610,11 @@ namespace SmileChef.Controllers
             _chefId = getChef.ChefId;
         }
 
+        private ChefViewModel GetCurrentChef()
+        {
+            var chef = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.User.UserId == _currentUserId);
+            return chef;
+        }
         private void AssignCurrentPageStatus(string currentPageName)
         {
             ViewBag.CurrentActive = currentPageName;

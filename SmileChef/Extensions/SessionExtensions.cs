@@ -4,11 +4,18 @@ namespace SmileChef.Extensions
 {
     public static class SessionExtensions
     {
-        public static void SetObjectAsJson(this ISession session, string key, object value)
+        public static void SetObjectAsJson(this ISession session, string key, object? value)
         {
             try
             {
-                session.SetString(key, JsonConvert.SerializeObject(value));
+                if(value == null)
+                {
+                    session.Remove(key);
+                }
+                else
+                {
+                    session.SetString(key, JsonConvert.SerializeObject(value));
+                }
             }
             catch (Exception ex)
             {

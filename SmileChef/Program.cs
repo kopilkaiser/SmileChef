@@ -98,5 +98,5 @@ app.MapControllerRoute(
 
 app.Run();
 
-// Explicitly declare the partial Program class
+// Explicitly declare the partial Program classso that we can instantiate an instance of this in the Unit Test Project
 public partial class Program { }

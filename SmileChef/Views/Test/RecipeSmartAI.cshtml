@@ -1,0 +1,86 @@
+﻿@model SmileChef.Models.PredictRecipeViewModel
+
+@{
+    ViewData["Title"] = "Recipe Prediction";
+}
+
+<h2>Recipe Prediction</h2>
+
+@* <form asp-action="Predict" method="post">*@
+<form id="predictionForm" method="post">
+    <div class="form-group row gap-3 container-md">
+        <label asp-for="Ingredients" class="control-label"></label>
+        <input asp-for="Ingredients" class="form-control" id="ingredientsInput" />
+        <span asp-validation-for="Ingredients" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Predict" class="btn btn-primary" />
+        <input value="Clear All" class="btn btn-primary" onclick="clearAllHistory()" />
+    </div>
+</form>
+
+@* @if (Model.PredictedRecipe != null)
+{ *@
+    @* <div class="alert alert-success mt-3">
+        <strong>Predicted Recipe:</strong> @Model.PredictedRecipe
+    </div> *@
+    <div class="container-md row gap-1 mt-5 border p-3" id="chatContainer">
+
+    </div>
+@* } *@
+
+@section Scripts {
+   <script>
+        let counter = 0;
+
+        $(document).ready(function () {
+            $('#predictionForm').on('submit', function (event) {
+                event.preventDefault();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Predict", "Test")',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success === false) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message
+                            });
+                        } else {
+                            let container = $('<div class="prediction-container"></div>').hide();
+                            let spanElem = $(`<span class="bg-info col-auto rounded-4 p-1">${++counter}</span>`);
+
+                            container.append(spanElem);
+                            container.append(response);
+
+                            $('#chatContainer').append(container);
+                            container.fadeIn('slow'); // Apply fade-in effect
+                            $('#ingredientsInput').val("");
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while predicting the recipe.'
+                        });
+                    }
+                });
+            });
+
+            // Attach a delegated event handler to the document for the dynamically created close buttons
+            $(document).on('click', '.btn-close', function () {
+                $(this).closest('.prediction-container').remove();
+            });
+        });
+
+        // Define the clearAllHistory function in the correct scope
+        function clearAllHistory() {
+            $('#chatContainer').empty();
+            $('#ingredientsInput').val("");
+            counter = 0;
+        }
+   </script>
+}

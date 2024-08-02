@@ -10,10 +10,10 @@ namespace SmileChef.ML
 
         [LoadColumn(1)]
         [ColumnName("Ingredients")]
-        public string Ingredients { get; set; }
+        public string? Ingredients { get; set; }
 
         [LoadColumn(2)]
         [ColumnName("RecipeName")]
-        public string RecipeName { get; set; }
+        public string? RecipeName { get; set; }
     }
 }

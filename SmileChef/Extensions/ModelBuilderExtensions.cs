@@ -130,6 +130,43 @@ namespace ChefApp.Extensions
                     SubscriptionDate = fixedDateTime,
                     Amount = 199.99m,
                     SubscriptionType = SubscriptionType.Yearly
+                },
+                // Chef 1 subscribes to other chefs
+                new Subscription
+                {
+                    SubscriptionId = 7,
+                    SubscriberId = 1,
+                    PublisherId = 2,
+                    SubscriptionDate = fixedDateTime,
+                    Amount = 50.00m,
+                    SubscriptionType = SubscriptionType.Monthly
+                },
+                new Subscription
+                {
+                    SubscriptionId = 8,
+                    SubscriberId = 1,
+                    PublisherId = 3,
+                    SubscriptionDate = fixedDateTime,
+                    Amount = 75.00m,
+                    SubscriptionType = SubscriptionType.Monthly
+                },
+                new Subscription
+                {
+                    SubscriptionId = 9,
+                    SubscriberId = 1,
+                    PublisherId = 4,
+                    SubscriptionDate = fixedDateTime,
+                    Amount = 60.00m,
+                    SubscriptionType = SubscriptionType.Monthly
+                },
+                new Subscription
+                {
+                    SubscriptionId = 10,
+                    SubscriberId = 1,
+                    PublisherId = 5,
+                    SubscriptionDate = fixedDateTime,
+                    Amount = 80.00m,
+                    SubscriptionType = SubscriptionType.Monthly
                 }
             );
         }

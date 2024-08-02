@@ -1,13 +1,16 @@
 ﻿using ChefApp.Models.DbModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using SmileChef.Extensions;
+using SmileChef.ML;
+using SmileChef.Models;
 using SmileChef.Repository;
 using System.Text.Json;
 
 namespace SmileChef.Controllers
 {
-    [Route("/tests")]
+    [Route(template: "/tests")]
     public class TestController : Controller
     {
         private const string ChefsSessionKey = "ChefsNew";
@@ -18,8 +21,11 @@ namespace SmileChef.Controllers
         private IRepository<Instruction> _instructRepo;
         private IRepository<Recipe> _recipeRepo;
         private IRepository<Subscription> _subRepo;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly RecipeSmartModel _recipeModel;
 
-        public TestController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo)
+
+        public TestController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
@@ -27,8 +33,12 @@ namespace SmileChef.Controllers
             _instructRepo = instructRepo;
             _recipeRepo = recipeRepo;
             _subRepo = subRepo;
+            _webHostEnvironment = webHostEnvironment;
+            _recipeModel = recipeModel;
         }
 
+        [HttpGet("")]
+        [HttpGet("Index")]
         public IActionResult Index()
         {
             return View();
@@ -127,15 +137,11 @@ namespace SmileChef.Controllers
             //string animalNameGiven = query.GetProperty("animalName").GetString()!;
             //var nums = query.GetProperty("listOfNumbers").Deserialize<int[]>();
      
-
             string animalNameGiven = query.GetProperty("animalName").GetString()!;
-
             var userObj = query.GetProperty(propertyName: "user");
             var userName = userObj.GetProperty("name").GetString();
             var userContacts = userObj.GetProperty("listOfContacts").Deserialize<int[]>();
             var listOfNumbers = query.GetProperty("listOfNumbers").Deserialize<int[]>();
-
-
 
             //when using JObject type
             //var animalNameGiven = query["animalName"]!.ToString();
@@ -152,6 +158,114 @@ namespace SmileChef.Controllers
 
             return PartialView("_DisplayAnimals", animals);
         }
+
+        #region Test Methods to be DELETED
+
+        [HttpGet("LoadAnimals")]
+        public IActionResult LoadAnimals()
+        {
+            List<string> animals = new List<string>()
+            {
+                "Tiger", "Lion", "Cheetah", "Spider", "Elephant", "Giraffe"
+            };
+
+            return Json(animals);
+        }
+
+        [HttpGet("LoadHumans")]
+        public IActionResult LoadHumans()
+        {
+            List<string> humans = new List<string>()
+            {
+                "John", "Perry", "Charson", "Norsan", "Melissa", "Natasha", "Samantha"
+            };
+
+            return Json(humans);
+        }
+
+        [HttpGet("LoadAliens")]
+        public IActionResult LoadAliens()
+        {
+
+            List<string> aliens = new List<string>()
+            {
+                "Yoga TX100", "Alien T-Rex 09", "OctaCore Specimen001"
+            };
+
+            return Json(aliens);
+        }
+
+        #endregion
+
+        [HttpPost("UploadImage")]
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                ViewBag.Message = "No file selected";
+                return View("Index");
+            }
+
+            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var filePath = Path.Combine(uploadsFolder, file.FileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            ViewBag.Message = "File uploaded successfully!";
+            var fileUrl = Path.Combine("/uploads", file.FileName);
+            // Get the list of uploaded image URLs from the session
+            List<string> uploadedImages = HttpContext.Session.GetObjectFromJson<List<string>>("UploadedImages") ?? new List<string>();
+            uploadedImages.Add(fileUrl);
+
+            // Store the updated list back in the session
+            HttpContext.Session.SetObjectAsJson("UploadedImages", uploadedImages);
+
+            return Json(new { success = true, fileUrl, uploadedImages });
+            //return View("Index");
+        }
+
+        [HttpGet("GetUploadedImages")]
+        public IActionResult GetUploadedImages()
+        {
+            List<string> uploadedImages = HttpContext.Session.GetObjectFromJson<List<string>>("UploadedImages") ?? new List<string>();
+            return Json(new { success = true, uploadedImages });
+        }
+
+        [HttpGet("RecipeSmartAI")]
+        public IActionResult RecipeSmartAI()
+        {
+            ViewBag.CurrentActive = "RecipeSmartAI";
+            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
+            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
+            var model = new PredictRecipeViewModel();
+            Thread.Sleep(millisecondsTimeout: 3000);
+            return View("RecipeSmartAI", model);
+        }
+
+        [HttpPost("Predict")]
+        public IActionResult Predict(PredictRecipeViewModel model)
+        {
+            // Manually remove the PredictedRecipe property from the ModelState
+            ModelState.Remove(nameof(PredictRecipeViewModel.PredictedRecipe));
+
+            if (!ModelState.IsValid)
+            {
+                // Return JSON response with error message
+                return Json(new { success = false, message = "Please enter valid ingredients." });
+            }
+
+            var prediction = _recipeModel.Predict(model.Ingredients);
+            model.PredictedRecipe = prediction.PredictedLabel;
+
+            // Return the partial view with the prediction result
+            return PartialView("_PredictionResultPartial", model);
+        }
+
     }
 
     public class Animal
