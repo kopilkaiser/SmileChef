@@ -49,6 +49,18 @@ builder.Services.AddScoped<IRepository<Instruction>, InstructionRepository>();
 builder.Services.AddScoped<IRepository<Subscription>, SubscriptionRepository>();
 builder.Services.AddScoped<IRepository<NotifySubscribers>, NotificationRepository>();
 builder.Services.AddScoped<IRepository<Review>, ReviewRepository>();
+
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost",
+        builder =>
+        {
+            builder.WithOrigins("http://127.0.0.1:5500")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
 #endregion
 
 var app = builder.Build();
@@ -88,6 +100,9 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(imagesNewPath),
     RequestPath = "/imagesNew"
 });
+
+// Apply CORS middleware before other middlewares like Routing and Authorization
+app.UseCors("AllowLocalhost");
 
 app.UseRouting();
 app.UseSession();

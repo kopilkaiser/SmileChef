@@ -4,6 +4,19 @@
     ViewData["Title"] = "Recipe Prediction";
 }
 
+<style>
+    #recipeList span:hover{
+        cursor: pointer;
+    }
+</style>
+
+<div class="row bg-light mt-3 p-2">
+    <h2>Please select maximum 5 recipes</h2>
+    <div id ="recipeList" class="bg-white d-flex flex-wrap gap-3 p-2" style="max-height: 400px; overflow-y: auto;">
+       
+    </div>
+</div>
+
 <div class="row pb-4 mt-4 rounded-2" style="background-color: #f8f9fa;">
     <h2 class="mt-4">Recipe Prediction</h2>
 
@@ -11,7 +24,7 @@
     <form id="predictionForm" method="post">
         <div class="form-group row gap-3 container-md">
             <label asp-for="Ingredients" class="control-label ps-0"></label>
-            <input asp-for="Ingredients" class="form-control" id="ingredientsInput" />
+            <input asp-for="Ingredients" class="form-control" id="ingredientsInput" readonly />
             <span asp-validation-for="Ingredients" class="text-danger"></span>
         </div>
         <div class="form-group">
@@ -32,9 +45,33 @@
 
 @section Scripts {
    <script>
+        // #region GLOBAL VARIABLES
         let counter = 0;
+        let maxSelection = 5;
+        // #endregion
+
+        // #region GLOBAL FUNCTIONS 
+        // Define the clearAllHistory function in the correct scope
+        function clearAllHistory() {
+            $('#chatContainer').empty();
+            $('#ingredientsInput').val("");
+            counter = 0;
+            maxSelection = 5;
+            // Remove the 'selected' class and reset the background color of all spans
+            $('#recipeList span').removeClass('bg-success text-white selected').addClass('bg-info');
+
+            // Scroll the recipeList container to the top
+            $('#recipeList').scrollTop(0);
+
+            //In most browsers, the scrollable element for the entire document is not the <body> but the <html> element or sometimes both <html> and <body> together
+            //$('html, body').animate({ scrollTop: 0 }, 'slow');
+        }
+        // #endregion
 
         $(document).ready(function () {
+            console.log(`document has loaded`);
+            console.log(`value of maxSelection: ${maxSelection}`);
+            // #region Prediction FORM
             $('#predictionForm').on('submit', function (event) {
                 event.preventDefault();
 
@@ -50,8 +87,8 @@
                                 text: response.message
                             });
                         } else {
-                            let container = $('<div class="prediction-container"></div>').hide();
-                            let spanElem = $(`<span class="bg-info col-auto rounded-4 p-1">${++counter}</span>`);
+                            let container = $('<div class="prediction-container row gap-2 align-items-center"></div>').hide();
+                            let spanElem = $(`<span class="bg-danger text-white text-center col-auto" style="height:25px; width: 25px; border-radius: 12.5px; padding:1px;">${++counter}</span>`);
 
                             container.append(spanElem);
                             container.append(response);
@@ -59,6 +96,15 @@
                             $('#chatContainer').append(container);
                             container.fadeIn('slow'); // Apply fade-in effect
                             $('#ingredientsInput').val("");
+                            maxSelection = 5;
+                            // Remove the 'selected' class and reset the background color of all spans
+                            $('#recipeList span').removeClass('bg-success text-white selected').addClass('bg-info');
+
+                            // Scroll the recipeList container to the top
+                            $('#recipeList').scrollTop(0);
+
+                            //In most browsers, the scrollable element for the entire document is not the <body> but the <html> element or sometimes both <html> and <body> together
+                            //$('html, body').animate({ scrollTop: 0 }, 'slow');
                         }
                     },
                     error: function () {
@@ -75,13 +121,86 @@
             $(document).on('click', '.btn-close', function () {
                 $(this).closest('.prediction-container').remove();
             });
+
+            // #endregion
+
+
+            // #region Populating recipeList, handling click on each recipe in the recipeList
+            $.ajax({
+                type : "GET",
+                url: '@Url.Action("GetRecipeListJson", "Chef")',
+                dataType: 'json',
+                success : function(response){
+                    if (response.success) {
+                        for(let recipe of response.recipeList){
+                            let spanElem = $(`<span class="p-2 bg-info rounded-4">${recipe}</span>`)
+                            $('#recipeList').append(spanElem);
+                        }
+                        console.log(response.recipeList)
+                    } else {
+                        Swal.fire({
+                            title: "Error Occurred",
+                            text: response.message,
+                            icon: "error"
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText;
+                    console.log('Error - ' + errorMessage);
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: errorMessage,
+                        icon: "error"
+                    });
+                }
+            });
+
+
+            $('#recipeList span').each(function () {
+                $(this).addClass('p-2 bg-info rounded-4');
+            });
+
+
+            $(document).on('click', '#recipeList span', function () {
+
+                // Check if the ingredient is already selected
+                if ($(this).hasClass('selected')) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Ingredient Already Selected',
+                        text: 'This ingredient has already been selected.'
+                    });
+                    return; // Exit the function to prevent duplicate selection
+                }
+
+                if (maxSelection > 0) {
+                    let ingredientValue = $(this).text();
+                    let currentVal = $('#ingredientsInput').val();
+                    let appendedVal = "";
+                    if (currentVal.length === 0) {
+                        console.log(`ingredientsInput value return length 0`);
+                        appendedVal = `${ingredientValue}`;
+                    } else {
+                        appendedVal = `${currentVal}, ${ingredientValue}`;
+                    }
+                    $('#ingredientsInput').val(appendedVal);
+
+                    // Add visual feedback by changing the background color and marking as selected
+                    $(this).removeClass('bg-info').addClass('bg-success text-white selected');
+                    maxSelection -= 1;
+                    console.log(`appended value: value of maxSelection: ${maxSelection}`);
+                }else{
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Maximum Selection reached',
+                        text: 'Maximum 5 ingredients can be selected. Please hit "Clear All" to reset.'
+                    });
+                }
+            })
+            // #endregion
         });
 
-        // Define the clearAllHistory function in the correct scope
-        function clearAllHistory() {
-            $('#chatContainer').empty();
-            $('#ingredientsInput').val("");
-            counter = 0;
-        }
+      
    </script>
 }

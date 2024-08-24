@@ -6,11 +6,13 @@ using SmileChef.Extensions;
 using SmileChef.ML;
 using SmileChef.Models;
 using SmileChef.Repository;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace SmileChef.Controllers
 {
-    [Route(template: "/tests")]
+    //[Route(template: "/tests/{action=Index}")] // Implicit Routing -> this can be used to configure the controller to use the Convention-Based Routing as each method will route to it's naming convention
+    [Route("/tests")]  // Explicit Routing -> where we will have to specify the routing name for each ActionMethod
     public class TestController : Controller
     {
         private const string ChefsSessionKey = "ChefsNew";
@@ -24,7 +26,6 @@ namespace SmileChef.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly RecipeSmartModel _recipeModel;
 
-
         public TestController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel)
         {
             _logger = logger;
@@ -37,12 +38,12 @@ namespace SmileChef.Controllers
             _recipeModel = recipeModel;
         }
 
-        [HttpGet("")]
+        [HttpGet(template: "")]
         [HttpGet("Index")]
         public IActionResult Index()
-        {
+       {
             return View();
-        }
+        }     
 
         [HttpGet("info")] // Will only be accessible via GET requests
         //[Route("info")]   // Will be accessible via any HTTP method (GET, POST, PUT, DELETE, etc.)
@@ -266,6 +267,28 @@ namespace SmileChef.Controllers
             return PartialView("_PredictionResultPartial", model);
         }
 
+        [HttpPost("AcceptHumanChoices")]
+        public IActionResult AcceptHumanChoices(HumanModel model)
+        {
+            bool success = false;
+            if (ModelState.IsValid)
+            {
+                success = true;
+            }
+            // The model will automatically bind to the form data
+            // model.Name, model.FavouriteColors, model.FavouriteNumbers, model.isAdult, model.Age
+            return Json(new { success });
+        }
+    }
+
+    public class HumanModel
+    {
+        [Length(5, 10, ErrorMessage = "Invalid data given for Name")]
+        public string Name { get; set; }
+        public List<string> FavouriteColors { get; set; } = new();
+        public List<int> FavouriteNumbers{ get; set; } = new();
+        public bool isAdult { get; set; }
+        public int Age { get; set; }
     }
 
     public class Animal

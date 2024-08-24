@@ -1,6 +1,9 @@
 ﻿using ChefApp.Models.DbModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using SmileChef.Extensions;
 using SmileChef.ML;
 using SmileChef.Models;
@@ -9,13 +12,14 @@ using SmileChef.Repository;
 using SmileChef.ViewModels;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-using Tensorflow.Contexts;
 using static System.Net.WebRequestMethods;
+using System.IO;
 
 namespace SmileChef.Controllers
 {
     public class ChefController : Controller
     {
+        private readonly ICompositeViewEngine _viewEngine;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<ChefController> _logger;
         private readonly IChefRepository _chefRepo;
@@ -30,7 +34,7 @@ namespace SmileChef.Controllers
         private IRepository<NotifySubscribers> _notifySubscribers;
         private IRepository<Review> _reviewRepo;
         private readonly IConfiguration _config;
-        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers, IRepository<Review> reviewRepo, IConfiguration config)
+        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers, IRepository<Review> reviewRepo, IConfiguration config, ICompositeViewEngine viewEngine)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
@@ -44,6 +48,7 @@ namespace SmileChef.Controllers
             _notifySubscribers = notifySubscribers;
             _reviewRepo = reviewRepo;
             _config = config;
+            _viewEngine = viewEngine;
         }
 
         public IActionResult Index()
@@ -516,6 +521,30 @@ namespace SmileChef.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public IActionResult GetRecipeListJson()
+        {
+            string filePath = Path.Combine("ML", "RecipeAI", "Data", "recipes_labelled.txt");
+
+            //check if the file exists
+            if (!System.IO.File.Exists(filePath))
+            {
+                Console.WriteLine("File not found");
+                return Json(new { success = false, message = "File not found" });
+            }
+
+            var lines = System.IO.File.ReadAllLines(filePath);
+
+            var uniqueIngredients = lines.Skip(1) // Skip the header
+                                   .SelectMany(line => line.Split(';').Take(5)) // Take first 5 columns as ingredients
+                                   .Distinct(); // Get distinct ingredients
+
+
+
+            Console.WriteLine($"length of uniqueIngredients: {uniqueIngredients.Count()}");
+            return Json(new { success = true, recipeList = uniqueIngredients });
+        }
+
         [HttpPost]
         public IActionResult Predict(PredictRecipeViewModel model)
         {
@@ -605,6 +634,40 @@ namespace SmileChef.Controllers
         #endregion
 
         #endregion
+
+        //Used to convert PartialView to string in order to send in a JSON object
+        public async Task<string> RenderPartialViewToStringAsync(string viewName, object model)
+        {
+            if (string.IsNullOrEmpty(viewName))
+            {
+                viewName = ControllerContext.ActionDescriptor.ActionName;
+            }
+
+            ViewData.Model = model;
+
+            using (var sw = new StringWriter())
+            {
+                var viewResult = _viewEngine.FindView(ControllerContext, viewName, false);
+
+                if (viewResult.View == null)
+                {
+                    throw new ArgumentNullException($"View '{viewName}' not found.");
+                }
+
+                var viewContext = new ViewContext(
+                    ControllerContext,
+                    viewResult.View,
+                    ViewData,
+                    TempData,
+                    sw,
+                    new HtmlHelperOptions()
+                );
+
+                await viewResult.View.RenderAsync(viewContext);
+                return sw.GetStringBuilder().ToString();
+            }
+        }
+
 
         public IActionResult UnderstandingCustomValidation(ChefViewModel model)
         {

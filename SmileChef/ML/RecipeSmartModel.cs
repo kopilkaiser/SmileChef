@@ -4,6 +4,7 @@ using Microsoft.ML.Transforms.Text;
 using SkiaSharp;
 using System.Data;
 using Tensorflow.Contexts;
+using static TorchSharp.torch.utils;
 
 namespace SmileChef.ML
 {
@@ -11,7 +12,6 @@ namespace SmileChef.ML
     {
         private static readonly string _modelPath = Path.Combine("ML", "RecipeAI", "Model", "RecipeModel.zip");
         private static readonly string _dataPath = Path.Combine("ML", "RecipeAI", "Data", "recipes_labelled.txt");
-        private static readonly string _testDataSetPath = Path.Combine("ML", "RecipeAI", "Data", "testSet.bin");
 
         private readonly MLContext _mlContext;
         private ITransformer _trainedModel;
@@ -35,148 +35,73 @@ namespace SmileChef.ML
                     Directory.CreateDirectory(Path.GetDirectoryName(_modelPath));
                 }
 
-                var data = _mlContext.Data.LoadFromTextFile<RecipeInput>(_dataPath, hasHeader: false, separatorChar: '\t');
-                (_trainedModel, _) = TrainAndSaveModel(data);
+                var data = _mlContext.Data.LoadFromTextFile<RecipeData>(_dataPath, hasHeader: true, separatorChar: ';');
+                _trainedModel = TrainAndSaveModel(data);
             }
         }
 
-        private (ITransformer, IDataView) TrainAndSaveModel(IDataView data)
+        private ITransformer TrainAndSaveModel(IDataView data)
         {
+            // Split the data into training and testing sets (e.g., 80% training, 20% testing)
+            //var trainTestSplit = _mlContext.Data.TrainTestSplit(data, testFraction: 0.2);
+            //var trainData = trainTestSplit.TrainSet;
+            //var testData = trainTestSplit.TestSet;
 
-            var recipeInputs = _mlContext.Data.CreateEnumerable<RecipeInput>(data, false);
+            // Preprocess the data and set up the pipeline
+            var dataProcessPipeline = _mlContext.Transforms.Text.FeaturizeText("FeaturesFeaturized", "Features")
+                .Append(_mlContext.Transforms.Concatenate("Features", "FeaturesFeaturized"))
+                .Append(_mlContext.Transforms.Conversion.MapValueToKey("Label", "RecipeName"));
 
-            var processedData = recipeInputs.Select(recipe => new RecipeInputProcessed
-            {
-                RecipeId = recipe.RecipeId,
-                Ingredients = recipe.Ingredients.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries),
-                Label = recipe.RecipeName
-            });
+            // Choose the training algorithm
+            var trainer = _mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy("Label", "Features")
+                .Append(_mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel", "PredictedLabel"));
 
-            var processedDataView = _mlContext.Data.LoadFromEnumerable<RecipeInputProcessed>(processedData);
-
-            // Split the data into training and test sets
-            var trainTestSplit = _mlContext.Data.TrainTestSplit(processedDataView, testFraction: 0.2, seed: 123);
-            var trainData = trainTestSplit.TrainSet;
-            var testData = trainTestSplit.TestSet;
-
-            // Save the test set for later evaluation
-            using (var fileStream = new FileStream(_testDataSetPath, FileMode.Create, FileAccess.Write, FileShare.Write))
-            {
-                _mlContext.Data.SaveAsBinary(testData, fileStream);
-            }
-
-            // Define the data processing pipeline
-            var dataProcessPipeline = _mlContext.Transforms.Text
-                .FeaturizeText("IngredientsFeaturized", new TextFeaturizingEstimator.Options
-                {
-                    WordFeatureExtractor = new WordBagEstimator.Options
-                    {
-                        NgramLength = 2,
-                        UseAllLengths = false,
-                    },
-                    Norm = TextFeaturizingEstimator.NormFunction.L2,
-                    StopWordsRemoverOptions = new StopWordsRemovingEstimator.Options()
-                }, nameof(RecipeInputProcessed.Ingredients))
-                .Append(_mlContext.Transforms.Conversion.MapValueToKey("Label"))
-                .Append(_mlContext.Transforms.Concatenate("Features", "IngredientsFeaturized"))
-                .Append(_mlContext.Transforms.NormalizeMinMax("Features"));
-
-            // Choose a different trainer
-            var trainer = _mlContext.MulticlassClassification.Trainers.LightGbm(new Microsoft.ML.Trainers.LightGbm.LightGbmMulticlassTrainer.Options
-            {
-                LabelColumnName = "Label",
-                FeatureColumnName = "Features",
-                NumberOfIterations = 100,
-                LearningRate = 0.1,
-                NumberOfLeaves = 31,
-                MinimumExampleCountPerLeaf = 20,
-                UseCategoricalSplit = true,
-                HandleMissingValue = true
-            })
-            .Append(_mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
-
-            // Create an ML pipeline
+            // Create and train the model
             var trainingPipeline = dataProcessPipeline.Append(trainer);
+            var trainedModel = trainingPipeline.Fit(data);
 
-            // Train the model
-            var trainedModel = trainingPipeline.Fit(trainData);
+            // Save the trained model
+            _mlContext.Model.Save(trainedModel, data.Schema, _modelPath);
 
-            /* Commented out 28/07/2024 to incorporate new pipeline
-            var trainTestSplit = _mlContext.Data.TrainTestSplit(processedDataView, testFraction: 0.2);
+            // Evaluate the model on the test set
+            var testMetrics = _mlContext.MulticlassClassification.Evaluate(trainedModel.Transform(data), labelColumnName: "Label", scoreColumnName: "Score");
 
-            
-            // using <SdcaMaximumEntropy> trainer
-            var pipeline = _mlContext.Transforms.Conversion
-                .MapValueToKey(inputColumnName: "RecipeName", outputColumnName: "Label")
-                .Append(_mlContext.Transforms.Text.FeaturizeText(inputColumnName: "Ingredients", outputColumnName: "Features"))
-                .AppendCacheCheckpoint(_mlContext);
+            // Log various metrics
+            Console.WriteLine($"Log-loss: {testMetrics.LogLoss}");
+            Console.WriteLine($"Log-loss reduction: {testMetrics.LogLossReduction}");
+            Console.WriteLine($"Macro accuracy: {testMetrics.MacroAccuracy}");
+            Console.WriteLine($"Micro accuracy: {testMetrics.MicroAccuracy}");
+            Console.WriteLine($"Top K accuracy: {testMetrics.TopKAccuracy}");
+            Console.WriteLine($"Top K prediction count: {testMetrics.TopKPredictionCount}");
 
-            //create trainingPipeline
-            var trainingPipeline = pipeline
-                .Append(_mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy("Label", "Features"))
-                .Append(_mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
-
-            var model = trainingPipeline.Fit(trainTestSplit.TrainSet);
-            */
-
-            _mlContext.Model.Save(trainedModel, trainTestSplit.TrainSet.Schema, _modelPath);
-
-            // Use cross-validation to evaluate the model
-            var cvResults = _mlContext.MulticlassClassification.CrossValidate(processedDataView, trainingPipeline, numberOfFolds: 5);
-
-            // Aggregate metrics
-            var logLoss = cvResults.Average(r => r.Metrics.LogLoss);
-            var microAccuracy = cvResults.Average(r => r.Metrics.MicroAccuracy);
-            var macroAccuracy = cvResults.Average(r => r.Metrics.MacroAccuracy);
-
-            Console.WriteLine($"Average LogLoss: {logLoss}");
-            Console.WriteLine($"Average MicroAccuracy: {microAccuracy}");
-            Console.WriteLine($"Average MacroAccuracy: {macroAccuracy}");
-
-            return (trainedModel, trainTestSplit.TestSet);
+            return trainedModel;
         }
 
         private ITransformer LoadModel()
         {
             var model = _mlContext.Model.Load(_modelPath, out var modelInputSchema);
 
-            // Load the test set
-
-            if (File.Exists(_testDataSetPath))
+            // Evaluate the loaded model if necessary
+            if (File.Exists(_dataPath))
             {
-                IDataView testData = _mlContext.Data.LoadFromBinary(_testDataSetPath);
+                var testData = _mlContext.Data.LoadFromTextFile<RecipeData>(_dataPath, separatorChar: ';', hasHeader: true);
+                var metrics = _mlContext.MulticlassClassification.Evaluate(model.Transform(testData), labelColumnName: "Label", scoreColumnName: "Score");
 
-                // Evaluate the model on the test data
-                var predictions = model.Transform(testData);
-                var metrics = _mlContext.MulticlassClassification.Evaluate(predictions, labelColumnName: "Label", scoreColumnName: "Score");
-
-                // Log model statistics to the console
                 Console.WriteLine($"Log-loss: {metrics.LogLoss}");
-                Console.WriteLine($"Per Class Log-loss: {string.Join(", ", metrics.PerClassLogLoss.Select((loss, index) => $"Class {index}: {loss}"))}");
                 Console.WriteLine($"Macro accuracy: {metrics.MacroAccuracy}");
                 Console.WriteLine($"Micro accuracy: {metrics.MicroAccuracy}");
             }
-            else
-            {
-                Console.WriteLine("Test set not found. Cannot evaluate the model.");
-            }
-
 
             return model;
         }
 
-        public RecipeOutput Predict(string ingredients)
+        public RecipePrediction Predict(string ingredients)
         {
             // Split ingredients string into an array
             var ingredientsArray = ingredients.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-            var predictionEngine = _mlContext.Model.CreatePredictionEngine<RecipeInputProcessed, RecipeOutput>(_trainedModel);
-            var prediction = predictionEngine.Predict(new RecipeInputProcessed { Ingredients = ingredientsArray });
-
-            /* old code used with the old SdcaMaximumEntropy trainer
-            var predictionEngine = _mlContext.Model.CreatePredictionEngine<RecipeInput, RecipeOutput>(_trainedModel);
-            var prediction = predictionEngine.Predict(new RecipeInput { Ingredients = ingredients });
-            */
+            var predictionEngine = _mlContext.Model.CreatePredictionEngine<RecipeData, RecipePrediction>(_trainedModel);
+            var prediction = predictionEngine.Predict(new RecipeData { Features = ingredientsArray });
 
             return prediction;
         }
