@@ -3,6 +3,7 @@ using ChefApp.Models.DbModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmileChef.Models.DbModels;
+using SmileChef.Models.Enums;
 
 namespace ChefApp.Models
 {
@@ -14,6 +15,8 @@ namespace ChefApp.Models
         public DbSet<Chef> Chefs { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
+        public DbSet<PremiumRecipe> PremiumRecipes { get; set; }
+
         public DbSet<Instruction> Instructions { get; set; }
         public DbSet<NotifySubscribers> NotifySubsribers { get; set; }
         public DbSet<Review> Reviews { get; set; }
@@ -69,6 +72,16 @@ namespace ChefApp.Models
                        .WithMany(c => c.PublishedSubscriptions)
                        .HasForeignKey(s => s.PublisherId)
                        .OnDelete(DeleteBehavior.NoAction);
+
+            // Configure inheritance for Recipe and PremiumRecipe using RecipeType as discriminator
+            modelBuilder.Entity<Recipe>()
+               .HasDiscriminator<RecipeType>("RecipeType")
+               .HasValue<Recipe>(RecipeType.Basic)
+               .HasValue<PremiumRecipe>(RecipeType.Premium);
+
+            modelBuilder.Entity<Recipe>()
+                .Property(r => r.RecipeType)
+                .HasConversion<string>();  // This line ensures that the enum is stored as a string in the database.
 
             modelBuilder.SeedAppData();
         }

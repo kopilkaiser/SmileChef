@@ -14,6 +14,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using static System.Net.WebRequestMethods;
 using System.IO;
+using SmileChef.Models.Enums;
 
 namespace SmileChef.Controllers
 {
@@ -261,10 +262,25 @@ namespace SmileChef.Controllers
                     model.Instructions = model.Instructions.OrderBy(i => i.OrderId).ToList();
                 }
 
-                Recipe? recipe;
+                Recipe recipe;
+
                 if (model.RecipeId == 0) // Add new recipe
                 {
-                    recipe = new Recipe();
+                    // Create a new recipe based on the RecipeType
+                    if (model.RecipeType == Models.Enums.RecipeType.Premium)
+                    {
+                        var premiumRecipe = new PremiumRecipe
+                        {
+                            Price = model.Price
+                        };
+                        recipe = premiumRecipe; // Treat it as a generic recipe after creation
+                    }
+                    else
+                    {
+                        recipe = new Recipe();
+                    }
+
+                    recipe.Name = model.Name!;
                     chef.Recipes.Add(recipe);
 
                     //create the notification
@@ -331,7 +347,7 @@ namespace SmileChef.Controllers
 
                 TempData["RecipeSuccessMessage"] = model.RecipeId == 0 ? "Recipe added successfully" : "Recipe updated successfully";
                 TempData["RecipeSuccess"] = true;
-                return RedirectToAction("Index");
+                return RedirectToAction("ManageRecipes");
             }
             else
             {
@@ -357,7 +373,7 @@ namespace SmileChef.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddInstruction(int recipeId, string recipeName, InstructionViewModel instruction)
+        public IActionResult AddInstruction(int recipeId, string recipeName, InstructionViewModel instruction, RecipeType recipeType, float? price)
         {
             AssignChefId();
             var chef = _chefRepo.GetById(_chefId);
@@ -366,12 +382,25 @@ namespace SmileChef.Controllers
 
             if (recipeId == 0)
             {
-                // Create a new recipe if recipeId is 0
-                recipe = new Recipe
+                // Create a new recipe based on RecipeType
+                if (recipeType == RecipeType.Premium)
                 {
-                    Name = recipeName,
-                    Instructions = new List<Instruction>()
-                };
+                    recipe = new PremiumRecipe
+                    {
+                        Name = recipeName,
+                        Price = price,
+                        Instructions = new List<Instruction>()
+                    };
+                }
+                else
+                {
+                    recipe = new Recipe
+                    {
+                        Name = recipeName,
+                        Instructions = new List<Instruction>(),
+                    };
+                }
+
                 chef.Recipes.Add(recipe);
                 _chefRepo.Update(chef);
                 //create the notification
@@ -495,16 +524,22 @@ namespace SmileChef.Controllers
         {
             var recipe = _recipeRepo.GetById(recipeId);
 
-            Review newReview = new Review();
-            newReview.Message = reviewMessage;
-            newReview.ReviewerId = chefId;
-            newReview.RecipeId = recipeId;
-            newReview.ReviewDate = DateTime.Now;
-            recipe.Reviews.Add(newReview);
-            _recipeRepo.Update(recipe);
+            var reviewer = _chefRepo.GetById(chefId);
+
+            Review newReview = new Review
+            {
+                Message = reviewMessage,
+                ReviewerId = chefId,
+                Reviewer = reviewer, // Assign the reviewer object
+                RecipeId = recipeId,
+                ReviewDate = DateTime.Now
+            };
+
+            recipe?.Reviews.Add(newReview);
+            _recipeRepo.Update(recipe!);
 
             ReviewViewModel vm = new ReviewViewModel();
-            vm.Reviews = recipe.Reviews;
+            vm.Reviews = recipe!.Reviews;
             return PartialView("_ViewRecipeReviews", vm.Reviews);
         }
         #endregion

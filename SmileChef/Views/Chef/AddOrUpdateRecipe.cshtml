@@ -1,5 +1,18 @@
-﻿@using SmileChef.ViewModels
+﻿@using SmileChef.Models.Enums
+@using SmileChef.ViewModels
 @model RecipeViewModel
+
+@{
+    List<SelectListItem> recipeTypeSelectList = new List<SelectListItem>();
+    var enumValues = Enum.GetValues<RecipeType>();
+    foreach (var e in enumValues)
+    {
+        SelectListItem item = new SelectListItem();
+        item.Text = e.ToString();
+        item.Value = e.ToString();
+        recipeTypeSelectList.Add(item);
+    }
+}
 
 @using (Html.BeginForm("SaveRecipe", "Chef", FormMethod.Post))
 {
@@ -8,12 +21,18 @@
         <div class="row align-items-center my-4">
             <div class="col-12 fs-5 pb-1">@Html.LabelFor(m => m.Name, "Recipe name")</div>
             <div class="col-12">@Html.TextBoxFor(m => m.Name, new { @class = "form-control", @placeholder = "Enter recipe name", id = "recipeName", required = "required" })</div>
+            <div class="col-12">
+                @Html.DropDownListFor(m => m.RecipeType, recipeTypeSelectList, "Select an option", new { @class = "form-select", id = "recipeTypeDropdown" })
+            </div>
+            <div class="col-12">
+                @Html.TextBoxFor(m => m.Price, new { @class = "form-control", id = "priceTextbox", @type = "number", @min = "0", @step = "0.01", disabled = "disabled", @placeholder = "Enter Premium Recipe price" })
+            </div>
             <div class="col-12">@Html.ValidationMessageFor(m => m.Name)</div>
         </div>
         <div class="row bg-body-secondary">
             <h3 class="mt-2">Instructions</h3>
             <div class="col-12 mt-2 mb-3">
-                <button type="button" class="btn btn-primary w-auto" onclick="showAddInstructionModal()">Add Instruction</button>
+                <button type="button" class="btn btn-primary w-auto select" onclick="showAddInstructionModal()">Add Instruction</button>
             </div>
             <table class="table table-group-divider table-hover">
                 <thead>
@@ -84,6 +103,8 @@
                 {
                     @Html.Hidden("RecipeName", "", new { @id = "recipeNameHidden" })
                     @Html.Hidden("RecipeId", Model.RecipeId)
+                    @Html.Hidden("RecipeType", Model.RecipeType.ToString(), new { @id = "recipeTypeHidden" })
+                    @Html.Hidden("Price", Model.Price.HasValue ? Model.Price.Value.ToString("0.00") : "", new { @id = "priceHidden" })
                     <div class="mb-3">
                         <label for="instructionDescription" class="form-label">Description</label>
                         <input type="text" class="form-control" name="Description" id="instructionDescription" placeholder="Enter instruction description">
@@ -105,9 +126,35 @@
 
 @section Scripts {
     <script>
+
+        // Function to toggle price textbox
+        function togglePriceTextbox() {
+            var recipeType = document.getElementById('recipeTypeDropdown').value;
+            var priceTextbox = document.getElementById('priceTextbox');
+            if (recipeType === "Premium") {
+                priceTextbox.disabled = false;
+                priceTextbox.required = true; // Make it required when Premium is selected
+            } else {
+                priceTextbox.disabled = true;
+                priceTextbox.required = false;
+                priceTextbox.value = ''; // Clear the value if not premium
+            }
+
+            document.getElementById('recipeTypeHidden').value = recipeType;
+        }
+
+        // Attach change event to dropdown
+        document.getElementById('recipeTypeDropdown').addEventListener('change', togglePriceTextbox);
+
+        // Run on page load in case the form is pre-filled
+        togglePriceTextbox();
+
         function showAddInstructionModal() {
             var modal = new bootstrap.Modal(document.getElementById('addInstructionModal'));
             let recipeName = $('#recipeName').val();
+            let recipeType = $('#recipeTypeDropdown').val();
+            let price = $('#priceTextbox').val();
+
             console.log(`recipeName: ${typeof recipeName}`)
             if (recipeName === "" || recipeName === null) {
                 Swal.fire({
@@ -118,10 +165,10 @@
                     alert("Recipe name invalid validation has been shown successfully!");
                 });
                 return;
-            } else if (recipeName.length > 20){
+            } else if (recipeName.length > 50){
                 Swal.fire({
                     title: "Invalid Recipe Name",
-                    text: "Recipe Name cannot exceed 20 characters",
+                    text: "Recipe Name cannot exceed 50 characters",
                     icon: "error"
                 })
                 return;
@@ -132,6 +179,13 @@
         // Update hidden field when recipe name changes
         document.getElementById('recipeName').addEventListener('input', function () {
             document.getElementById('recipeNameHidden').value = this.value;
+        });
+
+    
+
+        // Update hidden field when recipe Price changes
+        document.getElementById('priceTextbox').addEventListener('input', function () {
+            document.getElementById('priceHidden').value = this.value;
         });
     </script>
 }

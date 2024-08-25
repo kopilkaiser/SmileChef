@@ -28,7 +28,7 @@ namespace ChefApp.Extensions
                 new Chef { ChefId = 6, FirstName = "Emeril", LastName = "Lagasse", UserId = 6, Rating = 5, SubscriptionCost = 10.99m, AccountBalance = 7000m }
             );
 
-            // Seed Recipes
+            // Seed Basic Recipes
             modelBuilder.Entity<Recipe>().HasData(
                 new Recipe { RecipeId = 1, Name = "Beef Wellington", ChefId = 1 },
                 new Recipe { RecipeId = 2, Name = "Pasta Carbonara", ChefId = 2 },
@@ -36,8 +36,29 @@ namespace ChefApp.Extensions
                 new Recipe { RecipeId = 4, Name = "Lentil Soup", ChefId = 4 },
                 new Recipe { RecipeId = 5, Name = "Roast Chicken", ChefId = 5 },
                 new Recipe { RecipeId = 6, Name = "Bananas Foster", ChefId = 6 },
-                 new Recipe { RecipeId = 7, Name = "Beef Bolognese", ChefId = 1 },
-                new Recipe { RecipeId = 8, Name = "Chicken Mushroom Soup", ChefId = 1 }
+                new Recipe { RecipeId = 7, Name = "Beef Bolognese", ChefId = 1 },
+                new Recipe { RecipeId = 8, Name = "Chicken Mushroom Soup", ChefId = 1 },
+                new Recipe { RecipeId = 15, Name = "Classic Margherita Pizza", ChefId = 2 }, // New basic recipe
+                new Recipe { RecipeId = 16, Name = "Seafood Paella", ChefId = 3 }, // New basic recipe
+                new Recipe { RecipeId = 17, Name = "Vegetarian Stir Fry", ChefId = 4 }, // New basic recipe
+                new Recipe { RecipeId = 18, Name = "Slow Cooked Lamb Shank", ChefId = 5 }, // New basic recipe
+                new Recipe { RecipeId = 19, Name = "Creole Gumbo", ChefId = 6 } // New basic recipe
+            );
+
+            // Seed Premium Recipes
+            modelBuilder.Entity<PremiumRecipe>().HasData(
+                new PremiumRecipe { RecipeId = 9, Name = "Gourmet Beef Wellington", ChefId = 1, Price = 49.99f },
+                new PremiumRecipe { RecipeId = 10, Name = "Truffle Risotto", ChefId = 2, Price = 39.99f },
+                new PremiumRecipe { RecipeId = 11, Name = "Sushi Deluxe", ChefId = 3, Price = 29.99f },
+                new PremiumRecipe { RecipeId = 12, Name = "Organic Farm-to-Table Salad", ChefId = 4, Price = 19.99f },
+                new PremiumRecipe { RecipeId = 13, Name = "Foie Gras Terrine", ChefId = 5, Price = 59.99f },
+                new PremiumRecipe { RecipeId = 14, Name = "Emeril's Essence Special", ChefId = 6, Price = 24.99f },
+                new PremiumRecipe { RecipeId = 20, Name = "Lobster Thermidor", ChefId = 1, Price = 69.99f }, // New premium recipe
+                new PremiumRecipe { RecipeId = 21, Name = "Caviar Blinis", ChefId = 2, Price = 99.99f }, // New premium recipe
+                new PremiumRecipe { RecipeId = 22, Name = "Wagyu Beef Sushi", ChefId = 3, Price = 89.99f }, // New premium recipe
+                new PremiumRecipe { RecipeId = 23, Name = "Truffle Mushroom Soup", ChefId = 4, Price = 34.99f }, // New premium recipe
+                new PremiumRecipe { RecipeId = 24, Name = "Duck à l'Orange", ChefId = 5, Price = 54.99f }, // New premium recipe
+                new PremiumRecipe { RecipeId = 25, Name = "Oysters Rockefeller", ChefId = 6, Price = 44.99f } // New premium recipe
             );
 
             // Seed Instructions with optional Time field
@@ -67,7 +88,75 @@ namespace ChefApp.Extensions
                 new Instruction { InstructionId = 23, Description = "Cook Chicken Soup", RecipeId = 8, OrderId = 1, Duration = TimeSpan.FromMinutes(35) },
                 new Instruction { InstructionId = 24, Description = "Add chopped Mushroom, Cillantro, Corriander", RecipeId = 8, OrderId = 2, Duration = TimeSpan.FromMinutes(2) },
                 new Instruction { InstructionId = 25, Description = "Simmer the ingredients", RecipeId = 8, OrderId = 3, Duration = TimeSpan.FromMinutes(5) },
-                new Instruction { InstructionId = 26, Description = "Plate the soup with sprinkled corriander and chillies", RecipeId = 8, OrderId = 4 }
+                new Instruction { InstructionId = 26, Description = "Plate the soup with sprinkled corriander and chillies", RecipeId = 8, OrderId = 4 },
+                new Instruction { InstructionId = 27, Description = "Prepare gourmet beef", RecipeId = 9, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
+                new Instruction { InstructionId = 28, Description = "Wrap with prosciutto and puff pastry", RecipeId = 9, OrderId = 2 },
+                new Instruction { InstructionId = 29, Description = "Bake to perfection", RecipeId = 9, OrderId = 3, Duration = TimeSpan.FromMinutes(25) },
+
+                new Instruction { InstructionId = 30, Description = "Prepare truffle stock", RecipeId = 10, OrderId = 1, Duration = TimeSpan.FromMinutes(10) },
+                new Instruction { InstructionId = 31, Description = "Cook Arborio rice", RecipeId = 10, OrderId = 2, Duration = TimeSpan.FromMinutes(18) },
+                new Instruction { InstructionId = 32, Description = "Add truffle and parmesan", RecipeId = 10, OrderId = 3 },
+
+                new Instruction { InstructionId = 33, Description = "Prepare sushi-grade tuna", RecipeId = 11, OrderId = 1 },
+                new Instruction { InstructionId = 34, Description = "Roll with sushi rice and nori", RecipeId = 11, OrderId = 2, Duration = TimeSpan.FromMinutes(8) },
+                new Instruction { InstructionId = 35, Description = "Garnish with caviar", RecipeId = 11, OrderId = 3 },
+
+                new Instruction { InstructionId = 36, Description = "Chop organic vegetables", RecipeId = 12, OrderId = 1, Duration = TimeSpan.FromMinutes(12) },
+                new Instruction { InstructionId = 37, Description = "Prepare vinaigrette dressing", RecipeId = 12, OrderId = 2 },
+                new Instruction { InstructionId = 38, Description = "Toss and serve fresh", RecipeId = 12, OrderId = 3 },
+
+                new Instruction { InstructionId = 39, Description = "Prepare foie gras", RecipeId = 13, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
+                new Instruction { InstructionId = 40, Description = "Cook terrine with truffles", RecipeId = 13, OrderId = 2, Duration = TimeSpan.FromMinutes(30) },
+                new Instruction { InstructionId = 41, Description = "Serve with toasted brioche", RecipeId = 13, OrderId = 3 },
+
+                new Instruction { InstructionId = 42, Description = "Mix Emeril's special spices", RecipeId = 14, OrderId = 1 },
+                new Instruction { InstructionId = 43, Description = "Marinate the meat", RecipeId = 14, OrderId = 2, Duration = TimeSpan.FromMinutes(20) },
+                new Instruction { InstructionId = 44, Description = "Cook to desired doneness", RecipeId = 14, OrderId = 3 },
+                // Instructions for new basic recipes
+                new Instruction { InstructionId = 45, Description = "Prepare pizza dough", RecipeId = 15, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
+                new Instruction { InstructionId = 46, Description = "Add tomato sauce and mozzarella", RecipeId = 15, OrderId = 2 },
+                new Instruction { InstructionId = 47, Description = "Bake in oven", RecipeId = 15, OrderId = 3, Duration = TimeSpan.FromMinutes(10) },
+
+                new Instruction { InstructionId = 48, Description = "Cook seafood", RecipeId = 16, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
+                new Instruction { InstructionId = 49, Description = "Prepare paella rice", RecipeId = 16, OrderId = 2 },
+                new Instruction { InstructionId = 50, Description = "Combine seafood with rice", RecipeId = 16, OrderId = 3, Duration = TimeSpan.FromMinutes(20) },
+
+                new Instruction { InstructionId = 51, Description = "Chop vegetables", RecipeId = 17, OrderId = 1, Duration = TimeSpan.FromMinutes(10) },
+                new Instruction { InstructionId = 52, Description = "Stir fry in wok", RecipeId = 17, OrderId = 2 },
+                new Instruction { InstructionId = 53, Description = "Serve with soy sauce", RecipeId = 17, OrderId = 3, Duration = TimeSpan.FromMinutes(5) },
+
+                new Instruction { InstructionId = 54, Description = "Prepare lamb shank", RecipeId = 18, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
+                new Instruction { InstructionId = 55, Description = "Slow cook for 4 hours", RecipeId = 18, OrderId = 2, Duration = TimeSpan.FromHours(4) },
+                new Instruction { InstructionId = 56, Description = "Serve with mashed potatoes", RecipeId = 18, OrderId = 3 },
+
+                new Instruction { InstructionId = 57, Description = "Prepare roux", RecipeId = 19, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
+                new Instruction { InstructionId = 58, Description = "Add seafood and sausage", RecipeId = 19, OrderId = 2 },
+                new Instruction { InstructionId = 59, Description = "Simmer and serve over rice", RecipeId = 19, OrderId = 3, Duration = TimeSpan.FromMinutes(20) },
+
+                // Instructions for new premium recipes
+                new Instruction { InstructionId = 60, Description = "Prepare lobster", RecipeId = 20, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
+                new Instruction { InstructionId = 61, Description = "Cook thermidor sauce", RecipeId = 20, OrderId = 2, Duration = TimeSpan.FromMinutes(10) },
+                new Instruction { InstructionId = 62, Description = "Bake lobster with sauce", RecipeId = 20, OrderId = 3, Duration = TimeSpan.FromMinutes(20) },
+
+                new Instruction { InstructionId = 63, Description = "Prepare blini batter", RecipeId = 21, OrderId = 1, Duration = TimeSpan.FromMinutes(10) },
+                new Instruction { InstructionId = 64, Description = "Cook blinis", RecipeId = 21, OrderId = 2, Duration = TimeSpan.FromMinutes(5) },
+                new Instruction { InstructionId = 65, Description = "Top with caviar", RecipeId = 21, OrderId = 3 },
+
+                new Instruction { InstructionId = 66, Description = "Prepare wagyu beef", RecipeId = 22, OrderId = 1, Duration = TimeSpan.FromMinutes(10) },
+                new Instruction { InstructionId = 67, Description = "Roll sushi with wagyu and rice", RecipeId = 22, OrderId = 2 },
+                new Instruction { InstructionId = 68, Description = "Serve with soy sauce", RecipeId = 22, OrderId = 3 },
+
+                new Instruction { InstructionId = 69, Description = "Prepare mushroom soup base", RecipeId = 23, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
+                new Instruction { InstructionId = 70, Description = "Add truffle oil and cream", RecipeId = 23, OrderId = 2 },
+                new Instruction { InstructionId = 71, Description = "Simmer and serve", RecipeId = 23, OrderId = 3, Duration = TimeSpan.FromMinutes(10) },
+
+                new Instruction { InstructionId = 72, Description = "Prepare duck", RecipeId = 24, OrderId = 1, Duration = TimeSpan.FromMinutes(20) },
+                new Instruction { InstructionId = 73, Description = "Cook orange sauce", RecipeId = 24, OrderId = 2 },
+                new Instruction { InstructionId = 74, Description = "Serve duck with sauce", RecipeId = 24, OrderId = 3, Duration = TimeSpan.FromMinutes(15) },
+
+                new Instruction { InstructionId = 75, Description = "Prepare oysters", RecipeId = 25, OrderId = 1, Duration = TimeSpan.FromMinutes(10) },
+                new Instruction { InstructionId = 76, Description = "Top with Rockefeller sauce", RecipeId = 25, OrderId = 2 },
+                new Instruction { InstructionId = 77, Description = "Bake oysters", RecipeId = 25, OrderId = 3, Duration = TimeSpan.FromMinutes(8) }
             );
 
             // Fixed DateTime value

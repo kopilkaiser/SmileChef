@@ -3,6 +3,7 @@
 
 
 @{
+    var currentAction = Url.ActionContext.RouteData.Values["action"].ToString();
 }
 <style>
     .card-header {
@@ -87,7 +88,7 @@
                         <div class="card-footer">
                             <div>
                                 <a class="btn btn-info" asp-action="ViewChefDetails" asp-controller="Chef" asp-route-chefId="@chef.ChefId">View More</a>
-                                <a class="btn btn-success" asp-action="ManageSubscription" asp-route-chefId="@chef.ChefId" asp-route-listNum[0] ="5" asp-route-listNum[1]="10" asp-route-isDanger="true">
+                                <a class="btn btn-success" asp-action="ManageSubscription" asp-route-chefId="@chef.ChefId" asp-route-returnUrl="@currentAction">
                                     @{
                                         var isChefSubscribed = Model.CurrentChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == chef.ChefName);
                                     }

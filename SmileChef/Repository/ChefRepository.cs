@@ -1,6 +1,7 @@
 ﻿using ChefApp.Models;
 using ChefApp.Models.DbModels;
 using Microsoft.EntityFrameworkCore;
+using SmileChef.Models.DbModels;
 using SmileChef.ViewModels;
 
 namespace SmileChef.Repository
@@ -46,7 +47,10 @@ namespace SmileChef.Repository
                         OrderId = i.OrderId,
                         Duration = i.Duration
                     }).ToList(),
-                    Reviews = r.Reviews
+                    Reviews = r.Reviews,
+                    RecipeType = r.RecipeType,
+                    // Set Price only if it is a PremiumRecipe
+                    Price = r is PremiumRecipe premiumRecipe ? premiumRecipe.Price : null
                 }).ToList(),
                 SubscribedTo = c.SubscribedTo.Select(s => new SubscriptionViewModel
                 {
@@ -54,7 +58,7 @@ namespace SmileChef.Repository
                     SubscriptionDate = s.SubscriptionDate,
                     Amount = s.Amount,
                     SubscriptionType = s.SubscriptionType,
-                    PublisherName = $"{s.Publisher.FirstName} {s.Publisher.LastName}"
+                    PublisherName = $"{s.Publisher?.FirstName} {s.Publisher?.LastName}"
                 }).ToList(),
                 PublishedSubscriptions = c.PublishedSubscriptions.Select(s => new SubscriptionViewModel
                 {
@@ -62,7 +66,7 @@ namespace SmileChef.Repository
                     SubscriptionDate = s.SubscriptionDate,
                     Amount = s.Amount,
                     SubscriptionType = s.SubscriptionType,
-                    SubscriberName = $"{s.Subscriber.FirstName} {s.Subscriber.LastName}"
+                    SubscriberName = $"{s.Subscriber?.FirstName} {s.Subscriber?.LastName}"
                 }).ToList()
             }).ToList();
 
