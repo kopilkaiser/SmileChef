@@ -84,7 +84,7 @@ namespace SmileChef.Controllers
         }
 
         [HttpGet]
-        public IActionResult ShowChefCards(bool showSubscriptionModal = false)
+        public async Task<IActionResult> ShowChefCards(bool showSubscriptionModal = false, bool showUnsubscribedMessage = false)
         {
             AssignChefId();
             ViewBag.CurrentActive = "ShowChefCards";
@@ -95,11 +95,12 @@ namespace SmileChef.Controllers
             {
                 currentChefUserId = _httpContextAccessor.HttpContext.Session.GetObjectFromJson<int>("CurrentUserId");
             }
-            var chefs = _chefRepo.GetChefsWithDetails().Where(c => c.User.UserId != currentChefUserId).OrderByDescending(c => c.Rating).ToList();
+            var chefs = (await _chefRepo.GetChefsWithDetailsAsync()).Where(c => c.User.UserId != currentChefUserId).OrderByDescending(c => c.Rating).ToList();
+            var currentChef = GetCurrentChef();
 
             ChefSubsciptionViewModel vm = new();
             vm.Chefs = chefs;
-            vm.CurrentChef = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == _chefId);
+            vm.CurrentChef = currentChef;
 
             if (showSubscriptionModal)
             {
@@ -107,14 +108,18 @@ namespace SmileChef.Controllers
             }
             else @ViewBag.ShowSubscriptionModal = false;
 
+            ViewBag.ShowUnsubscribedMessage = showUnsubscribedMessage;
+
             return View(vm);
         }
 
         [HttpGet]
-        public IActionResult ManageSubscription(int chefId, string returnUrl)
+        public async Task<IActionResult> ManageSubscription(int chefId, string returnUrl)
         {
+            bool showUnsubscribedMessage = false;
+
             var currentChef = GetCurrentChef();
-            var destChef = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == chefId);
+            var destChef = (await _chefRepo.GetChefsWithDetailsAsync()).FirstOrDefault(c => c.ChefId == chefId);
 
             var subscription = currentChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == destChef.ChefName);
             HttpContext.Session.SetObjectAsJson(key: "ChefIdToSubscribe", destChef.ChefId);
@@ -129,13 +134,14 @@ namespace SmileChef.Controllers
                 // means currentChef will unsubscribe to destChef (Unscribe to subscription)
                 var sub = _subRepo.GetById(subscription.SubscriptionId);
                 _subRepo.Delete(sub);
+                showUnsubscribedMessage = true;
             }
 
-           return RedirectToAction(returnUrl);       
+           return RedirectToAction(returnUrl, new { showUnsubscribedMessage });       
         }
 
         [HttpPost]
-        public IActionResult ProcessSubscription([FromBody] JsonElement query)
+        public async Task<IActionResult> ProcessSubscription([FromBody] JsonElement query)
         {
             //create subscription
             var destChefId = HttpContext.Session.GetObjectFromJson<int>("ChefIdToSubscribe");
@@ -153,12 +159,12 @@ namespace SmileChef.Controllers
         }
 
         [HttpGet]
-        public IActionResult ViewChefDetails(int chefId, bool showSubscriptionModal = false)
+        public async Task<IActionResult> ViewChefDetails(int chefId, bool showSubscriptionModal = false, bool showUnsubscribedMessage = false)
         {
             AssignCurrentPageStatus("");
 
             if (chefId == 0) chefId = HttpContext.Session.GetObjectFromJson<int>("ChefIdToSubscribe");
-            var chefViewModel = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == chefId);
+            var chefViewModel = (await _chefRepo.GetChefsWithDetailsAsync()).FirstOrDefault(c => c.ChefId == chefId);
             var loggedChef = GetCurrentChef();
 
             bool isSubscribed = loggedChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == chefViewModel.ChefName) != null;
@@ -166,8 +172,34 @@ namespace SmileChef.Controllers
             ViewBag.IsSubscribed = isSubscribed;
 
             ViewBag.ShowSubscriptionModal = showSubscriptionModal;
+            ViewBag.ShowUnsubscribedMessage = showUnsubscribedMessage;
 
             return View(chefViewModel);
+        }
+
+        [HttpGet] 
+        public IActionResult ViewRecipeMarket()
+        {
+            AssignCurrentPageStatus(nameof(ViewRecipeMarket));
+            var recipes = _recipeRepo.GetAll();
+            return View(recipes);
+        }
+
+        [HttpGet]
+        public IActionResult FilterRecipeMartetByRecipeType(string recipeType)
+        {
+            List<Recipe> recipes;
+
+            if(recipeType == null || recipeType == "")
+            {
+                recipes = _recipeRepo.GetAll();
+            }
+            else
+            {
+                recipes = _recipeRepo.GetAll().Where(r => r.RecipeType == Enum.Parse<RecipeType>(recipeType)).ToList();
+            }
+
+            return PartialView("_RecipeMarketListPartial", recipes);
         }
 
         [HttpPost]
@@ -194,10 +226,10 @@ namespace SmileChef.Controllers
             ViewBag.CurrentChefId = _chefId;
             return View(recipe);
         }
-        public IActionResult ManageRecipes(bool json = false)
+        public async Task<IActionResult> ManageRecipes(bool json = false)
         {
             AssignCurrentPageStatus("ManageRecipes");
-            var chefVM = _chefRepo.GetChefsWithDetails().Find(c => c.User.UserId == _currentUserId);
+            var chefVM = (await _chefRepo.GetChefsWithDetailsAsync()).Find(c => c.User.UserId == _currentUserId);
             if (chefVM == null)
             {
                 // Handle the case where the chef is not found, perhaps redirect to an error page or return a default view.
@@ -214,7 +246,7 @@ namespace SmileChef.Controllers
         }
 
         [HttpGet]
-        public IActionResult AddRecipe(int recipeId)
+        public async Task<IActionResult> AddRecipe(int recipeId)
         {
             AssignCurrentPageStatus("");
 
@@ -227,7 +259,7 @@ namespace SmileChef.Controllers
             else
             {
                 AssignChefId();
-                var chef = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == _chefId);
+                var chef = (await _chefRepo.GetChefsWithDetailsAsync()).FirstOrDefault(c => c.ChefId == _chefId);
                 vm = chef.Recipes.FirstOrDefault(r => r.RecipeId == recipeId)!;
             }
             return View("AddOrUpdateRecipe", vm);
@@ -364,12 +396,20 @@ namespace SmileChef.Controllers
             var recipeToRemove = chef.Recipes.FirstOrDefault(r => r.RecipeId == id);
             if (recipeToRemove == null) { throw new Exception($"Couldn't find recipe with recipeId: {id}"); }
 
+            var notifications = _notifySubscribers.GetAll().Where(ns => ns.RecipeId == recipeToRemove.RecipeId).ToList();
+
+            notifications.ForEach(n =>
+            {
+                _notifySubscribers.Delete(n);
+            });
+
+
             chef.Recipes.Remove(recipeToRemove);
             _chefRepo.Update(chef);
 
             TempData["RecipeSuccessMessage"] = "Recipe deleted successfully";
             TempData["RecipeSuccess"] = false;
-            return RedirectToAction("Index");
+            return RedirectToAction("ManageRecipes");
         }
 
         [HttpPost]

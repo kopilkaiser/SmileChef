@@ -159,6 +159,18 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+
+            // #region Handling unsubscribing pop-up message
+            let showUnsubscribedMessage = "@ViewBag.ShowUnsubscribedMessage".toLowerCase() === "true";
+            if (showUnsubscribedMessage) {
+                Swal.fire({
+                    title: "Unsubscribed",
+                    text: "You have successfully unsubscribed the chef",
+                    icon: "success"
+                })
+            }
+            // #endregion
+
             let showModal = @(ViewBag.ShowSubscriptionModal.ToString().ToLower());
             console.log("show subscription modal: " + showModal)
             if (showModal) {
@@ -185,7 +197,7 @@
                         if (response.success) {
                             $('#subscriptionModal').modal('hide');
                             Swal.fire({
-                                title: "",
+                                title: "Subscribed",
                                 text: "You have successfully subscribed to the chef",
                                 icon: "success"
                             }).then((result) => {

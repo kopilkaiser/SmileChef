@@ -22,5 +22,16 @@ namespace SmileChef.Repository
 
             return recipe;
         }
+
+        public override List<Recipe> GetAll()
+        {
+            var recipes = _context.Recipes
+                .Include(r => r.Instructions)
+                .Include(r => r.Reviews)
+                .ThenInclude(review => review.Reviewer)
+                .Include(r => r.Chef).ToList();
+
+            return recipes;
+        }
     }
 }

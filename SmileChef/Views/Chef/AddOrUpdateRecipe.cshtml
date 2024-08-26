@@ -20,14 +20,14 @@
     <div class="container">
         <div class="row align-items-center my-4">
             <div class="col-12 fs-5 pb-1">@Html.LabelFor(m => m.Name, "Recipe name")</div>
-            <div class="col-12">@Html.TextBoxFor(m => m.Name, new { @class = "form-control", @placeholder = "Enter recipe name", id = "recipeName", required = "required" })</div>
-            <div class="col-12">
-                @Html.DropDownListFor(m => m.RecipeType, recipeTypeSelectList, "Select an option", new { @class = "form-select", id = "recipeTypeDropdown" })
+            <div class="col-12 mb-2">@Html.TextBoxFor(m => m.Name, new { @class = "form-control", @placeholder = "Enter recipe name", id = "recipeName", required = "required" })</div>
+            <div class="col-12">@Html.ValidationMessageFor(m => m.Name)</div>
+            <div class="col-md-5 mb-2 mb-md-0">
+                @Html.DropDownListFor(m => m.RecipeType, recipeTypeSelectList, "Select Recipe Type", new { @class = "form-select", id = "recipeTypeDropdown" })
             </div>
-            <div class="col-12">
+            <div class="col-md-4 col-xl-3">
                 @Html.TextBoxFor(m => m.Price, new { @class = "form-control", id = "priceTextbox", @type = "number", @min = "0", @step = "0.01", disabled = "disabled", @placeholder = "Enter Premium Recipe price" })
             </div>
-            <div class="col-12">@Html.ValidationMessageFor(m => m.Name)</div>
         </div>
         <div class="row bg-body-secondary">
             <h3 class="mt-2">Instructions</h3>

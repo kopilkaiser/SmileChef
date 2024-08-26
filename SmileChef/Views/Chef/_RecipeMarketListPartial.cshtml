@@ -1,0 +1,44 @@
+﻿@using ChefApp.Models.DbModels
+@using SmileChef.Models.DbModels
+@model List<Recipe>
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@foreach (var recipe in Model)
+{
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                @if (recipe is PremiumRecipe pr)
+                {
+                    <div class="mb-2 d-flex justify-content-between">
+                        <span class="lead">@pr.RecipeType.ToString()</span>
+                        <span class="bold">@($"{pr.Price:C2}")</span>
+                    </div>
+                }
+                else
+                {
+                    <span class="lead">@recipe.RecipeType.ToString()</span>
+                }
+
+                <div class="card-img img-thumbnail"><img src="~/images/recipe1.jpeg" width="100%" height="200px" style="object-fit:cover;" /></div>
+                <div class="card-title pt-2 fs-4">@recipe.Name</div>
+            </div>
+            <div class="card-body">
+                <a href="#" class="btn btn-info" data-bs-toggle="collapse" data-bs-target="#@("instructions_" + recipe.RecipeId)">Show more..</a>
+                <div id="@("instructions_" + recipe.RecipeId)" class="collapse mt-3">
+                    <ul class="list-group">
+                        @foreach (var instruct in recipe.Instructions)
+                        {
+                            <li class="list-group-item">@instruct.OrderId. @instruct.Description&nbsp;&nbsp; @(instruct.Duration.HasValue ? instruct.Duration.Value.Minutes : "N/A")</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+}

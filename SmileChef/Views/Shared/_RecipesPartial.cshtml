@@ -32,10 +32,14 @@
                             <div class="d-flex align-items-center gap-1 py-2">
                                 <i class="fa-solid fa-bowl-food fs-4 pe-1"></i>
                                 <span class="my-1">Recipe:</span>
-                                <a asp-action="AddRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId"><span class="fw-bold recipe-name" title="@string.Format("Update {0}", recipe.Name)">@recipe.Name</span></a>
-                                <a asp-action="ViewRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId" class="bg-black">View</a>
+                                <a asp-action="ViewRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId"><span class="fw-bold recipe-name" title="@string.Format("View {0}", recipe.Name)">@recipe.Name</span></a>
                             </div>
-                            <a class="btn btn-danger p-1 ms-4" asp-action="DeleteRecipe" asp-controller="Chef" asp-route-id="@recipe.RecipeId" title="@string.Format("Delete {0}", recipe.Name)"><i class="bi bi-x"></i></a>
+                            <div class="d-flex align-items-center gap-2">
+                                <a asp-action="AddRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId" title="@string.Format("Update {0}", recipe.Name)"><i class="fa-regular fa-pen-to-square text-white fs-5"></i></a>
+                                <a asp-action="DeleteRecipe" asp-controller="Chef" asp-route-id="@recipe.RecipeId" title="@string.Format("Delete {0}", recipe.Name)">
+                                    <i class="fa-solid fa-trash-can text-white fs-5"></i>
+                                </a>
+                            </div>
                         </div>
                         <div class="card-body">
                             <!-- AnchorTag to trigger modal -->

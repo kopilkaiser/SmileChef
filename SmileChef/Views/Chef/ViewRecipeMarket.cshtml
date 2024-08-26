@@ -1,0 +1,71 @@
+﻿@using ChefApp.Models.DbModels
+@using SmileChef.Models.DbModels
+@using SmileChef.ViewModels
+@model List<Recipe>
+
+@{
+
+}
+
+
+
+<div class="row mb-3 mt-2">
+    <div class="col-md-3 mb-2 mb-md-0">
+        @Html.DropDownList("SelectRecipeType", new List<SelectListItem>()
+        {
+                    new SelectListItem(){Text = "Basic", Value="Basic"},
+                    new SelectListItem(){Text = "Premium", Value="Premium"}
+        }, "Filter By Recipe Type", new {@class="form-select", @onchange="onRecipeTypeChanged(this)"})
+    </div>
+    <div class="col-md-5 d-flex gap-2">
+        <input id="tbSearchRecipeName" class="form-control" type="search" placeholder="Search by Recipe Name" aria-label="Search" onchange="onSearchRecipeName(this)">
+        <button id="btnSearchRecipeName" class="btn btn-outline-success">Search</button>
+    </div>
+</div>
+
+<div class="row gy-2" id="recipeListContainer">
+    @{
+        await Html.RenderPartialAsync("_RecipeMarketListPartial", Model);
+    }
+</div>
+
+@section Scripts{
+    <script>
+        function onRecipeTypeChanged(selection) {
+            let recipeType = $(selection).val();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("FilterRecipeMartetByRecipeType")',
+                data: { recipeType: recipeType },
+                dataType : "html",
+                contentType : "application/x-www-form-urlencoded; charset=UTF-8;",
+                success: function (response) {
+                    $('#recipeListContainer').empty().html(response);
+                    Swal.fire({
+                        title: "",
+                        text: "Recipes have been filtered successfully",
+                        icon: "success"
+                    })
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText;
+                    console.log('Error - ' + errorMessage);
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: errorMessage,
+                        icon: "error"
+                    });
+                }
+            });
+        }
+
+        function onSearchRecipeName(input) {
+            let searchValue = $(input).val();
+            console.log(`Search Value: ${searchValue}`)
+        }
+
+        $(document).ready(function () {
+            console.log("Page loaded ViewRecipeMarket.cshtml")
+        });
+    </script>
+}
