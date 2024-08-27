@@ -231,6 +231,13 @@ namespace SmileChef.Controllers
             return Json(new { success = true, message = "Notification dismissed" });
         }
 
+        [HttpGet]
+        public IActionResult ViewChefRestaurants()
+        {
+            AssignCurrentPageStatus("ViewChefRestaurants");
+            return View();
+        }
+
         #region Recipe Management
 
         [HttpGet]

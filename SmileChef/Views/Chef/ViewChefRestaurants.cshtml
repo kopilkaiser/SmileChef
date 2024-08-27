@@ -1,0 +1,185 @@
+﻿@*
+    Reference to my BankingWebApp project completed in Kingston University: https://github.com/kopilkaiser/BankApplicationKU/tree/master/BankingWebApp
+    Developer: Kopil Kaiser, K2360182
+
+    Using two APIs:
+    1) Google JavaScript API
+    2) Directions API
+*@
+@{
+}
+
+<div class="container row gap-2 pt-2 pb-4">
+    <h3 class="fw-light">Locate Chef Restaurants Locations:</h3>
+    <hr>
+    <div>
+        <div id="map" style="height: 80vh;"></div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        // Declare global variables for map, InfoWindows, and state flags
+        let map = null;
+        let infoWindow = null;
+        let infoWindow2 = null;
+        let homeInfoWindow = null;
+        let isInfoWindowOpen = false;
+        let customOriginMarker = null;
+        let directionsRender = null;
+        let homeMarker = null;
+
+        const bankBranches = [
+            { lat: 51.40785634278187, lng: -0.29675218001524584, title: "Kingston Upon Thames - FastBank", location: "Located in Kingston Upon Thames", operatingTime: "09:00 - 17:00", phone: "+447745566123" },
+            { lat: 51.4989954985025, lng: -0.11582109991560025, title: "Central London - FastBank", location: "Located in Kingston Upon Thames", operatingTime: "09:00 - 18:00", phone: "+447711223334" },
+            { lat: 51.50968065297982, lng: -0.3060218904224092, title: "Ealing - FastBank", location: "Located in Kingston Upon Thames", operatingTime: "09:00 - 15:30", phone: "+447733332222" },
+            { lat: 51.41133622965335, lng: 0.014899074168950227, title: "Bromley - FastBank", location: "Located in Brixton", operatingTime: "09:00 - 16:30", phone: "+447799991111" },
+            { lat: 51.61474228028355, lng: -0.25151937991059076, title: "Edgware - FastBank", location: "Located in Edgware", operatingTime: "09:00 - 18:30", phone: "+447723456789" },
+            { lat: 51.55244958656883, lng: 0.07257729361227812, title: "Illford - FastBank", location: "Located in Illford", operatingTime: "09:00 - 18:30", phone: "+447766662345" }
+        ];
+
+        // Initialize the Google Map
+        async function initMap() {
+            const { Map, InfoWindow } = await google.maps.importLibrary("maps");
+            const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+
+            const centerMapAtHome = new google.maps.LatLng(51.41702394686937, -0.21643608325841981); // Home location
+            const centerMapAtLondon = new google.maps.LatLng(51.4989954985025, -0.11582109991560025); // Initial center for the map
+
+            map = new Map(document.getElementById("map"), {
+                zoom: 10,
+                center: centerMapAtLondon,
+                mapId: "c03c281411373709"
+            });
+
+            // Initialize InfoWindows
+            infoWindow = new InfoWindow();
+            infoWindow2 = new InfoWindow();
+            homeInfoWindow = new InfoWindow();
+
+            // Reset flags when InfoWindows are closed
+            infoWindow.addListener('closeclick', () => { isInfoWindowOpen = false; });
+            infoWindow2.addListener('closeclick', () => { isInfoWindowOpen = false; });
+
+            // Initialize DirectionsService and DirectionsRenderer
+            const directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+
+            // Place the home marker on the map
+            placeMarker(centerMapAtHome, "My Home", homeInfoWindow);
+
+            // Create markers for bank branches
+            bankBranches.forEach((branch, i) => {
+                const pin = new PinElement({
+                    background: "#e5002e",
+                    borderColor: "#ea3156",
+                    glyphColor: "#ffffff",
+                    glyph: `${i + 1}`,
+                    scale: 1.35,
+                });
+
+                const specialMarker = new AdvancedMarkerElement({
+                    position: { lat: branch.lat, lng: branch.lng },
+                    map,
+                    title: `${i + 1}. ${branch.title}`,
+                    content: pin.element
+                });
+
+                // Add click listener to calculate and display route
+                specialMarker.addListener("click", () => {
+                    calculateAndDisplayRoute(directionsService, directionsRenderer, centerMapAtHome, specialMarker, branch.location);
+                });
+
+                // Add data-marker-index to the marker element for mouseover identification
+                pin.element.setAttribute('data-marker-index', i);
+            });
+
+            map.addListener("click", () => {
+                infoWindow.close();
+                infoWindow2.close();
+                isInfoWindowOpen = false;
+
+                // Clear the directions from the map
+                directionsRenderer.set('directions', null);; // This clears the displayed route
+            });
+        }
+
+        // Display route from home location to clicked marker
+        function calculateAndDisplayRoute(directionsService, directionsRenderer, origin, destinationMarker, location) {
+            directionsService.route({
+                origin: origin,
+                destination: destinationMarker.position,
+                travelMode: google.maps.TravelMode.DRIVING,
+            }, (response, status) => {
+                if (status === "OK") {
+                    directionsRenderer.setDirections(response);
+                    // Prevent the 'A' origin marker from being created
+                    directionsRenderer.setOptions({
+                        suppressMarkers: true
+                    });
+                    infoWindow2.close();
+
+                    const route = response.routes[0];
+                    const duration = route.legs[0].duration.text;
+
+                    infoWindow.setContent(`
+                        <span class="fs-6 alert-link">${destinationMarker.title}</span><br><hr>
+                        <b class="alert-link">Location</b>: ${location} <br>
+                        <b class="alert-link">Estimated Duration</b>: ${duration} <br>
+                    `);
+                    infoWindow.open(map, destinationMarker);
+                    isInfoWindowOpen = true;
+                } else {
+                    window.alert("Directions request failed due to " + status);
+                }
+            });
+        }
+
+        // Place a marker on the map at the specified position
+        function placeMarker(markerPosition, titleOfMarker, homeInfoWindow) {
+            if (homeMarker == null) {
+                homeMarker = new google.maps.Marker({
+                    position: markerPosition,
+                    map: map,
+                    title: titleOfMarker,
+                    label: titleOfMarker[0], // First letter of the title
+                    draggable: false,
+                    animation: google.maps.Animation.DROP
+                });
+
+                homeMarker.addListener("click", () => {
+                    homeInfoWindow.setContent(
+                        `<span class="fs-6 alert-link">${titleOfMarker}</span><br>
+                                 <b class="alert-link">User</b>: Kopil Kaiser <br>`
+                    );
+                    homeInfoWindow.open(map, homeMarker);
+                });
+            }
+        }
+
+        // Event listener for mouseover to display secondary InfoWindow
+        document.getElementById('map').addEventListener('mouseover', function (event) {
+            const markerElement = event.target.closest('[data-marker-index]');
+            if (markerElement && !isInfoWindowOpen) {
+                const index = markerElement.getAttribute('data-marker-index');
+                const marker = bankBranches[index];
+
+                // Set position and content for infoWindow2
+                infoWindow2.setContent(`
+                            <span class="fs-6 alert-link">${marker.title}</span><br><hr>
+                            <b class="alert-link">Location</b>: ${marker.location} <br>
+                            <b class="alert-link">Opening hours</b>: ${marker.operatingTime} <br>
+                            <b class="alert-link">Phone</b>: ${marker.phone}`
+                );
+
+                infoWindow2.setPosition(new google.maps.LatLng(marker.lat, marker.lng));
+                infoWindow2.setOptions({ pixelOffset: new google.maps.Size(0, -30) });
+
+                // Open the InfoWindow at the specified position
+                infoWindow2.open(map);
+            }
+        });
+
+        initMap();
+    </script>
+}

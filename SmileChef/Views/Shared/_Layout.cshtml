@@ -21,6 +21,9 @@
                 <div class="navbar-collapse collapse">
                     <ul class="navbar-nav nav-tabs flex-grow-1">
                         <li class="nav-item mt-2 mt-md-0">
+                            <a class="nav-link text-dark @(ViewBag.CurrentActive == "ViewChefRestaurants" ? "active" : "")" asp-area="" asp-controller="Chef" asp-action="ViewChefRestaurants">Chef Restaurants</a>
+                        </li>
+                        <li class="nav-item mt-2 mt-md-0">
                             <a class="nav-link text-dark @(ViewBag.CurrentActive == "ChefIndex" ? "active" : "")" asp-area="" asp-controller="Chef" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
@@ -87,6 +90,7 @@
     <script src="~/fontawesome/js/all.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/loadGoogleMap.js"></script>  @*Reference: Kaiser 2024, Myself. KingstonUniversity Project: https://github.com/kopilkaiser/BankApplicationKU/tree/master/BankingWebApp*@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
