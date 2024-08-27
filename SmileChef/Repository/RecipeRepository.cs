@@ -16,6 +16,7 @@ namespace SmileChef.Repository
                 .Include(recipe => recipe.Instructions)
                 .Include(recipe => recipe.Reviews)
                 .ThenInclude(review => review.Reviewer)
+                .Include(recipe => recipe.Chef)
                 .FirstOrDefault(recipe => recipe.RecipeId == id);
 
             if (recipe == null) throw new Exception($"Recipe not found with id: {id}");

@@ -34,11 +34,7 @@
         </div>
     </form>
 </div>
-@* @if (Model.PredictedRecipe != null)
-{ *@
-@* <div class="alert alert-success mt-3">
-        <strong>Predicted Recipe:</strong> @Model.PredictedRecipe
-    </div> *@
+
 <div class="row border border-2 mt-3 p-2 rounded-2">
     <div class="d-flex justify-content-end">
         <input value="Clear Prediction" class="btn btn-primary" onclick="clearPredictions()" style="width:150px;" />
@@ -47,8 +43,24 @@
     </div>
 </div>
 
-@* } *@
-
+<!-- #region: Modal Show Suggested Recipe Details -->
+<div class="modal modal-xl fade" id="recipeViewModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalRecipeTitle"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="recipeViewContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
 @section Scripts {
     <script>
         // #region GLOBAL VARIABLES
@@ -78,6 +90,7 @@
         }
         // #endregion
 
+        // Document when gets ready this is executed
         $(document).ready(function () {
             console.log(`document has loaded`);
             console.log(`value of maxSelection: ${maxSelection}`);
@@ -96,8 +109,8 @@
                                 title: 'Error',
                                 text: response.message
                             });
-                        } else {
-                            let container = $('<div class="prediction-container row gap-2 align-items-center"></div>').hide();
+                        } else {    
+                            let container = $('<div class="prediction-container row"></div>').hide();
                             let spanElem = $(`<span class="bg-danger text-white text-center col-auto" style="height:25px; width: 25px; border-radius: 12.5px; padding:1px;">${++counter}</span>`);
 
                             container.append(spanElem);
@@ -105,14 +118,13 @@
 
                             $('#chatContainer').append(container);
                             container.fadeIn('slow'); // Apply fade-in effect
+
                             $('#ingredientsInput').val("");
                             maxSelection = 5;
                             // Remove the 'selected' class and reset the background color of all spans
                             $('#recipeList span').removeClass('bg-success text-white selected').addClass('bg-info');
-
                             // Scroll the recipeList container to the top
                             $('#recipeList').scrollTop(0);
-
                             //In most browsers, the scrollable element for the entire document is not the <body> but the <html> element or sometimes both <html> and <body> together
                             //$('html, body').animate({ scrollTop: 0 }, 'slow');
                         }
@@ -133,7 +145,6 @@
             });
 
             // #endregion
-
 
             // #region Populating recipeList, handling click on each recipe in the recipeList
             $.ajax({
@@ -208,6 +219,36 @@
                     });
                 }
             })
+            // #endregion
+
+            // #region handling click on suggested recipes
+            $(document).on('click', '#chatContainer .prediction-container #suggestionRecipeContainer span.suggestedRecipe', function () {
+                let spanElem = $(this);
+                let recipeId = spanElem.data('recipe-id');
+                let recipeName = spanElem.data('recipe-name');
+                console.log(`recipeName: ${recipeName}, recipeId: ${recipeId}`)
+                $.ajax({
+                    type : "GET",
+                    url: '@Url.Action("GetRecipeViewPartial")',
+                    data : {recipeId},
+                    dataType : "html",
+                    success: function(response){
+                        $('#modalRecipeTitle').text(recipeName);
+                        $('#recipeViewContainer').empty().html(response);
+                        $('#recipeViewModal').modal('show');
+                    },
+                    error: function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText;
+                        console.log('Error - ' + errorMessage);
+                        Swal.fire({
+                            title: "Error Occurred",
+                            text: errorMessage,
+                            icon: "error"
+                        });
+                    }
+                });
+
+            });
             // #endregion
         });
 

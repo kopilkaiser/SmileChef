@@ -5,9 +5,25 @@
 @*     <div class="alert alert-success mt-1">
         <strong>Predicted Recipe:</strong> @Model.PredictedRecipe
     </div> *@
-    <div class="alert alert-warning alert-dismissible fade show col mb-2" role="alert">
-        <strong>Ingredients:</strong> @Model.Ingredients <br />
-        <strong>Predicted Recipe:</strong> @Model.PredictedRecipe
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="col-md-8 col-lg-6 mb-2">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Ingredients:</strong> @Model.Ingredients <br />
+            <strong>Predicted Recipe:</strong> @Model.PredictedRecipe
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @if(Model.SuggestedRecipes.Count > 0){
+            <div id="suggestionRecipeContainer" class="d-flex flex-wrap align-items-center row-gap-1">
+                <span class="fw-semibold me-1"><i class="fa fa-circle-info pe-1 fa-lg text-success"></i>Suggested Recipes: </span>
+                @foreach(var r in Model.SuggestedRecipes){
+                        <span class="border rounded-2 me-2 suggestedRecipe p-1" data-recipe-id="@r.RecipeId" data-recipe-name="@r.Name">
+                            @r.Name
+                        </span>
+                }
+            </div>
+        }
+        else
+        {
+            <div><i class="fa fa-circle-info pe-1 fa-lg text-warning"></i>No Recipe found in the marketplace with the given name</div>
+        }
     </div>
 }

@@ -15,6 +15,7 @@ using System.Text.Json;
 using static System.Net.WebRequestMethods;
 using System.IO;
 using SmileChef.Models.Enums;
+using System.Linq;
 
 namespace SmileChef.Controllers
 {
@@ -87,9 +88,7 @@ namespace SmileChef.Controllers
         public async Task<IActionResult> ShowChefCards(bool showSubscriptionModal = false, bool showUnsubscribedMessage = false)
         {
             AssignChefId();
-            ViewBag.CurrentActive = "ShowChefCards";
-            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
-            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
+            AssignCurrentPageStatus("ShowChefCards");
             int currentChefUserId = -1;
             if (_httpContextAccessor.HttpContext != null)
             {
@@ -202,6 +201,23 @@ namespace SmileChef.Controllers
             return PartialView("_RecipeMarketListPartial", recipes);
         }
 
+        [HttpGet]
+        public IActionResult FilterRecipeMartetByRecipeName(string searchedRecipeName)
+        {
+            List<Recipe> recipes;
+
+            if (searchedRecipeName == null || searchedRecipeName == "")
+            {
+                recipes = _recipeRepo.GetAll();
+            }
+            else
+            {
+                recipes = _recipeRepo.GetAll().Where(r => r.Name.ToLower().Contains(searchedRecipeName.ToLower())).ToList();
+            }
+
+            return PartialView("_RecipeMarketListPartial", recipes);
+        }
+
         [HttpPost]
         public IActionResult DismissNotification(int notificationId)
         {
@@ -226,6 +242,7 @@ namespace SmileChef.Controllers
             ViewBag.CurrentChefId = _chefId;
             return View(recipe);
         }
+
         public async Task<IActionResult> ManageRecipes(bool json = false)
         {
             AssignCurrentPageStatus("ManageRecipes");
@@ -612,7 +629,8 @@ namespace SmileChef.Controllers
 
             var uniqueIngredients = lines.Skip(1) // Skip the header
                                    .SelectMany(line => line.Split(';').Take(5)) // Take first 5 columns as ingredients
-                                   .Distinct(); // Get distinct ingredients
+                                   .Distinct()
+                                   .OrderBy(s => s); // Get distinct ingredients
 
 
 
@@ -624,8 +642,6 @@ namespace SmileChef.Controllers
         public IActionResult Predict(PredictRecipeViewModel model)
         {
             // Manually remove the PredictedRecipe property from the ModelState
-            ModelState.Remove(nameof(PredictRecipeViewModel.PredictedRecipe));
-
             if (!ModelState.IsValid)
             {
                 // Return JSON response with error message
@@ -633,7 +649,16 @@ namespace SmileChef.Controllers
             }
 
             var prediction = _recipeModel.Predict(model.Ingredients);
-            model.PredictedRecipe = prediction.PredictedLabel;
+            model.PredictedRecipe = prediction.PredictedLabel!;
+
+            var splittedPredictedLabel = prediction.PredictedLabel!.Split(" ");
+            var recipes = _recipeRepo.GetAll();
+            // Filter recipes where any of the words in splittedPredictedLabel is contained in the recipe's name
+            var filteredRecipes = recipes.Where(r =>
+                splittedPredictedLabel.Any(word => r.Name.Contains(word, StringComparison.OrdinalIgnoreCase))
+            ).ToList(); 
+            
+            model.SuggestedRecipes = filteredRecipes;
 
             // Return the partial view with the prediction result
             return PartialView("_PredictionResultPartial", model);
@@ -705,6 +730,14 @@ namespace SmileChef.Controllers
             var imageName = url.Replace("/imagesNew/", "");
             var predictedImageName = _imageModel.ClassifySingleImage(imageName);
             return Json(new { predictedImageName });
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetRecipeViewPartial(int recipeId)
+        {
+            var recipe = _recipeRepo.GetById(recipeId);
+            return PartialView("_ViewRecipePartial", recipe);
         }
         #endregion
 
