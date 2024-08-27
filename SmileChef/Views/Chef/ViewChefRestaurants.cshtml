@@ -96,11 +96,16 @@
 
             map.addListener("click", () => {
                 infoWindow.close();
+                homeInfoWindow.close();
                 infoWindow2.close();
                 isInfoWindowOpen = false;
+                isInfoWindow2Open = false;
 
                 // Clear the directions from the map
                 directionsRenderer.set('directions', null);; // This clears the displayed route
+                // Reset the zoom level and center of the map
+                map.setZoom(10); // Replace with your initial zoom level
+                map.setCenter(centerMapAtLondon); // Replace with your initial center coordinates
             });
         }
 
