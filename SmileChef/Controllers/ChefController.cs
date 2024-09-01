@@ -35,8 +35,9 @@ namespace SmileChef.Controllers
         private readonly ImageSmartModel _imageModel;
         private IRepository<NotifySubscribers> _notifySubscribers;
         private IRepository<Review> _reviewRepo;
+        private IRepository<RecipeBookmark> _bookmarkRepo;
         private readonly IConfiguration _config;
-        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers, IRepository<Review> reviewRepo, IConfiguration config, ICompositeViewEngine viewEngine)
+        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers, IRepository<Review> reviewRepo, IRepository<RecipeBookmark> bookmarkRepo, IConfiguration config, ICompositeViewEngine viewEngine)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
@@ -49,19 +50,16 @@ namespace SmileChef.Controllers
             _imageModel = new ImageSmartModel();
             _notifySubscribers = notifySubscribers;
             _reviewRepo = reviewRepo;
+            _bookmarkRepo = bookmarkRepo;
             _config = config;
             _viewEngine = viewEngine;
+            AssignChefAndUserId();
         }
 
         public IActionResult Index()
         {
             ViewBag.CurrentActive = "ChefIndex";
-            _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUser");
-            if (_currentUserId == 0)
-            {
-                _currentUserId = _config.GetValue<int>("CurrentChefId"); // Default user ID if not set
-                HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
-            }
+            
 
             var chefVM = _chefRepo.GetChefsWithDetails().Find(c => c.User.UserId == _currentUserId);
 
@@ -87,7 +85,6 @@ namespace SmileChef.Controllers
         [HttpGet]
         public async Task<IActionResult> ShowChefCards(bool showSubscriptionModal = false, bool showUnsubscribedMessage = false)
         {
-            AssignChefId();
             AssignCurrentPageStatus("ShowChefCards");
             int currentChefUserId = -1;
             if (_httpContextAccessor.HttpContext != null)
@@ -181,7 +178,10 @@ namespace SmileChef.Controllers
         {
             AssignCurrentPageStatus(nameof(ViewRecipeMarket));
             var recipes = _recipeRepo.GetAll();
-            return View(recipes);
+            RecipeMarketViewModel vm = new RecipeMarketViewModel();
+            vm.Recipes = recipes;
+            vm.CurrentBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
+            return View(vm);
         }
 
         [HttpGet]
@@ -231,6 +231,7 @@ namespace SmileChef.Controllers
             return Json(new { success = true, message = "Notification dismissed" });
         }
 
+        // #Todo: Add "Restaurant" Entity to hold details of Chef's Restaurants
         [HttpGet]
         public IActionResult ViewChefRestaurants()
         {
@@ -243,7 +244,6 @@ namespace SmileChef.Controllers
         [HttpGet]
         public IActionResult ViewRecipe(int recipeId)
         {
-            AssignChefId();
             AssignCurrentPageStatus("");
             var recipe = _recipeRepo.GetById(recipeId);
             ViewBag.CurrentChefId = _chefId;
@@ -282,7 +282,6 @@ namespace SmileChef.Controllers
             }
             else
             {
-                AssignChefId();
                 var chef = (await _chefRepo.GetChefsWithDetailsAsync()).FirstOrDefault(c => c.ChefId == _chefId);
                 vm = chef.Recipes.FirstOrDefault(r => r.RecipeId == recipeId)!;
             }
@@ -304,7 +303,6 @@ namespace SmileChef.Controllers
 
             if (ModelState.IsValid)
             {
-                AssignChefId();
                 var chef = _chefRepo.GetById(_chefId);
 
                 if (chef == null) throw new Exception($"Chef not found with ChefId: {_chefId}");
@@ -415,7 +413,6 @@ namespace SmileChef.Controllers
 
         public IActionResult DeleteRecipe(int id)
         {
-            AssignChefId();
             var chef = _chefRepo.GetById(_chefId);
             var recipeToRemove = chef.Recipes.FirstOrDefault(r => r.RecipeId == id);
             if (recipeToRemove == null) { throw new Exception($"Couldn't find recipe with recipeId: {id}"); }
@@ -439,7 +436,6 @@ namespace SmileChef.Controllers
         [HttpPost]
         public IActionResult AddInstruction(int recipeId, string recipeName, InstructionViewModel instruction, RecipeType recipeType, float? price)
         {
-            AssignChefId();
             var chef = _chefRepo.GetById(_chefId);
             if (chef == null) throw new Exception($"Chef not found with chefId: {_chefId}");
             Recipe recipe;
@@ -511,7 +507,6 @@ namespace SmileChef.Controllers
         [HttpPost]
         public IActionResult UpdateInstruction(int recipeId, InstructionViewModel instruction)
         {
-            AssignChefId();
             var chef = _chefRepo.GetById(_chefId);
             var recipe = chef.Recipes.FirstOrDefault(r => r.RecipeId == recipeId);
             if (recipe == null)
@@ -536,7 +531,6 @@ namespace SmileChef.Controllers
 
         public IActionResult DeleteInstruction(int recipeId, int instructionId)
         {
-            AssignChefId();
             var chef = _chefRepo.GetById(_chefId);
             var recipe = chef.Recipes.FirstOrDefault(r => r.RecipeId == recipeId);
             if (recipe == null)
@@ -562,7 +556,6 @@ namespace SmileChef.Controllers
         {
             var message = data.GetProperty("filterString").GetString();
 
-            AssignChefId();
             var chefVM = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == _chefId);
 
             if (chefVM == null)
@@ -750,6 +743,49 @@ namespace SmileChef.Controllers
 
         #endregion
 
+        #region Recipe Bookmark
+        // #Todo : Show Recipe bookmark list, And Be able to delete bookmarks
+        [HttpGet]
+        public IActionResult GetRecipeBookmarks()
+        {
+            AssignCurrentPageStatus("GetRecipeBookmarks");
+            var recipeBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
+            return View(recipeBookmarks);
+        }
+
+        [HttpPost]
+        public IActionResult AddOrRemoveRecipeBookmark(int recipeId)
+        {
+            AssignCurrentPageStatus("GetRecipeBookmarks");
+
+            var recipeBookmark = _bookmarkRepo.GetAll().FirstOrDefault(bm => bm.RecipeId == recipeId && bm.ChefId == _chefId);
+
+            if(recipeBookmark == null)
+            {
+                RecipeBookmark rb = new RecipeBookmark(recipeId, _chefId);
+                _bookmarkRepo.Add(rb);
+                return Json(new { success = true, status = "added" });
+
+            }
+            else
+            {
+                _bookmarkRepo.Delete(recipeBookmark);
+                return Json(data: new { success = true, status = "deleted" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveRecipeBookmarkById(int bookmarkId)
+        {
+            AssignCurrentPageStatus("GetRecipeBookmarks");
+            var recipeBookmark = _bookmarkRepo.GetById(bookmarkId);
+            _bookmarkRepo.Delete(recipeBookmark);
+            var bookMarks = _bookmarkRepo.GetAll().Where(b => b.ChefId == _chefId).ToList();
+            var view = await RenderPartialViewToStringAsync("_RecipeBookmarkPartial", bookMarks);
+            return Json(new { success = true, partialView = view });
+        }
+        #endregion
+
         //Used to convert PartialView to string in order to send in a JSON object
         public async Task<string> RenderPartialViewToStringAsync(string viewName, object model)
         {
@@ -819,15 +855,23 @@ namespace SmileChef.Controllers
             return RedirectToAction("Success");
         }
 
-        private void AssignChefId()
+        private void AssignChefAndUserId()
         {
-            var getChef = _chefRepo.GetAll().FirstOrDefault(c => c.UserId == _currentUserId);
-            if (getChef == null)
+            _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUserId");
+            if (_currentUserId == 0)
             {
-                throw new Exception($"Cannot find any chef with userId: {_currentUserId}");
+                _currentUserId = _config.GetValue<int>("CurrentUserId"); // Default user ID if not set
+                _httpContextAccessor.HttpContext?.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
+             
             }
 
-            _chefId = getChef.ChefId;
+            _chefId = _httpContextAccessor.HttpContext?.Session.GetInt32("CurrentChefId") ?? 0;
+            if (_chefId == 0)
+            {
+                var chef = _chefRepo.GetAll().FirstOrDefault(c => c.UserId == _currentUserId);
+                _chefId = chef.ChefId;
+                _httpContextAccessor.HttpContext?.Session.SetInt32("CurrentChefId", _chefId);
+            }
         }
 
         private ChefViewModel GetCurrentChef()

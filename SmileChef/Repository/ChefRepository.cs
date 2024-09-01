@@ -147,6 +147,14 @@ namespace SmileChef.Repository
 
             return chef;
         }
+
+        public override List<Chef>? GetAll()
+        {
+            var chefs = _context.Chefs
+                .Include(c => c.User)
+                .ToList();
+            return chefs;
+        }
     }
 }
 

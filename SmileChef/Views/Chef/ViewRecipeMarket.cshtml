@@ -1,7 +1,7 @@
 ﻿@using ChefApp.Models.DbModels
 @using SmileChef.Models.DbModels
 @using SmileChef.ViewModels
-@model List<Recipe>
+@model RecipeMarketViewModel
 
 @{
 
@@ -98,6 +98,57 @@
 
         $(document).ready(function () {
             console.log("Page loaded ViewRecipeMarket.cshtml")
+            $(document).on('click', 'div.card-header div.d-flex a[data-recipe-id]', function(){
+                let $anchorElem = $(this);
+                let recipeId = $anchorElem.data('recipe-id');
+                let recipeName = $anchorElem.data('recipe-name');
+                console.log(`recipeId: ${recipeId}`);
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("AddOrRemoveRecipeBookmark")',
+                    data: { recipeId },
+                    success: function (response) {
+                        if(response.success){
+                            if (response.status === 'added') {
+                                Swal.fire({
+                                    title : 'Bookmark added',
+                                    text: `${recipeName} has been added to Recipe bookmark`,
+                                    icon : 'success'
+                                })
+                                //both approaches below works the same but finding the svg and manipulating it's css is more efficient and safe
+                                //$(`a[data-recipe-id=${recipeId}]`).html('<i class="fa fa-bookmark text-primary"></i>');
+                                $(`a[data-recipe-id=${recipeId}]`).find('svg').removeClass('text-black').addClass('text-primary');
+                            } else if (response.status === 'deleted') {
+                                Swal.fire({
+                                    title: 'Bookmark deleted',
+                                    text: `${recipeName} has been deleted from Recipe bookmark`,
+                                    icon: 'success'
+                                })
+                                //$(`a[data-recipe-id=${recipeId}]`).html('<i class="fa fa-bookmark text-black"></i>');
+                                $(`a[data-recipe-id=${recipeId}]`).find('svg').removeClass('text-primary').addClass('text-black');
+                            }
+                        }else{
+                            //Might be the user clicked on premium recipe and need to purchase it
+                            //Sweetalert2 (Swal) has the following icons: success, error, warning, info, question
+                            Swal.fire({
+                                title : "Information",
+                                text : "Premium recipe needs to be purchased in order to bookmark",
+                                icon : "info"
+                            })
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText;
+                        console.log('Error - ' + errorMessage);
+                        Swal.fire({
+                            title: "Error Occurred",
+                            text: errorMessage,
+                            icon: "error"
+                        });
+                    }
+                });
+            })
         });
     </script>
 }
+        

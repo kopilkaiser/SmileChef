@@ -21,6 +21,7 @@ namespace ChefApp.Models
         public DbSet<NotifySubscribers> NotifySubsribers { get; set; }
         public DbSet<Review> Reviews { get; set; }
 
+        public DbSet<RecipeBookmark> RecipeBookmarks { get; set; }
 
         public ChefAppContext(DbContextOptions<ChefAppContext> options, IConfiguration config, ISqlSettings sqlSettings) : base(options)
         {

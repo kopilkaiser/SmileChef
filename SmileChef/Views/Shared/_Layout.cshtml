@@ -7,7 +7,12 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="~/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        div.navbar-collapse ul.navbar-nav li.nav-item ul.dropdown-menu li.dropdown-item:active{
+            background-color: transparent;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -30,9 +35,6 @@
                             <a class="nav-link text-dark @(ViewBag.CurrentActive == "ShowChefCards" ? "active" : "")" asp-controller="Chef" asp-action="ShowChefCards">View All Chefs</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark @(ViewBag.CurrentActive == "ManageRecipes" ? "active" : "")" asp-controller="Chef" asp-action="ManageRecipes">Manage Recipes</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link text-dark @(ViewBag.CurrentActive == "ViewRecipeMarket" ? "active" : "")" asp-controller="Chef" asp-action="ViewRecipeMarket">Recipe Marketplace</a>
                         </li>
                         
@@ -40,14 +42,32 @@
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Smart Chef
                             </a>
-                            <ul class="dropdown-menu p-2 pt-1 border-0">
-                                <li class="nav-item" id="homeNavButton">
+                            <ul class="dropdown-menu p-1 pt-1 border-0">
+                                <li class="dropdown-item" id="homeNavButton">
                                     <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "RecipeSmartAI" ? "active" : "")" asp-controller="Chef" asp-action="RecipeSmartAI">Recipe Prediction</a>
                                 </li>
-                                <li class="nav-item" id="homeNavButton">
+                                <li class="dropdown-item" id="homeNavButton">
                                     <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "ImageSmartAI" ? "active" : "")" asp-controller="Chef" asp-action="ImageSmartAI">Image Prediction</a>
                                 </li>                                @* <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="#">Something else here</a></li> *@
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                My Account
+                            </a>
+                            <ul class="dropdown-menu p-1 pt-1 border-0">
+                                <li class="dropdown-item">
+                                    <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "ManageRecipes" ? "active" : "")" asp-controller="Chef" asp-action="ManageRecipes">Manage Recipes</a>
+                                </li>
+                                <li class="dropdown-item">
+                                    <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "GetRecipeBookmarks" ? "active" : "")" asp-controller="Chef" asp-action="GetRecipeBookmarks">Recipe Bookmark list</a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-item"><a class="nav-link @(ViewBag.CurrentActive == "GetOrders" ? "active" : "")" href="#">Order History</a></li>
+                                <li class="dropdown-item"><hr class="dropdown-divider"></li>
+                                <li class="dropdown-item"><a class="nav-link @(ViewBag.CurrentActive == "ManageProfile" ? "active" : "")" href="#">Manage Profile</a></li>
+                                <li class="dropdown-item"><a class="nav-link @(ViewBag.CurrentActive == "ManageAccountBalance" ? "active" : "")" href="#">Manage Account Balance</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -87,7 +107,7 @@
     </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/fontawesome/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/loadGoogleMap.js"></script>  @*Reference: Kaiser 2024, Myself. KingstonUniversity Project: https://github.com/kopilkaiser/BankApplicationKU/tree/master/BankingWebApp*@

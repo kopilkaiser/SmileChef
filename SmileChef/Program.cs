@@ -49,7 +49,7 @@ builder.Services.AddScoped<IRepository<Instruction>, InstructionRepository>();
 builder.Services.AddScoped<IRepository<Subscription>, SubscriptionRepository>();
 builder.Services.AddScoped<IRepository<NotifySubscribers>, NotificationRepository>();
 builder.Services.AddScoped<IRepository<Review>, ReviewRepository>();
-
+builder.Services.AddScoped<IRepository<RecipeBookmark>, RecipeBookmarkRepository>();
 // Configure CORS
 builder.Services.AddCors(options =>
 {

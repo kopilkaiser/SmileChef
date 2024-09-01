@@ -1,0 +1,47 @@
+﻿@model List<SmileChef.Models.DbModels.RecipeBookmark>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div class="mt-4">
+    <h1 class="lead">Recipe Bookmark List</h1>
+    <hr class="mt-2 mb-3"/>
+    <div id="bookmarkList">
+        @await Html.PartialAsync("_RecipeBookmarkPartial", Model)
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        function removeBookmark(bookmarkId){
+            $.ajax({
+                type : "POST",
+                url : '@Url.Action("RemoveRecipeBookmarkById")',
+                data: { bookmarkId },
+                dataType : "json",
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: "Successfully unbookmarked",
+                            text: "You've successfully removed the selected bookmark",
+                            icon: "success"
+                        }).then(() => {
+                            $('#bookmarkList').empty().html(response.partialView);
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    let errorMessage = `${xhr.status}: ${xhr.statusText} : ${xhr.responseText}`;
+                    console.log(`Error - ${errorMessage}`);
+                    Swal.fire({
+                        title : "Error occured in server",
+                        text : errorMessage,
+                        icon : "error"
+                    })
+                }
+            })
+        }
+    </script>
+}

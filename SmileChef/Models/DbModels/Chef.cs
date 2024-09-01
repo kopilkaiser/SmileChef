@@ -35,5 +35,7 @@ namespace ChefApp.Models.DbModels
         public decimal? SubscriptionCost { get; set; }
 
         public decimal? AccountBalance { get; set; }
+
+        public List<RecipeBookmark> RecipeBookmarks { get; set; } = new();
     }
 }
