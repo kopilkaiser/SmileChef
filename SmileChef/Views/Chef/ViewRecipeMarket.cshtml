@@ -284,10 +284,61 @@
             //#endregion
 
             //#region Performing Adding Recipes(OrderLine) to Cart
-            $(document).on('click', '#btnRemoveOrderLine', () => {
-                let orderLineQuantity = $('#tbOrderLineQuantity').val();
-                let recipeId = $('#hfRecipeId').val();
-                console.log(`btnSaveRecipeToCart => Values, orderLineQuantity: ${orderLineQuantity}, recipeId: ${recipeId}`);
+            $(document).on('click', '#btnCheckoutCart', () => {
+                let totalPrice = $('#txtTotalPrice').text();
+                if (totalPrice !== '£0.00'){
+                    Swal.fire({
+                         title: "Confirmation",
+                        text: `Total ${totalPrice} will be deducted from your balance`,
+                        icon: "info",
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, checkout!',
+                        cancelButtonText: 'No, cancel!'
+                    }).then((result) => {
+                      if(result.isConfirmed){
+                          // User confirmed, proceed with the AJAX request
+                          $.ajax({
+                            type : "POST",
+                            url : '@Url.Action("CheckoutOrder")',
+                            dataType : "json",
+                            contentType : "application/x-www-form-urlencoded; charset=UTF-8",
+                            success : function(response){
+                                if(response.success){
+                                    $('#orderDetailsContainer').empty().html(response.partialView);
+                                    $('#spanAccountBalance').text(`£${response.accountBalance}`)
+                                     Swal.fire({
+                                        title : "Success",
+                                        text : response.message,
+                                        icon : "success"
+                                    });
+                                }else{
+                                    console.log(response);
+                                    Swal.fire({
+                                        title : "Invalid Operation",
+                                        text : response.message,
+                                        icon : "error"
+                                    });
+                                }
+                            },
+                            error : function(xhr, status, error){
+                                let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                                console.log(`Error - ${errorMessage}`)
+                                Swal.fire({
+                                    title: "Error Occurred",
+                                    text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                                    icon: "error"
+                                });
+                            }
+                        });
+                      }
+                    });
+                }else{
+                    Swal.fire({
+                        title : "Information",
+                        text : "No item has been added yet to checkout",
+                        icon : "info"
+                    })
+                }
             });
             //#endregion
         });

@@ -27,10 +27,10 @@
 <div class="row pb-2">
     <div class="col-6"></div>
     <div class="col-3 text-center fs-6">Total:</div>
-    <div class="col-3 fw-semibold" style="padding-inline-start: 1.15rem;">@Model.TotalPrice.ToString("C2")</div>
+    <div id="txtTotalPrice" class="col-3 fw-semibold" style="padding-inline-start: 1.15rem;">@Model.TotalPrice.ToString("C2")</div>
 </div>
 <div class="row justify-content-end mt-2">
     <div class="col-3 ps-3">
-        <button class="btn btn-sm btn-info">Checkout</button>
+        <button id="btnCheckoutCart" class="btn btn-sm btn-info">Checkout</button>
     </div>
 </div>

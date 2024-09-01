@@ -81,7 +81,7 @@
                             </ul>
                         </li>
                         <li class="nav-item dropdown ms-xl-auto">
-                            <a id="anchorOrderDetails" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a id="anchorOrderDetails" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="inner">
                                Show Order Details
                             </a>
                             <ul class="dropdown-menu dropdown-menu-xl-end drop p-1 border-0 bg-body-tertiary" style="margin-block-start: 0.75rem">
@@ -91,13 +91,13 @@
                             </ul>
                         </li>
                         <li class="dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="false">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Show my Details
                             </a>
                             <ul class="dropdown-menu dropdown-menu-xl-end drop p-1 border-0 bg-body-tertiary" style="margin-block-start: 0.75rem">
                                 <li class="dropdown-item"><b class="pe-2">Email:</b> @(ViewBag.CurrentUserEmail ?? "")</li>
                                 <li class="dropdown-item"><b class="pe-2">Name:</b> @(ViewBag.CurrentUserName ?? "")</li>
-                                <li class="dropdown-item"><b class="pe-2">AccountBalance:</b> @("£" + (ViewBag.CurrentUserBalance ?? "0.00"))</li>
+                                <li class="dropdown-item"><b class="pe-2">AccountBalance:</b> <span id="spanAccountBalance">@("£" + (ViewBag.CurrentUserBalance ?? "0.00"))</span></li>
                             </ul>
                         </li>
                     </ul>

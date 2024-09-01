@@ -71,18 +71,7 @@ namespace SmileChef.Controllers
 
         public IActionResult Index()
         {
-            ViewBag.CurrentActive = "ChefIndex";
-            var chefVM = _chefRepo.GetChefsWithDetails().Find(c => c.User.UserId == _currentUserId);
-
-            if (HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail") == null)
-            {
-                HttpContext.Session.SetObjectAsJson("CurrentUserEmail", chefVM.User.Email);
-                HttpContext.Session.SetObjectAsJson("CurrentUserName", chefVM.ChefName);
-                HttpContext.Session.SetObjectAsJson("CurrentUserBalance", chefVM.AccountBalance);
-
-            }
-
-            AssignCurrentPageStatus("");
+            AssignCurrentPageStatus("ChefIndex");
             var viewModel = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.User.UserId == _currentUserId);
             var userNotifications = _notifySubscribers.GetAll().Where(n => n.SubscriberId == viewModel.ChefId);
             if (userNotifications.Count() > 0) viewModel.Notifications = userNotifications.ToList();
@@ -898,20 +887,38 @@ namespace SmileChef.Controllers
                 return Json(new { success = false, message = "There are no items in the cart to checkout." });
             }
 
+            var chef = _chefRepo.GetById(_chefId);
+
+            if (existingOrder.TotalPrice > chef.AccountBalance)
+            {
+                return Json(new { success = false, message = "You have insufficient balance. Please Top-Up Balance" });
+            }
+
+            // Deduct the total price from the chef's balance and update the database.
+            chef.AccountBalance -= existingOrder.TotalPrice;
+            _chefRepo.Update(chef);
+
+            // Update the session with the new balance and update ViewBag.
+            UpdateChefBalance(chef.AccountBalance);
+
             // Save the existing order to the database.
             _orderRepo.Add(existingOrder);
 
             // Clear the session or replace it with a new empty order.
             _httpContextAccessor.HttpContext.Session.Remove("CurrentOrder");
 
-            // Optionally, start a new order.
+            // Optionally, start a new order and update the session.
             _httpContextAccessor.HttpContext.Session.SetObjectAsJson("CurrentOrder", new Order
             {
                 ChefId = _chefId,
                 OrderDate = DateTime.Now
             });
 
-            return Json(new { success = true, message = "Checkout successful. Your order has been placed." });
+            var order = _httpContextAccessor.HttpContext.Session.GetObjectFromJson<Order>("CurrentOrder");
+
+            var view = await RenderPartialViewToStringAsync("_OrderDetailsPartial", order);
+
+            return Json(new { success = true, partialView = view, message = $"Checkout successful. Your order has been placed. Remaining Balance: {chef.AccountBalance:C2}", accountBalance = chef.AccountBalance });
         }
 
         #endregion
@@ -976,8 +983,21 @@ namespace SmileChef.Controllers
             return chef;
         }
 
+        private void UpdateChefBalance(decimal? balance)
+        {
+            HttpContext.Session.SetObjectAsJson("CurrentUserBalance", balance);
+            ViewBag.CurrentUserBalance = HttpContext.Session.GetObjectFromJson<string>("CurrentUserBalance");
+        }
+
         private void AssignCurrentPageStatus(string currentPageName)
         {
+            var chefVM = _chefRepo.GetChefsWithDetails().Find(c => c.User.UserId == _currentUserId);
+            if (HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail") == null)
+            {
+                HttpContext.Session.SetObjectAsJson("CurrentUserEmail", chefVM.User.Email);
+                HttpContext.Session.SetObjectAsJson("CurrentUserName", chefVM.ChefName);
+                HttpContext.Session.SetObjectAsJson("CurrentUserBalance", chefVM.AccountBalance);
+            }
             ViewBag.CurrentActive = currentPageName;
             ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
             ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
