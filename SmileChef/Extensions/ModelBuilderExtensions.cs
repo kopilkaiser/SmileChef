@@ -1,6 +1,7 @@
 ﻿using ChefApp.Models.DbModels;
 using Microsoft.EntityFrameworkCore;
 using SmileChef.Models.DbModels;
+using SmileChef.Models.Enums;
 
 namespace ChefApp.Extensions
 {
@@ -30,35 +31,35 @@ namespace ChefApp.Extensions
 
             // Seed Basic Recipes
             modelBuilder.Entity<Recipe>().HasData(
-                new Recipe { RecipeId = 1, Name = "Beef Wellington", ChefId = 1 },
-                new Recipe { RecipeId = 2, Name = "Pasta Carbonara", ChefId = 2 },
-                new Recipe { RecipeId = 3, Name = "Spicy Tuna Rolls", ChefId = 3 },
-                new Recipe { RecipeId = 4, Name = "Lentil Soup", ChefId = 4 },
-                new Recipe { RecipeId = 5, Name = "Roast Chicken", ChefId = 5 },
-                new Recipe { RecipeId = 6, Name = "Bananas Foster", ChefId = 6 },
-                new Recipe { RecipeId = 7, Name = "Beef Bolognese", ChefId = 1 },
-                new Recipe { RecipeId = 8, Name = "Chicken Mushroom Soup", ChefId = 1 },
-                new Recipe { RecipeId = 15, Name = "Classic Margherita Pizza", ChefId = 2 }, // New basic recipe
-                new Recipe { RecipeId = 16, Name = "Seafood Paella", ChefId = 3 }, // New basic recipe
-                new Recipe { RecipeId = 17, Name = "Vegetarian Stir Fry", ChefId = 4 }, // New basic recipe
-                new Recipe { RecipeId = 18, Name = "Slow Cooked Lamb Shank", ChefId = 5 }, // New basic recipe
-                new Recipe { RecipeId = 19, Name = "Creole Gumbo", ChefId = 6 } // New basic recipe
+                new Recipe { RecipeId = 1, Name = "Beef Wellington", ChefId = 1, RecipeType = RecipeType.Basic },
+                new Recipe { RecipeId = 2, Name = "Pasta Carbonara", ChefId = 2, RecipeType = RecipeType.Basic },
+                new Recipe { RecipeId = 3, Name = "Spicy Tuna Rolls", ChefId = 3, RecipeType = RecipeType.Basic },
+                new Recipe { RecipeId = 4, Name = "Lentil Soup", ChefId = 4, RecipeType = RecipeType.Basic },
+                new Recipe { RecipeId = 5, Name = "Roast Chicken", ChefId = 5, RecipeType = RecipeType.Basic },
+                new Recipe { RecipeId = 6, Name = "Bananas Foster", ChefId = 6, RecipeType = RecipeType.Basic },
+                new Recipe { RecipeId = 7, Name = "Beef Bolognese", ChefId = 1, RecipeType = RecipeType.Basic },
+                new Recipe { RecipeId = 8, Name = "Chicken Mushroom Soup", ChefId = 1, RecipeType = RecipeType.Basic },
+                new Recipe { RecipeId = 15, Name = "Classic Margherita Pizza", ChefId = 2, RecipeType = RecipeType.Basic }, // New basic recipe
+                new Recipe { RecipeId = 16, Name = "Seafood Paella", ChefId = 3, RecipeType = RecipeType.Basic }, // New basic recipe
+                new Recipe { RecipeId = 17, Name = "Vegetarian Stir Fry", ChefId = 4, RecipeType = RecipeType.Basic }, // New basic recipe
+                new Recipe { RecipeId = 18, Name = "Slow Cooked Lamb Shank", ChefId = 5, RecipeType = RecipeType.Basic }, // New basic recipe
+                new Recipe { RecipeId = 19, Name = "Creole Gumbo", ChefId = 6, RecipeType = RecipeType.Basic } // New basic recipe
             );
 
             // Seed Premium Recipes
             modelBuilder.Entity<PremiumRecipe>().HasData(
-                new PremiumRecipe { RecipeId = 9, Name = "Gourmet Beef Wellington", ChefId = 1, Price = 49.99f },
-                new PremiumRecipe { RecipeId = 10, Name = "Truffle Risotto", ChefId = 2, Price = 39.99f },
-                new PremiumRecipe { RecipeId = 11, Name = "Sushi Deluxe", ChefId = 3, Price = 29.99f },
-                new PremiumRecipe { RecipeId = 12, Name = "Organic Farm-to-Table Salad", ChefId = 4, Price = 19.99f },
-                new PremiumRecipe { RecipeId = 13, Name = "Foie Gras Terrine", ChefId = 5, Price = 59.99f },
-                new PremiumRecipe { RecipeId = 14, Name = "Emeril's Essence Special", ChefId = 6, Price = 24.99f },
-                new PremiumRecipe { RecipeId = 20, Name = "Lobster Thermidor", ChefId = 1, Price = 69.99f }, // New premium recipe
-                new PremiumRecipe { RecipeId = 21, Name = "Caviar Blinis", ChefId = 2, Price = 99.99f }, // New premium recipe
-                new PremiumRecipe { RecipeId = 22, Name = "Wagyu Beef Sushi", ChefId = 3, Price = 89.99f }, // New premium recipe
-                new PremiumRecipe { RecipeId = 23, Name = "Truffle Mushroom Soup", ChefId = 4, Price = 34.99f }, // New premium recipe
-                new PremiumRecipe { RecipeId = 24, Name = "Duck à l'Orange", ChefId = 5, Price = 54.99f }, // New premium recipe
-                new PremiumRecipe { RecipeId = 25, Name = "Oysters Rockefeller", ChefId = 6, Price = 44.99f } // New premium recipe
+                new PremiumRecipe { RecipeId = 9, Name = "Gourmet Beef Wellington", ChefId = 1, Price = 49.99f, RecipeType = RecipeType.Premium },
+                new PremiumRecipe { RecipeId = 10, Name = "Truffle Risotto", ChefId = 2, Price = 39.99f, RecipeType = RecipeType.Premium },
+                new PremiumRecipe { RecipeId = 11, Name = "Sushi Deluxe", ChefId = 3, Price = 29.99f, RecipeType = RecipeType.Premium },
+                new PremiumRecipe { RecipeId = 12, Name = "Organic Farm-to-Table Salad", ChefId = 4, Price = 19.99f, RecipeType = RecipeType.Premium },
+                new PremiumRecipe { RecipeId = 13, Name = "Foie Gras Terrine", ChefId = 5, Price = 59.99f, RecipeType = RecipeType.Premium },
+                new PremiumRecipe { RecipeId = 14, Name = "Emeril's Essence Special", ChefId = 6, Price = 24.99f, RecipeType = RecipeType.Premium },
+                new PremiumRecipe { RecipeId = 20, Name = "Lobster Thermidor", ChefId = 1, Price = 69.99f, RecipeType = RecipeType.Premium }, // New premium recipe
+                new PremiumRecipe { RecipeId = 21, Name = "Caviar Blinis", ChefId = 2, Price = 99.99f, RecipeType = RecipeType.Premium }, // New premium recipe
+                new PremiumRecipe { RecipeId = 22, Name = "Wagyu Beef Sushi", ChefId = 3, Price = 89.99f, RecipeType = RecipeType.Premium }, // New premium recipe
+                new PremiumRecipe { RecipeId = 23, Name = "Truffle Mushroom Soup", ChefId = 4, Price = 34.99f, RecipeType = RecipeType.Premium }, // New premium recipe
+                new PremiumRecipe { RecipeId = 24, Name = "Duck à l'Orange", ChefId = 5, Price = 54.99f, RecipeType = RecipeType.Premium }, // New premium recipe
+                new PremiumRecipe { RecipeId = 25, Name = "Oysters Rockefeller", ChefId = 6, Price = 44.99f, RecipeType = RecipeType.Premium } // New premium recipe
             );
 
             // Seed Instructions with optional Time field

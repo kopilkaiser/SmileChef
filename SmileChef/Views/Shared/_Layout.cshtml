@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using SmileChef.Models.DbModels
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -11,6 +12,15 @@
     <style>
         div.navbar-collapse ul.navbar-nav li.nav-item ul.dropdown-menu li.dropdown-item:active{
             background-color: transparent;
+        }
+
+        div.navbar-collapse ul.navbar-nav li.dropdown ul.dropdown-menu li.dropdown-item:active {
+            background-color: transparent;
+            color: black;
+        }
+
+        .navbar-nav{
+            --bs-nav-link-padding-y: 0.25rem;
         }
     </style>
 </head>
@@ -52,7 +62,7 @@
                                 <li><a class="dropdown-item" href="#">Something else here</a></li> *@
                             </ul>
                         </li>
-                        <li class="nav-item dropdown">
+                        <li class="dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 My Account
                             </a>
@@ -63,20 +73,35 @@
                                 <li class="dropdown-item">
                                     <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "GetRecipeBookmarks" ? "active" : "")" asp-controller="Chef" asp-action="GetRecipeBookmarks">Recipe Bookmark list</a>
                                 </li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-item"><hr class="dropdown-divider"></li>
                                 <li class="dropdown-item"><a class="nav-link @(ViewBag.CurrentActive == "GetOrders" ? "active" : "")" href="#">Order History</a></li>
                                 <li class="dropdown-item"><hr class="dropdown-divider"></li>
                                 <li class="dropdown-item"><a class="nav-link @(ViewBag.CurrentActive == "ManageProfile" ? "active" : "")" href="#">Manage Profile</a></li>
                                 <li class="dropdown-item"><a class="nav-link @(ViewBag.CurrentActive == "ManageAccountBalance" ? "active" : "")" href="#">Manage Account Balance</a></li>
                             </ul>
                         </li>
+                        <li class="nav-item dropdown ms-xl-auto">
+                            <a id="anchorOrderDetails" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                               Show Order Details
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-xl-end drop p-1 border-0 bg-body-tertiary" style="margin-block-start: 0.75rem">
+                                <li class="dropdown-item" id="orderDetailsContainer" style="width:400px;">
+                                    @await Html.PartialAsync("_OrderDetailsPartial", new Order())
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="false">
+                                Show my Details
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-xl-end drop p-1 border-0 bg-body-tertiary" style="margin-block-start: 0.75rem">
+                                <li class="dropdown-item"><b class="pe-2">Email:</b> @(ViewBag.CurrentUserEmail ?? "")</li>
+                                <li class="dropdown-item"><b class="pe-2">Name:</b> @(ViewBag.CurrentUserName ?? "")</li>
+                                <li class="dropdown-item"><b class="pe-2">AccountBalance:</b> @("£" + (ViewBag.CurrentUserBalance ?? "0.00"))</li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
-            </div>
-            <div class="px-3 row mt-2 mt-md-0">
-                <div class="col-auto"><b class="pe-2">Email:</b> @(ViewBag.CurrentUserEmail ?? "")</div>
-                <div class="col-auto"><b class="pe-2">Name:</b> @(ViewBag.CurrentUserName ?? "")</div>
-                <div class="col-auto"><b class="pe-2">AccountBalance:</b> @("£" + (ViewBag.CurrentUserBalance ?? "0.00"))</div>
             </div>
         </nav>
     </header>

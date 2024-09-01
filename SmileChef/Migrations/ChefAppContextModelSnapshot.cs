@@ -1024,6 +1024,62 @@ namespace SmileChef.Migrations
                     b.ToTable("NotifySubscribers");
                 });
 
+            modelBuilder.Entity("SmileChef.Models.DbModels.Order", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+
+                    b.Property<int>("ChefId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("OrderId");
+
+                    b.HasIndex("ChefId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.OrderLine", b =>
+                {
+                    b.Property<int>("OrderLineId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderLineId"));
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RecipeName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("OrderLineId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("RecipeId");
+
+                    b.ToTable("OrderLines");
+                });
+
             modelBuilder.Entity("SmileChef.Models.DbModels.RecipeBookmark", b =>
                 {
                     b.Property<int>("RecipeBookmarkId")
@@ -1153,7 +1209,7 @@ namespace SmileChef.Migrations
                             RecipeId = 9,
                             ChefId = 1,
                             Name = "Gourmet Beef Wellington",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 49.99f
                         },
                         new
@@ -1161,7 +1217,7 @@ namespace SmileChef.Migrations
                             RecipeId = 10,
                             ChefId = 2,
                             Name = "Truffle Risotto",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 39.99f
                         },
                         new
@@ -1169,7 +1225,7 @@ namespace SmileChef.Migrations
                             RecipeId = 11,
                             ChefId = 3,
                             Name = "Sushi Deluxe",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 29.99f
                         },
                         new
@@ -1177,7 +1233,7 @@ namespace SmileChef.Migrations
                             RecipeId = 12,
                             ChefId = 4,
                             Name = "Organic Farm-to-Table Salad",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 19.99f
                         },
                         new
@@ -1185,7 +1241,7 @@ namespace SmileChef.Migrations
                             RecipeId = 13,
                             ChefId = 5,
                             Name = "Foie Gras Terrine",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 59.99f
                         },
                         new
@@ -1193,7 +1249,7 @@ namespace SmileChef.Migrations
                             RecipeId = 14,
                             ChefId = 6,
                             Name = "Emeril's Essence Special",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 24.99f
                         },
                         new
@@ -1201,7 +1257,7 @@ namespace SmileChef.Migrations
                             RecipeId = 20,
                             ChefId = 1,
                             Name = "Lobster Thermidor",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 69.99f
                         },
                         new
@@ -1209,7 +1265,7 @@ namespace SmileChef.Migrations
                             RecipeId = 21,
                             ChefId = 2,
                             Name = "Caviar Blinis",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 99.99f
                         },
                         new
@@ -1217,7 +1273,7 @@ namespace SmileChef.Migrations
                             RecipeId = 22,
                             ChefId = 3,
                             Name = "Wagyu Beef Sushi",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 89.99f
                         },
                         new
@@ -1225,7 +1281,7 @@ namespace SmileChef.Migrations
                             RecipeId = 23,
                             ChefId = 4,
                             Name = "Truffle Mushroom Soup",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 34.99f
                         },
                         new
@@ -1233,7 +1289,7 @@ namespace SmileChef.Migrations
                             RecipeId = 24,
                             ChefId = 5,
                             Name = "Duck à l'Orange",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 54.99f
                         },
                         new
@@ -1241,7 +1297,7 @@ namespace SmileChef.Migrations
                             RecipeId = 25,
                             ChefId = 6,
                             Name = "Oysters Rockefeller",
-                            RecipeType = "Basic",
+                            RecipeType = "Premium",
                             Price = 44.99f
                         });
                 });
@@ -1325,6 +1381,36 @@ namespace SmileChef.Migrations
                     b.Navigation("Subscriber");
                 });
 
+            modelBuilder.Entity("SmileChef.Models.DbModels.Order", b =>
+                {
+                    b.HasOne("ChefApp.Models.DbModels.Chef", "Chef")
+                        .WithMany("Orders")
+                        .HasForeignKey("ChefId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chef");
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.OrderLine", b =>
+                {
+                    b.HasOne("SmileChef.Models.DbModels.Order", "Order")
+                        .WithMany("OrderLines")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ChefApp.Models.DbModels.Recipe", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Recipe");
+                });
+
             modelBuilder.Entity("SmileChef.Models.DbModels.RecipeBookmark", b =>
                 {
                     b.HasOne("ChefApp.Models.DbModels.Chef", "Chef")
@@ -1365,6 +1451,8 @@ namespace SmileChef.Migrations
 
             modelBuilder.Entity("ChefApp.Models.DbModels.Chef", b =>
                 {
+                    b.Navigation("Orders");
+
                     b.Navigation("PublishedSubscriptions");
 
                     b.Navigation("RecipeBookmarks");
@@ -1379,6 +1467,11 @@ namespace SmileChef.Migrations
                     b.Navigation("Instructions");
 
                     b.Navigation("Reviews");
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.Order", b =>
+                {
+                    b.Navigation("OrderLines");
                 });
 #pragma warning restore 612, 618
         }

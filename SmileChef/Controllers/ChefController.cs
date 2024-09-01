@@ -16,28 +16,40 @@ using static System.Net.WebRequestMethods;
 using System.IO;
 using SmileChef.Models.Enums;
 using System.Linq;
+using Google.Protobuf.Collections;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SmileChef.Controllers
 {
     public class ChefController : Controller
     {
+        #region GLOBAL VARIALBES
         private readonly ICompositeViewEngine _viewEngine;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<ChefController> _logger;
-        private readonly IChefRepository _chefRepo;
-        private IRepository<Instruction> _instructRepo;
-        private IRepository<Recipe> _recipeRepo;
-        private IRepository<Subscription> _subRepo;
-        private static int? _currentUserId;
-        private int _chefId;
+        private readonly IConfiguration _config;
         private readonly IWebHostEnvironment _webHostEnvironment;
+
         private readonly RecipeSmartModel _recipeModel;
         private readonly ImageSmartModel _imageModel;
-        private IRepository<NotifySubscribers> _notifySubscribers;
-        private IRepository<Review> _reviewRepo;
-        private IRepository<RecipeBookmark> _bookmarkRepo;
-        private readonly IConfiguration _config;
-        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers, IRepository<Review> reviewRepo, IRepository<RecipeBookmark> bookmarkRepo, IConfiguration config, ICompositeViewEngine viewEngine)
+
+        private static int? _currentUserId;
+        private int _chefId;
+
+        #region Repositories
+        private readonly IChefRepository _chefRepo;
+        private readonly IRepository<Instruction> _instructRepo;
+        private readonly IRepository<Recipe> _recipeRepo;
+        private readonly IRepository<Subscription> _subRepo;
+        private readonly IRepository<NotifySubscribers> _notifySubscribers;
+        private readonly IRepository<Review> _reviewRepo;
+        private readonly IRepository<RecipeBookmark> _bookmarkRepo;
+        private readonly IRepository<Order> _orderRepo;
+        #endregion
+
+        #endregion
+
+        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers, IRepository<Review> reviewRepo, IRepository<RecipeBookmark> bookmarkRepo, IConfiguration config, ICompositeViewEngine viewEngine, IRepository<Order> orderRepo)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
@@ -54,13 +66,12 @@ namespace SmileChef.Controllers
             _config = config;
             _viewEngine = viewEngine;
             AssignChefAndUserId();
+            _orderRepo = orderRepo;
         }
 
         public IActionResult Index()
         {
             ViewBag.CurrentActive = "ChefIndex";
-            
-
             var chefVM = _chefRepo.GetChefsWithDetails().Find(c => c.User.UserId == _currentUserId);
 
             if (HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail") == null)
@@ -72,13 +83,10 @@ namespace SmileChef.Controllers
             }
 
             AssignCurrentPageStatus("");
-
             var viewModel = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.User.UserId == _currentUserId);
             var userNotifications = _notifySubscribers.GetAll().Where(n => n.SubscriberId == viewModel.ChefId);
-
             if (userNotifications.Count() > 0) viewModel.Notifications = userNotifications.ToList();
             else viewModel.Notifications = new List<NotifySubscribers>();
-
             return View("ChefIndex", viewModel);
         }
 
@@ -110,6 +118,25 @@ namespace SmileChef.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> ViewChefDetails(int chefId, bool showSubscriptionModal = false, bool showUnsubscribedMessage = false)
+        {
+            AssignCurrentPageStatus("");
+
+            if (chefId == 0) chefId = HttpContext.Session.GetObjectFromJson<int>("ChefIdToSubscribe");
+            var chefViewModel = (await _chefRepo.GetChefsWithDetailsAsync()).FirstOrDefault(c => c.ChefId == chefId);
+            var loggedChef = GetCurrentChef();
+
+            bool isSubscribed = loggedChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == chefViewModel.ChefName) != null;
+
+            ViewBag.IsSubscribed = isSubscribed;
+
+            ViewBag.ShowSubscriptionModal = showSubscriptionModal;
+            ViewBag.ShowUnsubscribedMessage = showUnsubscribedMessage;
+
+            return View(chefViewModel);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ManageSubscription(int chefId, string returnUrl)
         {
             bool showUnsubscribedMessage = false;
@@ -133,7 +160,7 @@ namespace SmileChef.Controllers
                 showUnsubscribedMessage = true;
             }
 
-           return RedirectToAction(returnUrl, new { showUnsubscribedMessage });       
+            return RedirectToAction(returnUrl, new { showUnsubscribedMessage });
         }
 
         [HttpPost]
@@ -146,76 +173,13 @@ namespace SmileChef.Controllers
             subscription.SubscriberId = GetCurrentChef().ChefId;
             subscription.SubscriptionDate = DateTime.Now;
             subscription.Amount = Convert.ToDecimal(query.GetProperty("subAmount").GetString());
-            if (Enum.TryParse<SubscriptionType>(query.GetProperty("subType").GetString(), out var subType)){
+            if (Enum.TryParse<SubscriptionType>(query.GetProperty("subType").GetString(), out var subType))
+            {
                 subscription.SubscriptionType = subType;
             }
 
             _subRepo.Add(subscription);
-            return Json(new { success = true});
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ViewChefDetails(int chefId, bool showSubscriptionModal = false, bool showUnsubscribedMessage = false)
-        {
-            AssignCurrentPageStatus("");
-
-            if (chefId == 0) chefId = HttpContext.Session.GetObjectFromJson<int>("ChefIdToSubscribe");
-            var chefViewModel = (await _chefRepo.GetChefsWithDetailsAsync()).FirstOrDefault(c => c.ChefId == chefId);
-            var loggedChef = GetCurrentChef();
-
-            bool isSubscribed = loggedChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == chefViewModel.ChefName) != null;
-
-            ViewBag.IsSubscribed = isSubscribed;
-
-            ViewBag.ShowSubscriptionModal = showSubscriptionModal;
-            ViewBag.ShowUnsubscribedMessage = showUnsubscribedMessage;
-
-            return View(chefViewModel);
-        }
-
-        [HttpGet] 
-        public IActionResult ViewRecipeMarket()
-        {
-            AssignCurrentPageStatus(nameof(ViewRecipeMarket));
-            var recipes = _recipeRepo.GetAll();
-            RecipeMarketViewModel vm = new RecipeMarketViewModel();
-            vm.Recipes = recipes;
-            vm.CurrentBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
-            return View(vm);
-        }
-
-        [HttpGet]
-        public IActionResult FilterRecipeMartetByRecipeType(string recipeType)
-        {
-            List<Recipe> recipes;
-
-            if(recipeType == null || recipeType == "")
-            {
-                recipes = _recipeRepo.GetAll();
-            }
-            else
-            {
-                recipes = _recipeRepo.GetAll().Where(r => r.RecipeType == Enum.Parse<RecipeType>(recipeType)).ToList();
-            }
-
-            return PartialView("_RecipeMarketListPartial", recipes);
-        }
-
-        [HttpGet]
-        public IActionResult FilterRecipeMartetByRecipeName(string searchedRecipeName)
-        {
-            List<Recipe> recipes;
-
-            if (searchedRecipeName == null || searchedRecipeName == "")
-            {
-                recipes = _recipeRepo.GetAll();
-            }
-            else
-            {
-                recipes = _recipeRepo.GetAll().Where(r => r.Name.ToLower().Contains(searchedRecipeName.ToLower())).ToList();
-            }
-
-            return PartialView("_RecipeMarketListPartial", recipes);
+            return Json(new { success = true });
         }
 
         [HttpPost]
@@ -238,6 +202,60 @@ namespace SmileChef.Controllers
             AssignCurrentPageStatus("ViewChefRestaurants");
             return View();
         }
+
+        #region Recipe Market
+
+        [HttpGet]
+        public IActionResult ViewRecipeMarket()
+        {
+            AssignCurrentPageStatus(nameof(ViewRecipeMarket));
+            var recipes = _recipeRepo.GetAll();
+            RecipeMarketViewModel vm = new RecipeMarketViewModel();
+            vm.Recipes = recipes;
+            vm.CurrentBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
+            return View(vm);
+        }
+
+        [HttpGet]
+        public IActionResult FilterRecipeMartetByRecipeType(string recipeType)
+        {
+            List<Recipe> recipes;
+
+            if (recipeType == null || recipeType == "")
+            {
+                recipes = _recipeRepo.GetAll();
+            }
+            else
+            {
+                recipes = _recipeRepo.GetAll().Where(r => r.RecipeType == Enum.Parse<RecipeType>(recipeType)).ToList();
+            }
+            RecipeMarketViewModel vm = new RecipeMarketViewModel();
+            vm.Recipes = recipes;
+            vm.CurrentBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
+
+            return PartialView("_RecipeMarketListPartial", vm);
+        }
+
+        [HttpGet]
+        public IActionResult FilterRecipeMartetByRecipeName(string searchedRecipeName)
+        {
+            List<Recipe> recipes;
+
+            if (searchedRecipeName == null || searchedRecipeName == "")
+            {
+                recipes = _recipeRepo.GetAll();
+            }
+            else
+            {
+                recipes = _recipeRepo.GetAll().Where(r => r.Name.ToLower().Contains(searchedRecipeName.ToLower())).ToList();
+            }
+            RecipeMarketViewModel vm = new RecipeMarketViewModel();
+            vm.Recipes = recipes;
+            vm.CurrentBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
+            return PartialView("_RecipeMarketListPartial", vm);
+        }
+
+        #endregion
 
         #region Recipe Management
 
@@ -656,8 +674,8 @@ namespace SmileChef.Controllers
             // Filter recipes where any of the words in splittedPredictedLabel is contained in the recipe's name
             var filteredRecipes = recipes.Where(r =>
                 splittedPredictedLabel.Any(word => r.Name.Contains(word, StringComparison.OrdinalIgnoreCase))
-            ).ToList(); 
-            
+            ).ToList();
+
             model.SuggestedRecipes = filteredRecipes;
 
             // Return the partial view with the prediction result
@@ -687,7 +705,7 @@ namespace SmileChef.Controllers
         {
             if (file == null || file.Length == 0)
             {
-                return Json(new { success = false});
+                return Json(new { success = false });
             }
 
             //var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
@@ -760,7 +778,7 @@ namespace SmileChef.Controllers
 
             var recipeBookmark = _bookmarkRepo.GetAll().FirstOrDefault(bm => bm.RecipeId == recipeId && bm.ChefId == _chefId);
 
-            if(recipeBookmark == null)
+            if (recipeBookmark == null)
             {
                 RecipeBookmark rb = new RecipeBookmark(recipeId, _chefId);
                 _bookmarkRepo.Add(rb);
@@ -785,6 +803,120 @@ namespace SmileChef.Controllers
             return Json(new { success = true, partialView = view });
         }
         #endregion
+
+        #region Order Management
+
+        [HttpPost]
+        public async Task<IActionResult> AddOrderLine(int aRecipeId, int aQuantity)
+        {
+            var recipe = _recipeRepo.GetById(aRecipeId) as PremiumRecipe;
+
+            if (recipe == null)
+            {
+                return Json(new { success = false, message = $"Recipe with Id: {aRecipeId} is not found" });
+            }
+
+            if (aQuantity <= 0)
+            {
+                return Json(new { success = false, message = "Quantity cannot be less than or equal to zero" });
+            }
+            else if (aQuantity > 999)
+            {
+                return Json(new { success = false, message = $"Quantity cannot be greater than 999" });
+            }
+
+            var existingOrder = _httpContextAccessor.HttpContext!.Session.GetObjectFromJson<Order>("CurrentOrder");
+            if (existingOrder == null)
+            {
+                existingOrder = new Order
+                {
+                    ChefId = _chefId,
+                    OrderDate = DateTime.Now
+                };
+            }
+
+            // Create a new OrderLine object for each addition
+            var newOrderLine = new OrderLine
+            {
+                RecipeName = recipe.Name,
+                RecipeId = recipe.RecipeId,
+                Quantity = aQuantity,
+                Price = Convert.ToDecimal(recipe.Price) * aQuantity // Assuming Price is per unit
+            };
+
+            // Add or update the OrderLine in the Order
+            existingOrder.AddOrUpdateOrderLine(newOrderLine);
+
+            // Save the updated order back into the session.
+            _httpContextAccessor.HttpContext.Session.SetObjectAsJson("CurrentOrder", existingOrder);
+
+            // Render the order details partial view and return it as a JSON response.
+            var view = await RenderPartialViewToStringAsync("_OrderDetailsPartial", existingOrder);
+            return Json(new { success = true, partialView = view, message = "Selected Recipe has been added to Cart" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveOrderLine(int indexOfOrderLine)
+        {
+            // Retrieve the existing order from the session.
+            var existingOrder = _httpContextAccessor.HttpContext!.Session.GetObjectFromJson<Order>("CurrentOrder");
+
+            if (existingOrder == null || !existingOrder.OrderLines.Any())
+            {
+                return Json(new { success = false, message = "No order found or the order is empty." });
+            }
+
+            // Check if the index is within the range of the OrderLines list
+            if (indexOfOrderLine < 0 || indexOfOrderLine >= existingOrder.OrderLines.Count)
+            {
+                return Json(new { success = false, message = "Invalid order line index." });
+            }
+
+            // Remove the order line using the index
+            var removed = existingOrder.RemoveOrderLine(indexOfOrderLine);
+            if (!removed)
+            {
+                return Json(new { success = false, message = "Failed to remove the order line." });
+            }
+
+            // Update the session with the modified order.
+            _httpContextAccessor.HttpContext.Session.SetObjectAsJson("CurrentOrder", existingOrder);
+
+            // Optionally, return the updated partial view to reflect changes in the UI.
+            var view = await RenderPartialViewToStringAsync("_OrderDetailsPartial", existingOrder);
+            return Json(new { success = true, partialView = view, message = "Item has been removed successfully." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckoutOrder()
+        {
+            // Retrieve the existing order from the session.
+            var existingOrder = _httpContextAccessor.HttpContext!.Session.GetObjectFromJson<Order>("CurrentOrder");
+
+            if (existingOrder == null || !existingOrder.OrderLines.Any())
+            {
+                return Json(new { success = false, message = "There are no items in the cart to checkout." });
+            }
+
+            // Save the existing order to the database.
+            _orderRepo.Add(existingOrder);
+
+            // Clear the session or replace it with a new empty order.
+            _httpContextAccessor.HttpContext.Session.Remove("CurrentOrder");
+
+            // Optionally, start a new order.
+            _httpContextAccessor.HttpContext.Session.SetObjectAsJson("CurrentOrder", new Order
+            {
+                ChefId = _chefId,
+                OrderDate = DateTime.Now
+            });
+
+            return Json(new { success = true, message = "Checkout successful. Your order has been placed." });
+        }
+
+        #endregion
+
+        #region Helper Methods
 
         //Used to convert PartialView to string in order to send in a JSON object
         public async Task<string> RenderPartialViewToStringAsync(string viewName, object model)
@@ -819,7 +951,42 @@ namespace SmileChef.Controllers
             }
         }
 
+        private void AssignChefAndUserId()
+        {
+            _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUserId");
+            if (_currentUserId == 0)
+            {
+                _currentUserId = _config.GetValue<int>("CurrentUserId"); // Default user ID if not set
+                _httpContextAccessor.HttpContext?.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
 
+            }
+
+            _chefId = _httpContextAccessor.HttpContext?.Session.GetInt32("CurrentChefId") ?? 0;
+            if (_chefId == 0)
+            {
+                var chef = _chefRepo.GetAll().FirstOrDefault(c => c.UserId == _currentUserId);
+                _chefId = chef.ChefId;
+                _httpContextAccessor.HttpContext?.Session.SetInt32("CurrentChefId", _chefId);
+            }
+        }
+
+        private ChefViewModel GetCurrentChef()
+        {
+            var chef = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.User.UserId == _currentUserId);
+            return chef;
+        }
+
+        private void AssignCurrentPageStatus(string currentPageName)
+        {
+            ViewBag.CurrentActive = currentPageName;
+            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
+            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
+            ViewBag.CurrentUserBalance = HttpContext.Session.GetObjectFromJson<string>("CurrentUserBalance");
+        }
+
+        #endregion
+
+        #region Methods for example purpose
         public IActionResult UnderstandingCustomValidation(ChefViewModel model)
         {
 
@@ -855,36 +1022,6 @@ namespace SmileChef.Controllers
             return RedirectToAction("Success");
         }
 
-        private void AssignChefAndUserId()
-        {
-            _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUserId");
-            if (_currentUserId == 0)
-            {
-                _currentUserId = _config.GetValue<int>("CurrentUserId"); // Default user ID if not set
-                _httpContextAccessor.HttpContext?.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
-             
-            }
-
-            _chefId = _httpContextAccessor.HttpContext?.Session.GetInt32("CurrentChefId") ?? 0;
-            if (_chefId == 0)
-            {
-                var chef = _chefRepo.GetAll().FirstOrDefault(c => c.UserId == _currentUserId);
-                _chefId = chef.ChefId;
-                _httpContextAccessor.HttpContext?.Session.SetInt32("CurrentChefId", _chefId);
-            }
-        }
-
-        private ChefViewModel GetCurrentChef()
-        {
-            var chef = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.User.UserId == _currentUserId);
-            return chef;
-        }
-        private void AssignCurrentPageStatus(string currentPageName)
-        {
-            ViewBag.CurrentActive = currentPageName;
-            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
-            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
-            ViewBag.CurrentUserBalance = HttpContext.Session.GetObjectFromJson<string>("CurrentUserBalance");
-        }
+        #endregion
     }
 }

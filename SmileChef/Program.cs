@@ -13,6 +13,7 @@ using SmileChef.ViewModels;
 var builder = WebApplication.CreateBuilder(args);
 // Access IWebHostEnvironment
 var env = builder.Environment;
+
 #region  Configuring Services
 // Add services to the container.
 builder.Services.Configure<SqlSettings>(builder.Configuration.GetRequiredSection("SqlSettings"));
@@ -34,6 +35,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddSingleton<Order>();
 builder.Services.AddHttpContextAccessor();
 //mvcBuilder.AddNewtonsoftJson(options =>
 //{
@@ -42,6 +44,7 @@ builder.Services.AddHttpContextAccessor();
 //    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
 //});  // Add this line to configure Newtonsoft.Json
 //builder.Services.AddScoped(typeof(IRepository<>), implementationType: typeof(GenericRepository<>)); // remove this if you want to mark GenericRepository<T> as abstract
+
 // Register the specific repository for Chef
 builder.Services.AddScoped<IChefRepository, ChefRepository>();
 builder.Services.AddScoped<IRepository<Recipe>, RecipeRepository>();
@@ -50,6 +53,8 @@ builder.Services.AddScoped<IRepository<Subscription>, SubscriptionRepository>();
 builder.Services.AddScoped<IRepository<NotifySubscribers>, NotificationRepository>();
 builder.Services.AddScoped<IRepository<Review>, ReviewRepository>();
 builder.Services.AddScoped<IRepository<RecipeBookmark>, RecipeBookmarkRepository>();
+builder.Services.AddScoped<IRepository<Order>, OrderRepository>();
+
 // Configure CORS
 builder.Services.AddCors(options =>
 {

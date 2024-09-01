@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SmileChef.Migrations
 {
     [DbContext(typeof(ChefAppContext))]
-    [Migration("20240801222959_Added_fewSubscribed_Subscriptions_for_ChefId_1_")]
-    partial class Added_fewSubscribed_Subscriptions_for_ChefId_1_
+    [Migration("20240901181908_Initial_Create")]
+    partial class Initial_Create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.5")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -346,6 +346,394 @@ namespace SmileChef.Migrations
                             Description = "Plate the soup with sprinkled corriander and chillies",
                             OrderId = 4,
                             RecipeId = 8
+                        },
+                        new
+                        {
+                            InstructionId = 27,
+                            Description = "Prepare gourmet beef",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 9
+                        },
+                        new
+                        {
+                            InstructionId = 28,
+                            Description = "Wrap with prosciutto and puff pastry",
+                            OrderId = 2,
+                            RecipeId = 9
+                        },
+                        new
+                        {
+                            InstructionId = 29,
+                            Description = "Bake to perfection",
+                            Duration = new TimeSpan(0, 0, 25, 0, 0),
+                            OrderId = 3,
+                            RecipeId = 9
+                        },
+                        new
+                        {
+                            InstructionId = 30,
+                            Description = "Prepare truffle stock",
+                            Duration = new TimeSpan(0, 0, 10, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 10
+                        },
+                        new
+                        {
+                            InstructionId = 31,
+                            Description = "Cook Arborio rice",
+                            Duration = new TimeSpan(0, 0, 18, 0, 0),
+                            OrderId = 2,
+                            RecipeId = 10
+                        },
+                        new
+                        {
+                            InstructionId = 32,
+                            Description = "Add truffle and parmesan",
+                            OrderId = 3,
+                            RecipeId = 10
+                        },
+                        new
+                        {
+                            InstructionId = 33,
+                            Description = "Prepare sushi-grade tuna",
+                            OrderId = 1,
+                            RecipeId = 11
+                        },
+                        new
+                        {
+                            InstructionId = 34,
+                            Description = "Roll with sushi rice and nori",
+                            Duration = new TimeSpan(0, 0, 8, 0, 0),
+                            OrderId = 2,
+                            RecipeId = 11
+                        },
+                        new
+                        {
+                            InstructionId = 35,
+                            Description = "Garnish with caviar",
+                            OrderId = 3,
+                            RecipeId = 11
+                        },
+                        new
+                        {
+                            InstructionId = 36,
+                            Description = "Chop organic vegetables",
+                            Duration = new TimeSpan(0, 0, 12, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 12
+                        },
+                        new
+                        {
+                            InstructionId = 37,
+                            Description = "Prepare vinaigrette dressing",
+                            OrderId = 2,
+                            RecipeId = 12
+                        },
+                        new
+                        {
+                            InstructionId = 38,
+                            Description = "Toss and serve fresh",
+                            OrderId = 3,
+                            RecipeId = 12
+                        },
+                        new
+                        {
+                            InstructionId = 39,
+                            Description = "Prepare foie gras",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 13
+                        },
+                        new
+                        {
+                            InstructionId = 40,
+                            Description = "Cook terrine with truffles",
+                            Duration = new TimeSpan(0, 0, 30, 0, 0),
+                            OrderId = 2,
+                            RecipeId = 13
+                        },
+                        new
+                        {
+                            InstructionId = 41,
+                            Description = "Serve with toasted brioche",
+                            OrderId = 3,
+                            RecipeId = 13
+                        },
+                        new
+                        {
+                            InstructionId = 42,
+                            Description = "Mix Emeril's special spices",
+                            OrderId = 1,
+                            RecipeId = 14
+                        },
+                        new
+                        {
+                            InstructionId = 43,
+                            Description = "Marinate the meat",
+                            Duration = new TimeSpan(0, 0, 20, 0, 0),
+                            OrderId = 2,
+                            RecipeId = 14
+                        },
+                        new
+                        {
+                            InstructionId = 44,
+                            Description = "Cook to desired doneness",
+                            OrderId = 3,
+                            RecipeId = 14
+                        },
+                        new
+                        {
+                            InstructionId = 45,
+                            Description = "Prepare pizza dough",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 15
+                        },
+                        new
+                        {
+                            InstructionId = 46,
+                            Description = "Add tomato sauce and mozzarella",
+                            OrderId = 2,
+                            RecipeId = 15
+                        },
+                        new
+                        {
+                            InstructionId = 47,
+                            Description = "Bake in oven",
+                            Duration = new TimeSpan(0, 0, 10, 0, 0),
+                            OrderId = 3,
+                            RecipeId = 15
+                        },
+                        new
+                        {
+                            InstructionId = 48,
+                            Description = "Cook seafood",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 16
+                        },
+                        new
+                        {
+                            InstructionId = 49,
+                            Description = "Prepare paella rice",
+                            OrderId = 2,
+                            RecipeId = 16
+                        },
+                        new
+                        {
+                            InstructionId = 50,
+                            Description = "Combine seafood with rice",
+                            Duration = new TimeSpan(0, 0, 20, 0, 0),
+                            OrderId = 3,
+                            RecipeId = 16
+                        },
+                        new
+                        {
+                            InstructionId = 51,
+                            Description = "Chop vegetables",
+                            Duration = new TimeSpan(0, 0, 10, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 17
+                        },
+                        new
+                        {
+                            InstructionId = 52,
+                            Description = "Stir fry in wok",
+                            OrderId = 2,
+                            RecipeId = 17
+                        },
+                        new
+                        {
+                            InstructionId = 53,
+                            Description = "Serve with soy sauce",
+                            Duration = new TimeSpan(0, 0, 5, 0, 0),
+                            OrderId = 3,
+                            RecipeId = 17
+                        },
+                        new
+                        {
+                            InstructionId = 54,
+                            Description = "Prepare lamb shank",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 18
+                        },
+                        new
+                        {
+                            InstructionId = 55,
+                            Description = "Slow cook for 4 hours",
+                            Duration = new TimeSpan(0, 4, 0, 0, 0),
+                            OrderId = 2,
+                            RecipeId = 18
+                        },
+                        new
+                        {
+                            InstructionId = 56,
+                            Description = "Serve with mashed potatoes",
+                            OrderId = 3,
+                            RecipeId = 18
+                        },
+                        new
+                        {
+                            InstructionId = 57,
+                            Description = "Prepare roux",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 19
+                        },
+                        new
+                        {
+                            InstructionId = 58,
+                            Description = "Add seafood and sausage",
+                            OrderId = 2,
+                            RecipeId = 19
+                        },
+                        new
+                        {
+                            InstructionId = 59,
+                            Description = "Simmer and serve over rice",
+                            Duration = new TimeSpan(0, 0, 20, 0, 0),
+                            OrderId = 3,
+                            RecipeId = 19
+                        },
+                        new
+                        {
+                            InstructionId = 60,
+                            Description = "Prepare lobster",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 20
+                        },
+                        new
+                        {
+                            InstructionId = 61,
+                            Description = "Cook thermidor sauce",
+                            Duration = new TimeSpan(0, 0, 10, 0, 0),
+                            OrderId = 2,
+                            RecipeId = 20
+                        },
+                        new
+                        {
+                            InstructionId = 62,
+                            Description = "Bake lobster with sauce",
+                            Duration = new TimeSpan(0, 0, 20, 0, 0),
+                            OrderId = 3,
+                            RecipeId = 20
+                        },
+                        new
+                        {
+                            InstructionId = 63,
+                            Description = "Prepare blini batter",
+                            Duration = new TimeSpan(0, 0, 10, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 21
+                        },
+                        new
+                        {
+                            InstructionId = 64,
+                            Description = "Cook blinis",
+                            Duration = new TimeSpan(0, 0, 5, 0, 0),
+                            OrderId = 2,
+                            RecipeId = 21
+                        },
+                        new
+                        {
+                            InstructionId = 65,
+                            Description = "Top with caviar",
+                            OrderId = 3,
+                            RecipeId = 21
+                        },
+                        new
+                        {
+                            InstructionId = 66,
+                            Description = "Prepare wagyu beef",
+                            Duration = new TimeSpan(0, 0, 10, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 22
+                        },
+                        new
+                        {
+                            InstructionId = 67,
+                            Description = "Roll sushi with wagyu and rice",
+                            OrderId = 2,
+                            RecipeId = 22
+                        },
+                        new
+                        {
+                            InstructionId = 68,
+                            Description = "Serve with soy sauce",
+                            OrderId = 3,
+                            RecipeId = 22
+                        },
+                        new
+                        {
+                            InstructionId = 69,
+                            Description = "Prepare mushroom soup base",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 23
+                        },
+                        new
+                        {
+                            InstructionId = 70,
+                            Description = "Add truffle oil and cream",
+                            OrderId = 2,
+                            RecipeId = 23
+                        },
+                        new
+                        {
+                            InstructionId = 71,
+                            Description = "Simmer and serve",
+                            Duration = new TimeSpan(0, 0, 10, 0, 0),
+                            OrderId = 3,
+                            RecipeId = 23
+                        },
+                        new
+                        {
+                            InstructionId = 72,
+                            Description = "Prepare duck",
+                            Duration = new TimeSpan(0, 0, 20, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 24
+                        },
+                        new
+                        {
+                            InstructionId = 73,
+                            Description = "Cook orange sauce",
+                            OrderId = 2,
+                            RecipeId = 24
+                        },
+                        new
+                        {
+                            InstructionId = 74,
+                            Description = "Serve duck with sauce",
+                            Duration = new TimeSpan(0, 0, 15, 0, 0),
+                            OrderId = 3,
+                            RecipeId = 24
+                        },
+                        new
+                        {
+                            InstructionId = 75,
+                            Description = "Prepare oysters",
+                            Duration = new TimeSpan(0, 0, 10, 0, 0),
+                            OrderId = 1,
+                            RecipeId = 25
+                        },
+                        new
+                        {
+                            InstructionId = 76,
+                            Description = "Top with Rockefeller sauce",
+                            OrderId = 2,
+                            RecipeId = 25
+                        },
+                        new
+                        {
+                            InstructionId = 77,
+                            Description = "Bake oysters",
+                            Duration = new TimeSpan(0, 0, 8, 0, 0),
+                            OrderId = 3,
+                            RecipeId = 25
                         });
                 });
 
@@ -362,6 +750,11 @@ namespace SmileChef.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("RecipeType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("RecipeId");
@@ -370,54 +763,101 @@ namespace SmileChef.Migrations
 
                     b.ToTable("Recipes");
 
+                    b.HasDiscriminator<string>("RecipeType").HasValue("Basic");
+
+                    b.UseTphMappingStrategy();
+
                     b.HasData(
                         new
                         {
                             RecipeId = 1,
                             ChefId = 1,
-                            Name = "Beef Wellington"
+                            Name = "Beef Wellington",
+                            RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 2,
                             ChefId = 2,
-                            Name = "Pasta Carbonara"
+                            Name = "Pasta Carbonara",
+                            RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 3,
                             ChefId = 3,
-                            Name = "Spicy Tuna Rolls"
+                            Name = "Spicy Tuna Rolls",
+                            RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 4,
                             ChefId = 4,
-                            Name = "Lentil Soup"
+                            Name = "Lentil Soup",
+                            RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 5,
                             ChefId = 5,
-                            Name = "Roast Chicken"
+                            Name = "Roast Chicken",
+                            RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 6,
                             ChefId = 6,
-                            Name = "Bananas Foster"
+                            Name = "Bananas Foster",
+                            RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 7,
                             ChefId = 1,
-                            Name = "Beef Bolognese"
+                            Name = "Beef Bolognese",
+                            RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 8,
                             ChefId = 1,
-                            Name = "Chicken Mushroom Soup"
+                            Name = "Chicken Mushroom Soup",
+                            RecipeType = "Basic"
+                        },
+                        new
+                        {
+                            RecipeId = 15,
+                            ChefId = 2,
+                            Name = "Classic Margherita Pizza",
+                            RecipeType = "Basic"
+                        },
+                        new
+                        {
+                            RecipeId = 16,
+                            ChefId = 3,
+                            Name = "Seafood Paella",
+                            RecipeType = "Basic"
+                        },
+                        new
+                        {
+                            RecipeId = 17,
+                            ChefId = 4,
+                            Name = "Vegetarian Stir Fry",
+                            RecipeType = "Basic"
+                        },
+                        new
+                        {
+                            RecipeId = 18,
+                            ChefId = 5,
+                            Name = "Slow Cooked Lamb Shank",
+                            RecipeType = "Basic"
+                        },
+                        new
+                        {
+                            RecipeId = 19,
+                            ChefId = 6,
+                            Name = "Creole Gumbo",
+                            RecipeType = "Basic"
                         });
                 });
 
@@ -587,6 +1027,85 @@ namespace SmileChef.Migrations
                     b.ToTable("NotifySubscribers");
                 });
 
+            modelBuilder.Entity("SmileChef.Models.DbModels.Order", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+
+                    b.Property<int>("ChefId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("OrderId");
+
+                    b.HasIndex("ChefId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.OrderLine", b =>
+                {
+                    b.Property<int>("OrderLineId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderLineId"));
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RecipeName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("OrderLineId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("RecipeId");
+
+                    b.ToTable("OrderLines");
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.RecipeBookmark", b =>
+                {
+                    b.Property<int>("RecipeBookmarkId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RecipeBookmarkId"));
+
+                    b.Property<int>("ChefId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RecipeBookmarkId");
+
+                    b.HasIndex("ChefId");
+
+                    b.HasIndex("RecipeId");
+
+                    b.ToTable("RecipeBookmarks");
+                });
+
             modelBuilder.Entity("SmileChef.Models.DbModels.Review", b =>
                 {
                     b.Property<int>("Id")
@@ -676,6 +1195,116 @@ namespace SmileChef.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SmileChef.Models.DbModels.PremiumRecipe", b =>
+                {
+                    b.HasBaseType("ChefApp.Models.DbModels.Recipe");
+
+                    b.Property<float?>("Price")
+                        .HasColumnType("real");
+
+                    b.ToTable("Recipes");
+
+                    b.HasDiscriminator().HasValue("Premium");
+
+                    b.HasData(
+                        new
+                        {
+                            RecipeId = 9,
+                            ChefId = 1,
+                            Name = "Gourmet Beef Wellington",
+                            RecipeType = "Premium",
+                            Price = 49.99f
+                        },
+                        new
+                        {
+                            RecipeId = 10,
+                            ChefId = 2,
+                            Name = "Truffle Risotto",
+                            RecipeType = "Premium",
+                            Price = 39.99f
+                        },
+                        new
+                        {
+                            RecipeId = 11,
+                            ChefId = 3,
+                            Name = "Sushi Deluxe",
+                            RecipeType = "Premium",
+                            Price = 29.99f
+                        },
+                        new
+                        {
+                            RecipeId = 12,
+                            ChefId = 4,
+                            Name = "Organic Farm-to-Table Salad",
+                            RecipeType = "Premium",
+                            Price = 19.99f
+                        },
+                        new
+                        {
+                            RecipeId = 13,
+                            ChefId = 5,
+                            Name = "Foie Gras Terrine",
+                            RecipeType = "Premium",
+                            Price = 59.99f
+                        },
+                        new
+                        {
+                            RecipeId = 14,
+                            ChefId = 6,
+                            Name = "Emeril's Essence Special",
+                            RecipeType = "Premium",
+                            Price = 24.99f
+                        },
+                        new
+                        {
+                            RecipeId = 20,
+                            ChefId = 1,
+                            Name = "Lobster Thermidor",
+                            RecipeType = "Premium",
+                            Price = 69.99f
+                        },
+                        new
+                        {
+                            RecipeId = 21,
+                            ChefId = 2,
+                            Name = "Caviar Blinis",
+                            RecipeType = "Premium",
+                            Price = 99.99f
+                        },
+                        new
+                        {
+                            RecipeId = 22,
+                            ChefId = 3,
+                            Name = "Wagyu Beef Sushi",
+                            RecipeType = "Premium",
+                            Price = 89.99f
+                        },
+                        new
+                        {
+                            RecipeId = 23,
+                            ChefId = 4,
+                            Name = "Truffle Mushroom Soup",
+                            RecipeType = "Premium",
+                            Price = 34.99f
+                        },
+                        new
+                        {
+                            RecipeId = 24,
+                            ChefId = 5,
+                            Name = "Duck à l'Orange",
+                            RecipeType = "Premium",
+                            Price = 54.99f
+                        },
+                        new
+                        {
+                            RecipeId = 25,
+                            ChefId = 6,
+                            Name = "Oysters Rockefeller",
+                            RecipeType = "Premium",
+                            Price = 44.99f
+                        });
+                });
+
             modelBuilder.Entity("ChefApp.Models.DbModels.Chef", b =>
                 {
                     b.HasOne("SmileChef.Models.DbModels.User", "User")
@@ -755,6 +1384,55 @@ namespace SmileChef.Migrations
                     b.Navigation("Subscriber");
                 });
 
+            modelBuilder.Entity("SmileChef.Models.DbModels.Order", b =>
+                {
+                    b.HasOne("ChefApp.Models.DbModels.Chef", "Chef")
+                        .WithMany("Orders")
+                        .HasForeignKey("ChefId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chef");
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.OrderLine", b =>
+                {
+                    b.HasOne("SmileChef.Models.DbModels.Order", "Order")
+                        .WithMany("OrderLines")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ChefApp.Models.DbModels.Recipe", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Recipe");
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.RecipeBookmark", b =>
+                {
+                    b.HasOne("ChefApp.Models.DbModels.Chef", "Chef")
+                        .WithMany("RecipeBookmarks")
+                        .HasForeignKey("ChefId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ChefApp.Models.DbModels.Recipe", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chef");
+
+                    b.Navigation("Recipe");
+                });
+
             modelBuilder.Entity("SmileChef.Models.DbModels.Review", b =>
                 {
                     b.HasOne("ChefApp.Models.DbModels.Recipe", "Recipe")
@@ -776,7 +1454,11 @@ namespace SmileChef.Migrations
 
             modelBuilder.Entity("ChefApp.Models.DbModels.Chef", b =>
                 {
+                    b.Navigation("Orders");
+
                     b.Navigation("PublishedSubscriptions");
+
+                    b.Navigation("RecipeBookmarks");
 
                     b.Navigation("Recipes");
 
@@ -788,6 +1470,11 @@ namespace SmileChef.Migrations
                     b.Navigation("Instructions");
 
                     b.Navigation("Reviews");
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.Order", b =>
+                {
+                    b.Navigation("OrderLines");
                 });
 #pragma warning restore 612, 618
         }

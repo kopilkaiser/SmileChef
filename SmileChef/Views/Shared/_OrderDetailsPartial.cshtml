@@ -1,0 +1,36 @@
+﻿@model SmileChef.Models.DbModels.Order
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+<!-- header -->
+<div class="row pt-2">
+    <div class="col-6">Item</div>
+    <div class="col-3 text-center">Quantity</div>
+    <div class="col-3 text-center">Price</div>
+</div>
+<hr class="mt-2" />
+<!-- each item show go here -->
+<div class="row">
+    @foreach(var ol in Model.OrderLines)
+    {
+        <div class="col-6">@(ol.RecipeName)</div>
+        <div class="col-3 text-center">@ol.Quantity</div>
+        <div class="col-3 text-end">@ol.Price.ToString("C2")<span class="ps-2 spanRemoveOrderLine" onclick="removeOrderLine(@Model.OrderLines.IndexOf(ol))"><i class="fa fa-remove text-primary"></i></span></div>
+    }
+</div>
+<hr class="mb-2" />
+<!-- total Price -->
+<div class="row pb-2">
+    <div class="col-6"></div>
+    <div class="col-3 text-center fs-6">Total:</div>
+    <div class="col-3 fw-semibold" style="padding-inline-start: 1.15rem;">@Model.TotalPrice.ToString("C2")</div>
+</div>
+<div class="row justify-content-end mt-2">
+    <div class="col-3 ps-3">
+        <button class="btn btn-sm btn-info">Checkout</button>
+    </div>
+</div>
