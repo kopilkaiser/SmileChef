@@ -192,6 +192,33 @@ namespace SmileChef.Controllers
             return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddAmountToBalance(decimal amountToAdd)
+        {
+            var chef = _chefRepo.GetById(_chefId);
+            chef.AccountBalance += amountToAdd;
+
+            if(chef.AccountBalance > 999999)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"Your total balance cannot exceed £999,999",
+                    accountBalance = chef.AccountBalance
+                });
+            }
+
+            _chefRepo.Update(chef);
+            UpdateChefBalance(chef.AccountBalance);
+            return Json(new
+            {
+                success = true,
+                message = $"<p class=\"mb-2\">Amount <b class=\"text-success fs-5\">£{amountToAdd}</b> added successfully! </p>" +
+                $"<p>Your new Balance is <b class=\"text-success fs-5\">£{chef.AccountBalance}</b></p",
+                accountBalance  = chef.AccountBalance
+            });
+        }
+
         #region Recipe Market
 
         [HttpGet]
@@ -202,6 +229,7 @@ namespace SmileChef.Controllers
             RecipeMarketViewModel vm = new RecipeMarketViewModel();
             vm.Recipes = recipes;
             vm.CurrentBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
+            vm.CurrentCHef = _chefRepo.GetById(_chefId);
             return View(vm);
         }
 
@@ -221,6 +249,7 @@ namespace SmileChef.Controllers
             RecipeMarketViewModel vm = new RecipeMarketViewModel();
             vm.Recipes = recipes;
             vm.CurrentBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
+            vm.CurrentCHef = _chefRepo.GetById(_chefId);
 
             return PartialView("_RecipeMarketListPartial", vm);
         }
@@ -241,6 +270,8 @@ namespace SmileChef.Controllers
             RecipeMarketViewModel vm = new RecipeMarketViewModel();
             vm.Recipes = recipes;
             vm.CurrentBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
+            vm.CurrentCHef = _chefRepo.GetById(_chefId);
+
             return PartialView("_RecipeMarketListPartial", vm);
         }
 
@@ -796,6 +827,20 @@ namespace SmileChef.Controllers
         #region Order Management
 
         [HttpPost]
+        public async Task<IActionResult> GetCurrentCart()
+        {
+            var currentCart = _httpContextAccessor.HttpContext.Session.GetObjectFromJson<Order>("CurrentOrder");
+
+            if(currentCart == null)
+            {
+                return Json(new { });
+            }
+
+            var view = await RenderPartialViewToStringAsync("_OrderDetailsPartial", currentCart);
+            return Json(new { partialView = view });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> AddOrderLine(int aRecipeId, int aQuantity)
         {
             var recipe = _recipeRepo.GetById(aRecipeId) as PremiumRecipe;
@@ -830,11 +875,16 @@ namespace SmileChef.Controllers
                 RecipeName = recipe.Name,
                 RecipeId = recipe.RecipeId,
                 Quantity = aQuantity,
-                Price = Convert.ToDecimal(recipe.Price) * aQuantity // Assuming Price is per unit
+                Price = Convert.ToDecimal(recipe.Price) // Assuming Price is per unit
             };
 
             // Add or update the OrderLine in the Order
-            existingOrder.AddOrUpdateOrderLine(newOrderLine);
+            var response = existingOrder.AddOrUpdateOrderLine(newOrderLine);
+
+            if (!response.success)
+            {
+                return Json(new { response.success, response.message });
+            }
 
             // Save the updated order back into the session.
             _httpContextAccessor.HttpContext.Session.SetObjectAsJson("CurrentOrder", existingOrder);
@@ -901,6 +951,7 @@ namespace SmileChef.Controllers
             // Update the session with the new balance and update ViewBag.
             UpdateChefBalance(chef.AccountBalance);
 
+            existingOrder.OrderDate = DateTime.Now;
             // Save the existing order to the database.
             _orderRepo.Add(existingOrder);
 
@@ -911,17 +962,20 @@ namespace SmileChef.Controllers
             _httpContextAccessor.HttpContext.Session.SetObjectAsJson("CurrentOrder", new Order
             {
                 ChefId = _chefId,
-                OrderDate = DateTime.Now
             });
 
             var order = _httpContextAccessor.HttpContext.Session.GetObjectFromJson<Order>("CurrentOrder");
 
             var view = await RenderPartialViewToStringAsync("_OrderDetailsPartial", order);
 
-            return Json(new { success = true, partialView = view, message = $"Checkout successful. Your order has been placed. Remaining Balance: {chef.AccountBalance:C2}", accountBalance = chef.AccountBalance });
+            return Json(new { success = true, partialView = view, message = $"" +
+                $"<p class=\"mb-2 fs-4 fw-semibold\">Your order has been placed <i class=\"fa-solid fa-truck ps-1 text-primary\"></i></p>" +
+                $"<p class=\"fw-semibold mb-2 \">Remaining Balance: <b class=\"text-success fs-5\">{chef.AccountBalance:C2}</b></p>" + 
+                $"<p class=\"fs-5\">Tasty Recipes will be at your door soon !</p>", accountBalance = chef.AccountBalance });
         }
 
         #endregion
+
 
         #region Helper Methods
 
@@ -1001,7 +1055,7 @@ namespace SmileChef.Controllers
             ViewBag.CurrentActive = currentPageName;
             ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
             ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
-            ViewBag.CurrentUserBalance = HttpContext.Session.GetObjectFromJson<string>("CurrentUserBalance");
+            ViewBag.CurrentUserBalance = HttpContext.Session.GetObjectFromJson<decimal>("CurrentUserBalance");
         }
 
         #endregion

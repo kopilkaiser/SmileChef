@@ -21,20 +21,29 @@ namespace SmileChef.Models.DbModels
 
         public Chef Chef { get; set; }
 
-        public void AddOrUpdateOrderLine(OrderLine orderLine)
+        public (bool success, string message) AddOrUpdateOrderLine(OrderLine orderLine)
         {
+            string message = "";
             ArgumentNullException.ThrowIfNull(orderLine, nameof(orderLine)); // Throws if orderLine is null
             var existingOrderLine = _orderLines.FirstOrDefault(ol => ol.RecipeId == orderLine.RecipeId);
             if (existingOrderLine == null)
             {
+                orderLine.Price = orderLine.Quantity * orderLine.Price;
                 _orderLines.Add(orderLine);
             }
             else
             {
                 existingOrderLine.Quantity += orderLine.Quantity;
+
+                if(existingOrderLine.Quantity > 999)
+                {
+                    return (false, "Each item in cart cannot exceed 999 quantity");
+                }
+
                 existingOrderLine.Price = orderLine.Price * existingOrderLine.Quantity;
             }
             CalculateTotalPrice();
+            return (true, message);
         }
 
         public bool RemoveOrderLine(int indexOfOrderLine)

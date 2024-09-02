@@ -7,8 +7,6 @@
 
 }
 
-
-
 <div class="row mb-3 mt-2">
     <div class="col-md-3 mb-2 mb-md-0">
         @Html.DropDownList("SelectRecipeType", new List<SelectListItem>()
@@ -59,11 +57,9 @@
         let debounceTimeout = null;
         // #endregion
 
-        
-
         // #region Cart Functionalities
 
-        //Show Quantity Selection Modal
+        // Show Quantity Selection Modal
         function showQuantityModal(anchorElem){
             let $anchorElem = $(anchorElem);
             let recipeName = $anchorElem.data('recipe-name');
@@ -82,7 +78,11 @@
         //   $('#btnSaveRecipeToCart') being handled by an event delegation on the document element
         // })
 
-        //Removing Existing OrderLine from the Cart
+        // The following is being down in line number: 294
+        // Please refer to the $(document).on(ready() => {
+        // $(document).on('click', '#btnCheckoutCart', () => { }); being handled by an event delegation on the document element
+
+        // Removing Existing OrderLine from the Cart
         function removeOrderLine(indexOfOrderLine){
             $.ajax({
                     type : "POST",
@@ -121,7 +121,7 @@
 
         // #endregion
 
-
+        // #region Filter RecipeMarket by RecipeType ("Basic" or "Premium")
         function onRecipeTypeChanged(selection) {
             let recipeType = $(selection).val();
             $.ajax({
@@ -149,7 +149,9 @@
                 }
             });
         }
+        // #endregion 
 
+        // #region Filter RecipeMarket by RecipeName
         function onSearchRecipeName(input) {
             // Using debouncer to restrict the frequency of the call made to the server on every input change
             clearTimeout(debounceTimeout);
@@ -182,9 +184,43 @@
                 });     
             }, 500);
         }
+        // #endregion
 
         $(document).ready(function () {
             console.log("Page loaded ViewRecipeMarket.cshtml")
+
+
+            // #region Retrieving the current session Order
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetCurrentCart")',
+                dataType: "json",
+                success: function (response) {
+                    if ($.isEmptyObject(response) || !response.partialView) {
+                        // If the response is empty or does not contain the partialView property
+                        console.log("Cart is empty.");
+                        // Swal.fire({
+                        //     title: "Information",
+                        //     text: "Your cart is currently empty.",
+                        //     icon: "info"
+                        // });
+                    } else {
+                        // If the response contains the partialView
+                        console.log("Cart has been loaded.");
+                        $('#orderDetailsContainer').empty().html(response.partialView);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                    console.log(`Error - ${errorMessage}`);
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                        icon: "error"
+                    });
+                }
+            });
+            // #endregion
 
             //#region Handling Recipe Bookmarking
             $(document).on('click', 'div.card-header div.d-flex a.anchorBookmark[data-recipe-id]', function(){
@@ -243,7 +279,6 @@
             $(document).on('click', '#btnSaveRecipeToCart', () => {
                 let orderLineQuantity = $('#tbOrderLineQuantity').val();
                 let recipeId = $('#hfRecipeId').val();
-                console.log(`btnSaveRecipeToCart => Values, orderLineQuantity: ${orderLineQuantity}, recipeId: ${recipeId}`);
                 $.ajax({
                     type : "POST",
                     url : '@Url.Action("AddOrderLine")',
@@ -252,7 +287,7 @@
                     data : { aRecipeId : recipeId, aQuantity : orderLineQuantity},
                     success : function(response){
                         if(response.success){
-                            console.log(response);
+                            //console.log(response);
                             $('#orderDetailsContainer').empty().html(response.partialView);
                             Swal.fire({
                                 title : "Successful",
@@ -283,13 +318,23 @@
             });
             //#endregion
 
-            //#region Performing Adding Recipes(OrderLine) to Cart
+            //#region Performing CheckOut of Cart
             $(document).on('click', '#btnCheckoutCart', () => {
                 let totalPrice = $('#txtTotalPrice').text();
+                let totalBalance = $('#spanAccountBalance').text();
+                console.log(`value of totalBalance: ${totalBalance}`);
+                // Remove the currency symbol and commas, then parse the result as a float
+                let currentBalance = parseFloat(totalBalance.replace('£', '').replace(/,/g, '')); 
+                console.log(`value of currentBalance: ${currentBalance}`);
                 if (totalPrice !== '£0.00'){
                     Swal.fire({
-                         title: "Confirmation",
-                        text: `Total ${totalPrice} will be deducted from your balance`,
+                        title: "Confirmation",
+                        html: 
+                        `
+                            <p class="fs-4 mb-3">Current Balance: <b class="text-success">£${currentBalance}</b></p>
+                            <p class="mb-2 fs-5">Total <b class="text-danger fw-bold">${totalPrice}</b> will be deducted from your balance</p>
+                            <p class="text-black fw-semibold">Are you sure to place the order?</p>
+                        `,
                         icon: "info",
                         showCancelButton: true,
                         confirmButtonText: 'Yes, checkout!',
@@ -308,7 +353,7 @@
                                     $('#spanAccountBalance').text(`£${response.accountBalance}`)
                                      Swal.fire({
                                         title : "Success",
-                                        text : response.message,
+                                        html : response.message,
                                         icon : "success"
                                     });
                                 }else{

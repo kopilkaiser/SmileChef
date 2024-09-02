@@ -22,6 +22,19 @@
         .navbar-nav{
             --bs-nav-link-padding-y: 0.25rem;
         }
+
+        .custom-radioBtn{
+            margin-top: 3.5px;
+            margin-right: 5px;
+            width: 15px;
+            height: 15px;
+        }
+
+        .radio-container{
+            height: 2em;
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -77,15 +90,15 @@
                                 <li class="dropdown-item"><a class="nav-link @(ViewBag.CurrentActive == "GetOrders" ? "active" : "")" href="#">Order History</a></li>
                                 <li class="dropdown-item"><hr class="dropdown-divider"></li>
                                 <li class="dropdown-item"><a class="nav-link @(ViewBag.CurrentActive == "ManageProfile" ? "active" : "")" href="#">Manage Profile</a></li>
-                                <li class="dropdown-item"><a class="nav-link @(ViewBag.CurrentActive == "ManageAccountBalance" ? "active" : "")" href="#">Manage Account Balance</a></li>
+                                <li class="dropdown-item"><a class="nav-link text-dark" id="showAccountBalanceModal" href="#">Manage Account Balance</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown ms-xl-auto">
-                            <a id="anchorOrderDetails" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="inner">
+                            <a id="anchorOrderDetails" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="false">
                                Show Order Details
                             </a>
                             <ul class="dropdown-menu dropdown-menu-xl-end drop p-1 border-0 bg-body-tertiary" style="margin-block-start: 0.75rem">
-                                <li class="dropdown-item" id="orderDetailsContainer" style="width:400px;">
+                                <li class="dropdown-item" id="orderDetailsContainer" style="width: min(100vw, 500px)">
                                     @await Html.PartialAsync("_OrderDetailsPartial", new Order())
                                 </li>
                             </ul>
@@ -97,7 +110,8 @@
                             <ul class="dropdown-menu dropdown-menu-xl-end drop p-1 border-0 bg-body-tertiary" style="margin-block-start: 0.75rem">
                                 <li class="dropdown-item"><b class="pe-2">Email:</b> @(ViewBag.CurrentUserEmail ?? "")</li>
                                 <li class="dropdown-item"><b class="pe-2">Name:</b> @(ViewBag.CurrentUserName ?? "")</li>
-                                <li class="dropdown-item"><b class="pe-2">AccountBalance:</b> <span id="spanAccountBalance">@("£" + (ViewBag.CurrentUserBalance ?? "0.00"))</span></li>
+                                @* <li class="dropdown-item"><b class="pe-2">AccountBalance:</b> <span id="spanAccountBalance">@("£" + (ViewBag.CurrentUserBalance ?? "0.00"))</span></li> *@
+                                <li class="dropdown-item"><b class="pe-2">AccountBalance:</b> <span id="spanAccountBalance">@(string.Format("{0:C2}", ViewBag.CurrentUserBalance))</span></li>
                             </ul>
                         </li>
                     </ul>
@@ -130,12 +144,196 @@
             </div>
         </div>
     </div>
+    
+    <!-- #region: Account TopUp Modal -->
+    <div class="modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" id="accountTopUpBalanceModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Topping up your current Balance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex flex-column gap-1">
+                        <div class="mb-1">Your Current Balance: <b class="text-success fs-5" id="accountBalancePlaceHolder"></b></div>
+                        <div>Please choose one of the options to Top-Up:</div>
+                        <div class="radio-container">
+                            <input class="custom-radioBtn" type="radio" id="balanceOption100" name="balanceOption" value="100" />
+                            <label class="fs-5" for="balanceOption100">£100</label>
+                        </div>
+                        <div class="radio-container">
+                            <input class="custom-radioBtn" type="radio" id="balanceOption500" name="balanceOption" value="500" />
+                            <label class="fs-5" for="balanceOption500">£500</label>
+                        </div>
+                        <div class="radio-container">
+                            <input class="custom-radioBtn" type="radio" id="balanceOption1000" name="balanceOption" value="1000" style="margin-top: 0.25rem;" />
+                            <label class="fs-5" for="balanceOption1000">£1000</label>
+                        </div>
+                        <div class="radio-container">
+                            <input class="custom-radioBtn" type="radio" id="balanceOption2000" name="balanceOption" value="2000" />
+                            <label class="fs-5" for="balanceOption2000">£2000</label>
+                        </div>
+                        <div class="radio-container">
+                            <input class="custom-radioBtn" type="radio" id="balanceOptionEnterManually" name="balanceOption" value="Enter manually" />
+                            <label class="fs-5" for="balanceOptionEnterManually">Enter Manually £</label>
+                            <input class="form-control w-50 ms-2" type="number" min="1" max="999999" id="tbBalance" value="" disabled oninput="validateBalanceTextBox(this)" />
+                            <i id="tbBalanceIcon" class="fa-solid fa-exclamation fa-lg ps-2 text-danger d-none"></i>
+                        </div>
+                        <div class="mt-2">
+                            <label b-m5dri511mu="" class="fs-5" for="predictedBalance">£</label>
+                            <input class="form-control w-75 d-inline-block" type="text" id="predictedBalance" name="balanceOption" placeholder="Balance will be predicted here" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="processBalanceTopUp" type="button" class="btn btn-success">Top up Balance</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- #endregion: Account TopUp Modal -->
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/loadGoogleMap.js"></script>  @*Reference: Kaiser 2024, Myself. KingstonUniversity Project: https://github.com/kopilkaiser/BankApplicationKU/tree/master/BankingWebApp*@
+
+    
+    <!-- General scripts that need to run across all pages -->
+    <script>
+        console.log("This script runs before page-specific scripts.");
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
+    <!-- Scripts that depend on page-specific scripts -->
+    <script>
+
+        // #region Code to perform Account TopUp Balance logic
+        function validateBalanceTextBox(tbElem){
+            let $elem = $(tbElem);
+            let currentVal = parseFloat($elem.val());
+            let userBalance = parseFloat($('#spanAccountBalance').text().replace('£', '').replace(/,/g, ''));
+            console.log(`value of currentVal: ${currentVal}`);
+
+            // this did the trick to stop getting "predictedBalance" textBox showing NaN value
+            if (isNaN(currentVal) || $elem.val().trim() === "") {
+                $elem.val('1');
+                currentVal = 1;
+            }
+
+            if (currentVal <= 0) {
+                Swal.fire({
+                    title: "Information",
+                    text: "You cannot enter less than or equal to 0",
+                    icon: "warn",
+                    focusConfirm: false, // Prevents focusing on the confirm button automatically
+                    didClose: () => {
+                        $elem.focus(); // Manually focus the input field after the alert is closed
+                    }
+                });
+                $elem.val('1');
+            }else if (currentVal > 999999) {
+                Swal.fire({
+                    title: "Information",
+                    text: "You cannot enter more than 999,999",
+                    icon: "warn",
+                    focusConfirm: false, // Prevents focusing on the confirm button automatically
+                    didClose: () => {
+                        $elem.focus(); // Manually focus the input field after the alert is closed
+                    }
+                });
+                $elem.css('color', 'red');
+                $('svg#tbBalanceIcon').removeClass('d-none');
+                $elem.val('999999');
+            }else{
+                $elem.css('color', 'black');
+                $('svg#tbBalanceIcon').addClass('d-none');
+                $('#predictedBalance').val(currentVal + userBalance);
+            }        
+        }
+
+        // Show the Account Balance Modal when the trigger is clicked
+        $('#showAccountBalanceModal').click(function () {
+            $('#accountBalancePlaceHolder').text($('#spanAccountBalance').text())
+            $('#accountTopUpBalanceModal').modal('show');
+        });
+
+        // preventing the Modal to get closed when "Enter" key is pressed while the Swal.fire() is open for invalid input
+        // check line:211 validateBalanceTextBox() which fires Swal.fire() on error inputs
+        $('#accountTopUpBalanceModal').on('keypress', function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // Prevents the default behavior of the Enter key
+                // Optionally, you can trigger a custom action here
+            }
+        });
+
+        // Enable the text box if 'Enter manually' option is selected, disable otherwise
+        $('input[name="balanceOption"]').on('change', function () {
+            let selectedCheckElem = $(this);
+            let userBalance = parseFloat($('#spanAccountBalance').text().replace('£', '').replace(/,/g, ''));
+            let selectedBalance;
+            if (selectedCheckElem.val() === 'Enter manually') {
+                $('#tbBalance').prop('disabled', false);
+                $('#tbBalance').val('1');
+                selectedBalance = parseFloat($('#tbBalance').val());
+            } else {
+                $('#tbBalance').prop('disabled', true);
+                selectedBalance = parseFloat(selectedCheckElem.val());
+            }
+            console.log(`value of selectedBalance : ${selectedBalance}`);
+            $('#predictedBalance').val(selectedBalance + userBalance);
+        });
+
+        $('#processBalanceTopUp').click(() => {
+            let checkedOption = $('input[name="balanceOption"]:checked').val();
+            console.log(`value of checkedOption: ${checkedOption}`);
+            let balanceToAdd;
+
+            if (checkedOption === "Enter manually"){
+                balanceToAdd = $('#tbBalance').val();
+            }else{
+                balanceToAdd = checkedOption;
+            }
+            console.log(`value of balanceToAdd: ${balanceToAdd}`)
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AddAmountToBalance")',
+                data: { amountToAdd: balanceToAdd },
+                dataType : "json",
+                success : function(response){
+                    if (response.success) {
+                        console.log(`balance have been updated!`)
+                        Swal.fire({
+                            title : "Balanced Updated",
+                            html : response.message,
+                            icon : "success"
+                        })
+                        $('#spanAccountBalance').text(`£${response.accountBalance}`)
+                        $('#accountBalancePlaceHolder').text(`£${response.accountBalance}`)
+                    } else {
+                        console.log(`balance have failed to update!`)
+                        Swal.fire({
+                            title: "Balanced failed to update",
+                            text: response.message,
+                            icon: "error"
+                        })
+                    }
+                },
+                error: function (xhr, status, error) {
+                    let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                    console.log(`Error - ${errorMessage}`)
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                        icon: "error"
+                    });
+                }
+            })
+        })
+
+        // #endregion
+    </script>
 </body>
 </html>

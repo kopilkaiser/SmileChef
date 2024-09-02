@@ -14,23 +14,25 @@
 </div>
 <hr class="mt-2" />
 <!-- each item show go here -->
-<div class="row">
-    @foreach(var ol in Model.OrderLines)
-    {
+@foreach(var ol in Model.OrderLines)
+{
+    <div class="row mb-2">
         <div class="col-6">@(ol.RecipeName)</div>
         <div class="col-3 text-center">@ol.Quantity</div>
-        <div class="col-3 text-end">@ol.Price.ToString("C2")<span class="ps-2 spanRemoveOrderLine" onclick="removeOrderLine(@Model.OrderLines.IndexOf(ol))"><i class="fa fa-remove text-primary"></i></span></div>
-    }
-</div>
+        <div class="col-3 text-end">@ol.Price.ToString("C2")
+            <span class="ps-2 spanRemoveOrderLine" onclick="removeOrderLine(@Model.OrderLines.IndexOf(ol))"><i class="fa fa-remove text-danger fa-lg"></i></span>
+        </div>
+    </div>
+}
 <hr class="mb-2" />
 <!-- total Price -->
 <div class="row pb-2">
     <div class="col-6"></div>
     <div class="col-3 text-center fs-6">Total:</div>
-    <div id="txtTotalPrice" class="col-3 fw-semibold" style="padding-inline-start: 1.15rem;">@Model.TotalPrice.ToString("C2")</div>
+    <div id="txtTotalPrice" class="col-3 fw-semibold text-center">@Model.TotalPrice.ToString("C2")</div>
 </div>
 <div class="row justify-content-end mt-2">
-    <div class="col-3 ps-3">
+    <div class="col-3 ps-4">
         <button id="btnCheckoutCart" class="btn btn-sm btn-info">Checkout</button>
     </div>
 </div>
