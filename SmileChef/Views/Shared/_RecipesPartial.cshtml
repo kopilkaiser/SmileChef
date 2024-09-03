@@ -29,7 +29,7 @@
                 <div class="col">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center gap-1 py-2">
+                            <div class="d-flex align-items-center gap-1 py-2" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                 <i class="fa-solid fa-bowl-food fs-4 pe-1"></i>
                                 <span class="my-1">Recipe:</span>
                                 <a asp-action="ViewRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId"><span class="fw-bold recipe-name" title="@string.Format("View {0}", recipe.Name)">@recipe.Name</span></a>

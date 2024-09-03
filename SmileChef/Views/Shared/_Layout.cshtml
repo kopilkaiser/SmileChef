@@ -87,9 +87,9 @@
                                     <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "GetRecipeBookmarks" ? "active" : "")" asp-controller="Chef" asp-action="GetRecipeBookmarks">Recipe Bookmark list</a>
                                 </li>
                                 <li class="dropdown-item"><hr class="dropdown-divider"></li>
-                                <li class="dropdown-item"><a class="nav-link @(ViewBag.CurrentActive == "GetOrders" ? "active" : "")" href="#">Order History</a></li>
+                                <li class="dropdown-item"><a class="nav-link text-dark @(ViewBag.CurrentActive == "ShowOrderHistory" ? "active" : "")" asp-action="ShowOrderHistory" asp-controller="Chef">Order History</a></li>
                                 <li class="dropdown-item"><hr class="dropdown-divider"></li>
-                                <li class="dropdown-item"><a class="nav-link @(ViewBag.CurrentActive == "ManageProfile" ? "active" : "")" href="#">Manage Profile</a></li>
+                                <li class="dropdown-item"><a class="nav-link text-dark @(ViewBag.CurrentActive == "ManageProfile" ? "active" : "")" href="#">Manage Profile</a></li>
                                 <li class="dropdown-item"><a class="nav-link text-dark" id="showAccountBalanceModal" href="#">Manage Account Balance</a></li>
                             </ul>
                         </li>

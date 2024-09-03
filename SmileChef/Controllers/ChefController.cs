@@ -65,8 +65,8 @@ namespace SmileChef.Controllers
             _bookmarkRepo = bookmarkRepo;
             _config = config;
             _viewEngine = viewEngine;
-            AssignChefAndUserId();
             _orderRepo = orderRepo;
+            AssignChefAndUserId();
         }
 
         public IActionResult Index()
@@ -218,6 +218,24 @@ namespace SmileChef.Controllers
                 accountBalance  = chef.AccountBalance
             });
         }
+
+        #region GET: Order and Orderline history
+
+        [HttpGet]
+        public async Task<IActionResult> ShowOrderHistory()
+        {
+            AssignCurrentPageStatus("ShowOrderHistory");
+            var orders = _orderRepo.GetAll().Where(o => o.ChefId == _chefId).ToList();
+            return View(orders);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ShowOrderLinesByOrderId(int orderId)
+        {
+            var order = _orderRepo.GetById(orderId);
+            return PartialView("_ShowOrderLinesPartial", order);
+        }
+        #endregion
 
         #region Recipe Market
 
@@ -374,7 +392,7 @@ namespace SmileChef.Controllers
 
                     recipe.Name = model.Name!;
                     chef.Recipes.Add(recipe);
-
+                    _recipeRepo.Add(recipe);
                     //create the notification
                     foreach (var subscriber in chef.PublishedSubscriptions)
                     {
@@ -975,7 +993,6 @@ namespace SmileChef.Controllers
         }
 
         #endregion
-
 
         #region Helper Methods
 

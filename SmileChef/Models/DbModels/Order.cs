@@ -1,5 +1,6 @@
 ﻿using ChefApp.Models.DbModels;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmileChef.Models.DbModels
@@ -7,10 +8,13 @@ namespace SmileChef.Models.DbModels
     [Table("Orders")]
     public class Order
     {
+        [DisplayName("OrderId")]
         public int OrderId { get; set; }
 
+        [DisplayName("Date Ordered")]
         public DateTime OrderDate { get; set; }
 
+        [DisplayName("Subtotal")]
         public decimal TotalPrice { get; set; }
 
         private List<OrderLine> _orderLines = new List<OrderLine>();

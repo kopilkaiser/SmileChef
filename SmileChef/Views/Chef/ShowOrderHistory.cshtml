@@ -1,0 +1,108 @@
+﻿@using SmileChef.Models.DbModels
+@model List<Order>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+<div class="col-md-8">
+    <h1 class="lead fw-semibold">Your Order History</h1>
+    <hr />
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>@Html.LabelFor(m => m[0].OrderId)</th>
+                <th>@Html.LabelFor(m => m[0].OrderDate)</th>
+                <th>@Html.LabelFor(m => m[0].TotalPrice)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var order in Model)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.OrderDate</td>
+                    <td>@order.TotalPrice</td>
+                    <td>
+                        <a href="javascript:void(0)" class="anchorShowOrderDetails" data-order-id="@order.OrderId">Show Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div id="simpleTestContainer"></div>
+<!-- #region: Modal Show Orderline Details -->
+<div class="modal modal-lg" id="orderDetailsModal" tabindex="-1" aria-labelledby="recipeViewModal" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="modalRecipeTitle"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="orderLinesHistory">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $(function () {
+            // $('#orderDetailsModal').modal('show');
+            // $.ajax({
+            //     type: "GET",
+            //     url: '@Url.Action("ShowOrderLinesByOrderId")',
+            //     data: { orderId: 1 },
+            //     dataType: "html",
+            //     success: function (response) {
+            //         console.log(response);
+            //         $('#orderLinesHistory').empty().html(response);
+            //     },
+            //     error: function (xhr, status, error) {
+            //         var errorMessage = xhr.status + ': ' + xhr.statusText;
+            //         console.log('Error - ' + errorMessage);
+            //         Swal.fire({
+            //             title: "Error Occurred",
+            //             text: errorMessage,
+            //             icon: "error"
+            //         });
+            //     }
+            // });
+            $('.anchorShowOrderDetails').click(function () {
+                let $anchorElem = $(this);
+                let orderId = $anchorElem.data('order-id');
+                console.log(`value of data-order-id: ${orderId}`);
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("ShowOrderLinesByOrderId")',
+                    data: { orderId: orderId },
+                    dataType : "html",
+                    success: function (response) {
+                        console.log(response);
+                        $('#orderLinesHistory').empty().html(response);
+                        $('#orderDetailsModal').modal('show');
+                    },
+                    error: function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText;
+                        console.log('Error - ' + errorMessage);
+                        Swal.fire({
+                            title: "Error Occurred",
+                            text: errorMessage,
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

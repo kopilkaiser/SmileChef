@@ -11,6 +11,16 @@ namespace SmileChef.Repository
             
         }
 
+        public override Order? GetById(int orderId)
+        {
+            var order = _context.Orders
+                .Include(o => o.OrderLines)
+                .ThenInclude(ol => ol.Recipe)
+                .FirstOrDefault(o => o.OrderId == orderId);
+            ArgumentNullException.ThrowIfNull(order);
+            return order;
+        }
+
         public override List<Order>? GetAll()
         {
             var orders = _context.Orders
