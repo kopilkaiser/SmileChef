@@ -320,19 +320,21 @@
 
             //#region Performing CheckOut of Cart
             $(document).on('click', '#btnCheckoutCart', () => {
-                let totalPrice = $('#txtTotalPrice').text();
+                let totalPrice = parseFloat($('#txtTotalPrice').text().replace('£', '').replace(/,/g, ''));
                 let totalBalance = $('#spanAccountBalance').text();
                 console.log(`value of totalBalance: ${totalBalance}`);
                 // Remove the currency symbol and commas, then parse the result as a float
                 let currentBalance = parseFloat(totalBalance.replace('£', '').replace(/,/g, '')); 
                 console.log(`value of currentBalance: ${currentBalance}`);
-                if (totalPrice !== '£0.00'){
+                if (totalPrice !== 0.00){
+                    const formattedBalance = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(currentBalance);
+                    const formattedTotalPrice = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(totalPrice);
                     Swal.fire({
                         title: "Confirmation",
                         html: 
                         `
-                            <p class="fs-4 mb-3">Current Balance: <b class="text-success">£${currentBalance}</b></p>
-                            <p class="mb-2 fs-5">Total <b class="text-danger fw-bold">${totalPrice}</b> will be deducted from your balance</p>
+                            <p class="fs-4 mb-3">Current Balance: <b class="text-success">${formattedBalance}</b></p>
+                                            <p class="mb-2 fs-5">Total <b class="text-danger fw-bold">${formattedTotalPrice}</b> will be deducted from your balance</p>
                             <p class="text-black fw-semibold">Are you sure to place the order?</p>
                         `,
                         icon: "info",
@@ -349,9 +351,10 @@
                             contentType : "application/x-www-form-urlencoded; charset=UTF-8",
                             success : function(response){
                                 if(response.success){
+                                    let formattedAccountBalance = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(response.accountBalance);
                                     $('#orderDetailsContainer').empty().html(response.partialView);
-                                    $('#spanAccountBalance').text(`£${response.accountBalance}`)
-                                     Swal.fire({
+                                    $('#spanAccountBalance').text(`${formattedAccountBalance}`)
+                                    Swal.fire({
                                         title : "Success",
                                         html : response.message,
                                         icon : "success"

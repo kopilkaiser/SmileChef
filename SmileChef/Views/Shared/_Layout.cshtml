@@ -310,8 +310,10 @@
                             html : response.message,
                             icon : "success"
                         })
-                        $('#spanAccountBalance').text(`£${response.accountBalance}`)
-                        $('#accountBalancePlaceHolder').text(`£${response.accountBalance}`)
+                        // Assuming response.accountBalance is a number
+                        const formattedBalance = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(response.accountBalance);
+                        $('#spanAccountBalance').text(`${formattedBalance}`)
+                        $('#accountBalancePlaceHolder').text(`${formattedBalance}`)
                     } else {
                         console.log(`balance have failed to update!`)
                         Swal.fire({
