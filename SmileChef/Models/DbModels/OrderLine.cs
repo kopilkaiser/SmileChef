@@ -1,4 +1,5 @@
 ﻿using ChefApp.Models.DbModels;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmileChef.Models.DbModels
@@ -15,9 +16,13 @@ namespace SmileChef.Models.DbModels
 
         [ForeignKey(nameof(Recipe))]
         public int RecipeId { get; set; }
+
+        [DisplayName("Recipe Name")]
         public string? RecipeName { get; set; }
         public Recipe? Recipe { get; set; }
         public int Quantity { get; set; }
+
+        [DisplayName("Total")]
         public decimal Price { get; set; }
     }
 }

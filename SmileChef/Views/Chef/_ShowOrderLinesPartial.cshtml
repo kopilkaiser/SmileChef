@@ -6,14 +6,24 @@
 }
 
 <div class="col-md-12">
-    <h1 class="lead">Showing Orderline History</h1>
-    <h2 class="fs-5 fw-semibold">OrderId: @Model.OrderId</h2>
-    <hr />
+    <div class="d-flex justify-content-between">
+        <div>
+            <h1 class="lead">Showing Orderline History</h1>
+            <h2 class="fs-5 fw-semibold">OrderId: @Model.OrderId</h2>
+        </div>
+        <div>
+            <button class="btn btn-sm btn-success"><i class="fa fa-print"></i></button>
+            <button class="btn btn-sm btn-primary"><i class="fab fa-dochub"></i></button>
+            <button class="btn btn-sm btn-info"><i class="fab fa-airbnb"></i></button>
+        </div>
+    </div>
+    
+    <hr class="mt-2"/>
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>@Html.LabelFor(m => m.OrderLines[0].RecipeName)</th>
-                <th>Price Per Recipe</th>
+                <th colspan="2">@Html.LabelFor(m => m.OrderLines[0].RecipeName)</th>
+                <th>Recipe Price</th>
                 <th>@Html.LabelFor(m => m.OrderLines[0].Quantity)</th>
                 <th>@Html.LabelFor(m => m.OrderLines[0].Price)</th>
             </tr>
@@ -22,19 +32,19 @@
             @foreach (var ol in Model.OrderLines)
             {
                 <tr>
-                    <td width="30%">@ol.RecipeName</td>
-                    <td width="15%">
-                        @if(ol.Recipe is PremiumRecipe pr)
+                    <td colspan="2">@ol.RecipeName</td>
+                    <td>
+                        @if (ol.Recipe is PremiumRecipe pr)
                         {
                             @(pr.Price!.Value.ToString("C2"))
                         }
                     </td>
-                    <td width="15%"><span class="ps-3">@ol.Quantity</span></td>
-                    <td width="10%">@ol.Price.ToString("C2")</td>
+                    <td><span class="ps-3">@ol.Quantity</span></td>
+                    <td>@ol.Price.ToString("C2")</td>
                 </tr>
             }
             <tr>
-                <td></td>
+                <td colspan="2"></td>
                 <td></td>
                 <td class="lead">Subtotal: </td>
                 <td><span class="fw-semibold">@Model.TotalPrice.ToString("C2")</span></td>

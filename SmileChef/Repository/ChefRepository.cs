@@ -133,6 +133,7 @@ namespace SmileChef.Repository
         public override Chef? GetById(int id)
         {
             var chef = _context.Chefs
+                .Include(c => c.User)
                 .Include(c => c.Recipes)
                 .ThenInclude(r => r.Instructions)
                 .Include(c => c.SubscribedTo)
