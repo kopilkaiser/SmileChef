@@ -66,11 +66,17 @@ namespace SmileChef.Controllers
             _config = config;
             _viewEngine = viewEngine;
             _orderRepo = orderRepo;
-            AssignChefAndUserId();
+
+            if(_httpContextAccessor != null && _httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.Session != null)
+            {
+                var userId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUserId");
+                AssignChefAndUserId(userId);
+            }
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int userId)
         {
+            AssignChefAndUserId(userId);
             AssignCurrentPageStatus("ChefIndex");
             var viewModel = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.User.UserId == _currentUserId);
             var userNotifications = _notifySubscribers.GetAll().Where(n => n.SubscriberId == viewModel.ChefId);
@@ -219,7 +225,114 @@ namespace SmileChef.Controllers
             });
         }
 
-        #region GET: Order and Orderline history
+        #region Login Page
+        [HttpGet]
+        public async Task<IActionResult> LoginPage()
+        {
+            var chef = new Chef();
+            chef.User = new User();
+            return View(chef);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LoginPage(Chef chef)
+        {
+            var allChefs = _chefRepo.GetAll();
+            Chef? chefFound = allChefs.Where(c => c.User.Email == chef.User.Email).FirstOrDefault();
+
+            if (chefFound == null)
+            {
+                ViewBag.ErrorEmail = "<p>No User found with the given Email Address. <br/>Please try to Register</p>";
+                return View(chef);
+            }
+
+            var IsPasswordValid = chefFound.User.Password == chef.User.Password;
+
+            if (!IsPasswordValid)
+            {
+                ViewBag.ErrorPassword = "You have given an incorrect Password";
+                return View(chef);
+            }
+
+            ViewBag.SuccessMessage = "Verificataion complete. Logging in now...";
+            return View(chefFound);
+        }
+        #endregion
+
+        #region Profile Management
+        [HttpGet]
+        public async Task<IActionResult> ManageProfile()
+        {
+            AssignCurrentPageStatus("ManageProfile");
+            var chef = _chefRepo.GetById(_chefId);
+            return View(chef);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManageProfile(Chef chef)
+        {
+            AssignCurrentPageStatus("ManageProfile");
+            if (ModelState.IsValid)
+            {
+                var getChef = _chefRepo.GetById(_chefId);
+                getChef.FirstName = chef.FirstName;
+                getChef.LastName = chef.LastName;
+                getChef.User.Email = chef.User.Email;
+                getChef.User.Password = chef.User.Password;
+                _chefRepo.Update(getChef);
+                UpdateChefDetails(getChef.ChefId, "ManageProfile");
+                ViewBag.SuccessMessage = "Your information has been successfully saved";
+                return View(getChef);
+            }
+            else
+            {
+                ViewBag.ErrorMessage = "Incorrect details given";
+                return View(chef);
+            }
+        }
+
+        #endregion
+
+        #region Register Page: Chef
+        [HttpGet]
+        public async Task<IActionResult> RegisterPage()
+        {
+            AssignCurrentPageStatus("RegisterPage");
+            var chef = new Chef();
+            chef.AccountBalance = 0;
+            chef.User = new User();
+
+            return View("RegisterPage",chef);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegisterPage(Chef chef)
+        {
+            AssignCurrentPageStatus("RegisterPage");
+            if (ModelState.IsValid)
+            {
+                var geChefWithEmail = _chefRepo.GetAll().Where(c => c.User.Email == chef.User.Email).FirstOrDefault();
+                if(geChefWithEmail != null)
+                {
+                    ViewBag.EmailExistsMessage = "Chef exists with the same email. Please choose a different one";
+                    return View(chef);
+                }
+
+                _chefRepo.Add(chef);
+                UpdateChefDetails(chef.ChefId, "RegisterPage");
+                ViewBag.SuccessMessage = "You have been successfully registered. You can Login now.";
+                return View("RegisterPage",chef);
+            }
+            else
+            {
+                ViewBag.ErrorMessage = "Incorrect details given. Registration failed";
+                return View("RegisterPage",chef);
+            }
+        }
+
+        #endregion
+
+        #region Order and Orderline history
 
         [HttpGet]
         public async Task<IActionResult> ShowOrderHistory()
@@ -235,6 +348,7 @@ namespace SmileChef.Controllers
             var order = _orderRepo.GetById(orderId);
             return PartialView("_ShowOrderLinesPartial", order);
         }
+
         #endregion
 
         #region Recipe Market
@@ -1029,19 +1143,24 @@ namespace SmileChef.Controllers
             }
         }
 
-        private void AssignChefAndUserId()
+        private void AssignChefAndUserId(int? userId)
         {
             _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUserId");
             if (_currentUserId == 0)
             {
-                _currentUserId = _config.GetValue<int>("CurrentUserId"); // Default user ID if not set
+                _currentUserId = userId; // Default user ID if not set
                 _httpContextAccessor.HttpContext?.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
 
             }
-
+       
             _chefId = _httpContextAccessor.HttpContext?.Session.GetInt32("CurrentChefId") ?? 0;
             if (_chefId == 0)
             {
+                if(_currentUserId == 0)
+                {
+                    return;
+                }
+
                 var chef = _chefRepo.GetAll().FirstOrDefault(c => c.UserId == _currentUserId);
                 _chefId = chef.ChefId;
                 _httpContextAccessor.HttpContext?.Session.SetInt32("CurrentChefId", _chefId);
@@ -1060,9 +1179,23 @@ namespace SmileChef.Controllers
             ViewBag.CurrentUserBalance = HttpContext.Session.GetObjectFromJson<string>("CurrentUserBalance");
         }
 
+        private void UpdateChefDetails(int chefId, string currentPageName)
+        {
+            var chef = _chefRepo.GetById(chefId);
+            HttpContext.Session.SetObjectAsJson("CurrentUserEmail", chef.User.Email);
+            HttpContext.Session.SetObjectAsJson("CurrentUserName", $"{chef.FirstName} {chef.LastName}");
+            HttpContext.Session.SetObjectAsJson("CurrentUserBalance", chef.AccountBalance);
+            ViewBag.CurrentActive = currentPageName;
+            ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
+            ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
+            ViewBag.CurrentUserBalance = HttpContext.Session.GetObjectFromJson<decimal>("CurrentUserBalance");
+        }
+
         private void AssignCurrentPageStatus(string currentPageName)
         {
+            if (_currentUserId == 0) return;
             var chefVM = _chefRepo.GetChefsWithDetails().Find(c => c.User.UserId == _currentUserId);
+
             if (HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail") == null)
             {
                 HttpContext.Session.SetObjectAsJson("CurrentUserEmail", chefVM.User.Email);

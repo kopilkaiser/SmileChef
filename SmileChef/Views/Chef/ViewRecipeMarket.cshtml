@@ -355,9 +355,18 @@
                                     $('#orderDetailsContainer').empty().html(response.partialView);
                                     $('#spanAccountBalance').text(`${formattedAccountBalance}`)
                                     Swal.fire({
-                                        title : "Success",
-                                        html : response.message,
-                                        icon : "success"
+                                        title: "Success",
+                                        html: response.message,
+                                        icon: "success"
+                                    }).then((result) => {
+                                        let dropDown = new bootstrap.Dropdown($('#anchorOrderDetails')[0]);
+                                        if (result.isConfirmed) {
+                                            console.log(`sweetalert was confirmed OK`);
+                                            dropDown.hide();
+                                        } else if (result.dismiss === Swal.DismissReason.close){
+                                            console.log(`sweetalert was dismissed by clicking outside`);
+                                            dropDown.hide();
+                                        }
                                     });
                                 }else{
                                     console.log(response);

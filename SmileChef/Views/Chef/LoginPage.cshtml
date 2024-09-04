@@ -1,0 +1,90 @@
+﻿@using ChefApp.Models.DbModels
+@model Chef
+
+@{
+    Layout = "_LayoutLoginPage";
+}
+
+<div class="md-8">
+    <h4><span class="lead">Login Page</span></h4>
+    <hr class="mt-2" />
+    @using (Html.BeginForm("LoginPage", "Chef", FormMethod.Post))
+    {
+        <div class="row mx-auto gap-3 p-3">
+            <div class="row gap-2 gx-1 border p-2 rounded-1">
+                <h2 class="lead mb-0">Enter Login Details</h2>
+                <div class="row gap-2 gx-1 pb-2">
+                    <hr class="mt-1 mb-3" />
+                    <div class="row mx-auto align-items-center gap-1 fs-5">
+                        <div class="col-md-2"><label for="UserEmail">Email</label></div>
+                        <div class="col-md-5"><input name="User.Email" id="UserEmail" class="form-control" value="@Model.User.Email" /></div>
+                        <div class="col-md-12 text-danger fs-6 row mx-auto">
+                            <div class="col-md-2">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mx-auto align-items-center gap-1 fs-5">
+                        <div class="col-md-2"><label for="UserPassword">Password</label></div>
+                        <div class="col-md-5"><input type="password" name="User.Password" id="UserPassword" class="form-control" value="@Model.User.Password" /></div>
+                        <div class="col-md-12 text-danger fs-6 row mx-auto">
+                            <div class="col-md-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>   
+            <div class="row mx-auto align-items-center fs-5 mt-3">
+                <div class="col-md-2"></div>
+                <div class="col-md-5 d-flex justify-content-end gap-3">
+                    <button style="width:25%;" class="btn btn-success" type="submit">Login</button>
+                    <a style="width:25%;" class="btn btn-success" asp-action="RegisterPage" asp-controller="Chef">Register</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // we can even receive HTML value from the ViewBag like so
+            let errorEmail = '@Html.Raw(ViewBag.ErrorEmail ?? "")';
+            // Handle string (escape properly)
+            let errorPassword = '@(ViewBag.ErrorPassword ?? "")';
+            let successMessage = '@(ViewBag.SuccessMessage ?? "")'
+
+            if (errorEmail) {
+                Swal.fire({
+                    title: "Incorrect Email",
+                    html: errorEmail,
+                    icon: "error",
+                })
+            } else if (errorPassword) {
+                Swal.fire({
+                    title: "Incorrect Password",
+                    text: errorPassword,
+                    icon: "error",
+                })
+            } else if (successMessage) {
+                Swal.fire({
+                    title: "Verification Successful",
+                    text: successMessage,
+                    icon: "success",
+                    confirmButtonText: "OK"
+                }).then((result) => {
+                    window.location.href = `@Url.Action("Index", "Chef", new { userId = Model.User.UserId })`;
+                });
+            }
+
+            // #region example of getting different dataTypes from MVC method into javaScript
+            // Handle number (no quotes needed for numbers)
+            let someNumber = Number('@(ViewBag.SomeNumber ?? 0)'); // Example number in ViewBag
+            // Handle boolean (no quotes needed for booleans)
+            let someBoolean = Boolean('@(ViewBag.SomeBoolean ?? false)'.toLowerCase()); // Example bool in ViewBag, convert to lowercase for JS
+
+            //console.log(`type of someNumber: ${typeof someNumber}, someBoolean: ${typeof someBoolean}`)
+            //console.log(`value of someNumber: ${someNumber}, someBoolean: ${someBoolean}`)
+            // #endregion
+        });
+    </script>
+}

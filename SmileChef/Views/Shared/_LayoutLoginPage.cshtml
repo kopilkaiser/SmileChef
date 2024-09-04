@@ -39,7 +39,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar fixed-top navbar-expand-xl navbar-light bg-white border-bottom box-shadow mb-3">
+@*         <nav class="navbar fixed-top navbar-expand-xl navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Chef" asp-action="Index">ChefApp</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -50,6 +50,9 @@
                     <ul class="navbar-nav nav-tabs flex-grow-1 gap-2">
                         <li class="nav-item mt-2 mt-md-0">
                             <a class="nav-link text-dark @(ViewBag.CurrentActive == "ViewChefRestaurants" ? "active" : "") p-1" asp-area="" asp-controller="Chef" asp-action="ViewChefRestaurants">Chef Restaurants</a>
+                        </li>
+                        <li class="nav-item mt-2 mt-md-0">
+                            <a class="nav-link text-dark @(ViewBag.CurrentActive == "RegisterPage" ? "active" : "") p-1" asp-area="" asp-controller="Chef" asp-action="RegisterPage">Register</a>
                         </li>
                         <li class="nav-item mt-2 mt-md-0">
                             <a class="nav-link text-dark @(ViewBag.CurrentActive == "ChefIndex" ? "active" : "") p-1" asp-area="" asp-controller="Chef" asp-action="Index">Home</a>
@@ -72,7 +75,7 @@
                                 <li class="dropdown-item p-0" id="homeNavButton">
                                     <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "ImageSmartAI" ? "active" : "")" asp-controller="Chef" asp-action="ImageSmartAI">Image Prediction</a>
                                 </li>                                @* <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li> *@
+                                <li><a class="dropdown-item" href="#">Something else here</a></li> 
                             </ul>
                         </li>
                         <li class="dropdown">
@@ -83,15 +86,14 @@
                                 <li class="dropdown-item p-0">
                                     <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "ManageRecipes" ? "active" : "")" asp-controller="Chef" asp-action="ManageRecipes">Manage Recipes</a>
                                 </li>
-                                <li class="dropdown-item p-0"><a class="nav-link text-dark p-1" id="showAccountBalanceModal" href="#">Manage Account Balance</a></li>
-                                <li class="dropdown-item p-0"><a class="nav-link text-dark p-1 @(ViewBag.CurrentActive == "ManageProfile" ? "active" : "")" asp-action="ManageProfile" asp-controller="Chef">Manage Profile</a></li>
-                                <li class="dropdown-item p-0"><hr class="dropdown-divider my-0"></li>
                                 <li class="dropdown-item p-0">
                                     <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "GetRecipeBookmarks" ? "active" : "")" asp-controller="Chef" asp-action="GetRecipeBookmarks">Recipe Bookmark list</a>
                                 </li>
+                                <li class="dropdown-item p-0"><hr class="dropdown-divider my-0"></li>
                                 <li class="dropdown-item p-0"><a class="nav-link text-dark p-1 @(ViewBag.CurrentActive == "ShowOrderHistory" ? "active" : "")" asp-action="ShowOrderHistory" asp-controller="Chef">Order History</a></li>
                                 <li class="dropdown-item p-0"><hr class="dropdown-divider my-0"></li>
-                                <li class="dropdown-item p-0"><a class="nav-link text-dark p-1" asp-action="LoginPage" asp-controller="Chef">Log Out</a></li>
+                                <li class="dropdown-item p-0"><a class="nav-link text-dark p-1 @(ViewBag.CurrentActive == "ManageProfile" ? "active" : "")" asp-action="ManageProfile" asp-controller="Chef">Manage Profile</a></li>
+                                <li class="dropdown-item p-0"><a class="nav-link text-dark p-1" id="showAccountBalanceModal" href="#">Manage Account Balance</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown ms-xl-auto" id="cartLiElement">
@@ -111,13 +113,15 @@
                             <ul class="dropdown-menu dropdown-menu-xl-end drop p-1 border-0 bg-body-tertiary" style="margin-block-start: 0.75rem">
                                 <li class="dropdown-item"><b class="pe-2">Email:</b> @(ViewBag.CurrentUserEmail ?? "")</li>
                                 <li class="dropdown-item"><b class="pe-2">Name:</b> @(ViewBag.CurrentUserName ?? "")</li>
+                                 <li class="dropdown-item"><b class="pe-2">AccountBalance:</b> <span id="spanAccountBalance">@("£" + (ViewBag.CurrentUserBalance ?? "0.00"))</span></li> 
                                 <li class="dropdown-item"><b class="pe-2">AccountBalance:</b> <span id="spanAccountBalance">@(string.Format("{0:C2}", ViewBag.CurrentUserBalance))</span></li>
                             </ul>
                         </li>
                     </ul>
                 </div>
             </div>
-        </nav>
+        </nav> 
+                                *@
     </header>
     <div class="container container-main pt-5 pt-sm-4 pt-xl-0">
         <main role="main" class="pb-3">
@@ -222,7 +226,18 @@
             }
 
             if (currentVal <= 0) {
-                
+                Swal.fire({
+                    title: "Information",
+                    text: "You cannot enter less than or equal to 0",
+                    icon: "warn",
+                    focusConfirm: false, // Prevents focusing on the confirm button automatically
+                    didClose: () => {
+                        $elem.focus(); // Manually focus the input field after the alert is closed
+                    }
+                });
+                $elem.css('color', 'red');
+                $('svg#tbBalanceIcon').removeClass('d-none');
+                $elem.val('0');
             }else if (currentVal > 999999) {
                 Swal.fire({
                     title: "Information",
@@ -281,31 +296,14 @@
             let balanceToAdd;
 
             if (checkedOption === "Enter manually"){
-                let $elem = $('#tbBalance');
                 balanceToAdd = $('#tbBalance').val();
-                if(balanceToAdd === '0'){
-                    Swal.fire({
-                        title: "Information",
-                        text: "Top-up amount needs to be greater than 0",
-                        icon: "warn",
-                        focusConfirm: false, // Prevents focusing on the confirm button automatically
-                        didClose: () => {
-                            $elem.focus(); // Manually focus the input field after the alert is closed
-                        }
-                    });
-                    $elem.css('color', 'red');
-                    $('svg#tbBalanceIcon').removeClass('d-none');
-                    $elem.val('0');
-                    return;
-                }
             }else{
                 balanceToAdd = checkedOption;
             }
             console.log(`value of balanceToAdd: ${balanceToAdd}`)
             // Convert balanceToAdd to float
             let balanceAmount = parseFloat(balanceToAdd);
-            // Ensure it's formatted with two decimal places (e.g., 123.00)
-            balanceAmount = balanceAmount.toFixed(2);
+
             // Check if balance is valid (greater than 0 and not NaN)
             if (isNaN(balanceAmount) || balanceAmount === 0.00) {
                 Swal.fire({
@@ -329,13 +327,11 @@
                             title : "Balanced Updated",
                             html : response.message,
                             icon : "success"
-                        }).then((result) => {
-                            // Assuming response.accountBalance is a number
-                            const formattedBalance = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(response.accountBalance);
-                            $('#spanAccountBalance').text(`${formattedBalance}`)
-                            $('#accountBalancePlaceHolder').text(`${formattedBalance}`)
-                            $('#accountTopUpBalanceModal').modal('hide');
-                        })                                         
+                        })
+                        // Assuming response.accountBalance is a number
+                        const formattedBalance = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(response.accountBalance);
+                        $('#spanAccountBalance').text(`${formattedBalance}`)
+                        $('#accountBalancePlaceHolder').text(`${formattedBalance}`)
                     } else {
                         console.log(`balance have failed to update!`)
                         Swal.fire({

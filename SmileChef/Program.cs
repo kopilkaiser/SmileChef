@@ -114,7 +114,7 @@ app.UseSession();
 app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Chef}/{action=Index}/{id?}"
+    pattern: "{controller=Chef}/{action=LoginPage}/{id?}"
     );
 
 app.Run();

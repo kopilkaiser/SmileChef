@@ -2,18 +2,17 @@
 @model Chef
 
 @{
+    Layout = "_LayoutLoginPage";
 }
 
 <div class="md-8">
-    <h4>Managing Profile for: <span class="lead">@Model.FirstName @Model.LastName</span></h4>
+    <h4 class="lead">Registering New Chef</h4>
     <hr class="mt-2" />
-    @using (Html.BeginForm("ManageProfile", "Chef", FormMethod.Post))
+    @using (Html.BeginForm("RegisterPage", "Chef", FormMethod.Post))
     {
         <div class="row mx-auto gap-3 p-3">
             <div class="row gap-2 gx-1 border p-2 rounded-1">
-                @* <h2 class="lead mb-0" data-bs-toggle="collapse" href="#loginDetails"><span class="btn btn-primary btn-sm">Manage Login Details</span></h2> *@
-                <h2 class="lead mb-0">Manage Login Details</h2>
-                @* <div class="row gap-2 gx-1 collapse show" id="loginDetails"> *@
+                <h2 class="lead mb-0">Add Login Details</h2>
                 <div class="row gap-2 gx-1 pb-2">
                     <hr class="mt-1 mb-3" />
                     <div class="row mx-auto align-items-center gap-1 fs-5">
@@ -29,7 +28,7 @@
                     </div>
                     <div class="row mx-auto align-items-center gap-1 fs-5">
                         <div class="col-md-2"><label for="UserPassword">Password</label></div>
-                        <div class="col-md-5"><input name="User.Password" id="UserPassword" class="form-control" value="@Model.User.Password" /></div>
+                        <div class="col-md-5"><input type="password" name="User.Password" id="UserPassword" class="form-control" value="@Model.User.Password" /></div>
                         <div class="col-md-12 text-danger fs-6 row mx-auto">
                             <div class="col-md-2">
                             </div>
@@ -41,10 +40,8 @@
                 </div>
             </div>
             <div class="row gap-2 gx-1 border p-2 rounded-1">
-                @* <h2 class="lead mb-0" data-bs-toggle="collapse" href="#personDetails"><span class="btn btn-primary btn-sm">Manage Personal Details</span></h2> *@
-                <h2 class="lead mb-0">Manage Personal Details</h2>
+                <h2 class="lead mb-0">Add Personal Details</h2>
                 <div class="row gap-2 gx-1 pb-2">
-                    @*<div class="row gap-2 gx-1 collapse show" id="personDetails">*@
                     <hr class="mt-1 mb-3" />
                     <div class="row mx-auto align-items-center gap-1 fs-5">
                         <div class="col-md-2"><label for="FirstName">First Name</label></div>
@@ -59,7 +56,7 @@
                     </div>
                     <div class="row mx-auto align-items-center gap-1 fs-5">
                         <div class="col-md-2"><label for="LastName">Last Name</label></div>
-                        <div class="col-md-5"><input name="LastName" id="LastName" class="form-control" value="@Model.LastName" /></div>
+                        <div class="col-md-5"><input  name="LastName" id="LastName" class="form-control" value="@Model.LastName" /></div>
                         <div class="col-md-12 text-danger fs-6 row mx-auto">
                             <div class="col-md-2">
                             </div>
@@ -68,18 +65,54 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row mx-auto align-items-center gap-1 fs-5">
+                        <div class="col-md-2"><label for="AccountBalance">Choose a Balance</label></div>
+                        <div class="col-md-5">
+                            <select name="AccountBalance" id="AccountBalance" class="form-control">
+                                <option value="0">Select a Account Balance</option>
+                                <option value="500">500</option>
+                                <option value="1000">1000</option>
+                                <option value="2000">2000</option>
+                                <option value="5000">5000</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 text-danger fs-6 row mx-auto">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-5 ps-1 ps-md-2">
+                                @Html.ValidationMessageFor(m => m.AccountBalance)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mx-auto align-items-center gap-1 fs-5 mt-2">
+                        <div class="col-md-12"><label for="SubscriptionCost">How much you charging for Subscription?</label></div>
+                        <div class="col-md-5">
+                            <select name="SubscriptionCost" id="SubscriptionCost" class="form-control">
+                                <option value="0">Choose preferred Subscription Cost</option>
+                                <option value="5.99">5.99</option>
+                                <option value="15.99">15.99</option>
+                                <option value="25.99">25.99</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 text-danger fs-6 row mx-auto">
+                            <div class="col-md-5 ps-1 ps-md-2">
+                                @Html.ValidationMessageFor(m => m.SubscriptionCost)
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="row gap-2 gx-1 border p-2 rounded-1">
+          @*   <div class="row gap-2 gx-1 border p-2 rounded-1">
                 <h2 class="lead mb-0" data-bs-toggle="collapse" href="#">
-                    <a class="btn btn-sm btn-primary" id="showAccountBalanceModal" href="#">Manage Account Balance</a>
+                    <a class="btn btn-sm btn-primary" id="showAccountBalanceModal" href="#">Add Account Balance</a>
                     <a class="btn btn-sm btn-warning" href="#">Manage Restaurant Details</a>
                 </h2>
-            </div>
+            </div> *@
             <div class="row mx-auto align-items-center fs-5 mt-3">
                 <div class="col-md-2"></div>
-                <div class="col-md-5 d-flex justify-contente-end">
-                    <button style="width:25%; margin-inline-start:auto;" class="btn btn-success" type="submit">Save</button>
+                <div class="col-md-5 d-flex justify-content-end gap-3">
+                    <button style="width:25%;" class="btn btn-success" type="submit">Register</button>
+                    <a style="width:25%;" class="btn btn-success" asp-action="LoginPage" asp-controller="Chef">Login</a>
                 </div>
             </div>
         </div>
@@ -92,15 +125,31 @@
             // Handle string (escape properly)
             let errorMessage = '@(ViewBag.ErrorMessage ?? "")';
             let successMessage = '@(ViewBag.SuccessMessage ?? "")';
+            let emailExistsMessage = '@(ViewBag.EmailExistsMessage ?? "")';
 
-            if (errorMessage !== "" || successMessage !== "") {
+            if (errorMessage) {
                 Swal.fire({
-                    title: errorMessage !== "" ? "Error occured" : "Successful",
-                    text: errorMessage !== "" ? errorMessage : successMessage,
-                    icon: errorMessage !== "" ? "error" : "success",
+                    title: "Error occured",
+                    text: errorMessage,
+                    icon: "error",
                 })
+            } else if (emailExistsMessage) {
+                Swal.fire({
+                    title: "Email already exists",
+                    text: errorMessage,
+                    icon: "error",
+                })
+            } else if (successMessage) {
+                Swal.fire({
+                    title: "Successful",
+                    text: successMessage,
+                    icon: "success",
+                    confirmButtonText: "OK"  // Customize the confirm button text
+                }).then((result) => {
+                    window.location.href = '@Url.Action("LoginPage", "Chef")';                    
+                });
             }
-
+         
             // #region example of getting different dataTypes from MVC method into javaScript
             // Handle number (no quotes needed for numbers)
             let someNumber = Number('@(ViewBag.SomeNumber ?? 0)'); // Example number in ViewBag
