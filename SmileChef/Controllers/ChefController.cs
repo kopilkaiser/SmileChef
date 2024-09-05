@@ -1055,7 +1055,12 @@ namespace SmileChef.Controllers
         {
             var imageName = url.Replace("/imagesNew/", "");
             var predictedImageName = _imageModel.ClassifySingleImage(imageName);
-            return Json(new { predictedImageName });
+
+            var recipes = _recipeRepo.GetAll();
+            // Filter recipes where any of the words in splittedPredictedLabel is contained in the recipe's name
+            var filteredRecipes = recipes.Where(r => r.Name.Contains(predictedImageName, StringComparison.OrdinalIgnoreCase)).Select(r => new { recipeId = r.RecipeId, recipeName = r.Name}).ToList();
+
+            return Json(new { predictedImageName, suggestedRecipes = filteredRecipes });
         }
 
 

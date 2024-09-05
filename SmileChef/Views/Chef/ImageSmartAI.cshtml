@@ -14,44 +14,87 @@
 </style>
 
 <div class="container-md py-2 rounded-2" id="imageAIContainer">
-
-    <h2>Upload Image</h2>
-
-    <form id="uploadForm" method="post" enctype="multipart/form-data">
-        <div>
-            <label for="file">Upload Image:</label>
-            <input type="file" name="file" id="file" onchange="previewFile()" />
+    <div class="mb-3">
+        <h3>Recipe Predictor: Image AI Model</h3>
+        <hr class="mt-0" />
+    </div>
+    <div class="mb-4">
+        <div class="mb-3 d-flex align-items-center"><i class="fa-solid fa-lightbulb pe-2"></i><span class="fs-5">Select an Image to Upload</span></div>
+        <div class="row justify-content-between">
+            <div class="col-auto">
+                <form id="uploadForm" method="post" enctype="multipart/form-data">
+                    <div>
+                        <label for="file">Upload Image:</label>
+                        <input type="file" name="file" id="file" onchange="previewFile()" />
+                    </div>
+                    <div class="my-2">
+                        <img id="file-preview" src="#" alt="Image Preview" style="display: none; max-width: 200px; max-height: 200px;" />
+                    </div>
+                    <button type="submit">Upload</button>
+                </form>
+                @if (ViewBag.Message != null)
+                {
+                    <p>@ViewBag.Message</p>
+                }
+            </div>
+            <div class="col-auto mt-3 mt-md-0">
+                <div class=btn-group">
+                    <button class="h5 btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-target="#instructionsContainer">Show Instructions</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li class="dropdown-item">1. First Upload a Image selecting "Choose File"</li>
+                        <li class="dropdown-item">2. Click on "Upload" button to upload the choosen image</li>
+                        <li class="dropdown-item">3. After image is added to "Uploaded Images"</li>
+                        <li class="dropdown-item">4. The AI will predict the Recipe Name</li>
+                        <li class="dropdown-item">5. Suggested Recipes clicked will show Recipe Details</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div class="my-2">
-            <img id="file-preview" src="#" alt="Image Preview" style="display: none; max-width: 200px; max-height: 200px;" />
-        </div>
-        <button type="submit">Upload</button>
-    </form>
-    @if (ViewBag.Message != null)
-    {
-        <p>@ViewBag.Message</p>
-    }
-
-    <div id="uploadedImageDiv" style="margin-top:20px;">
+    </div>
+    <div class="mb-2 border p-2" id="uploadedImageDiv">
         <h3>Uploaded Images</h3>
+        <hr class="mt-1"/>
         <div class="uploaded-images-container d-flex gap-3 flex-wrap" id="uploadedImagesContainer">
             <!-- Uploaded images will be appended here -->
         </div>
     </div>
-
-    <div class="my-2">
-        Please select an Image to make a prediction of it
+    <div class="mb-4 d-flex align-items-center">
+        <i class="fa-solid fa-lightbulb pe-2"></i><span class="fs-5">
+            Please select an Uploaded Image to predict it's Recipe Name
+        </span>
     </div>
-    <div id="predictedImageLabel" class="mt-3 p-2 border rounded-2 overflow-auto" style="max-height:250px;">
+    <div id="predictedImageLabel" class="p-2 border rounded-2 overflow-auto" style="max-height:400px;">
         <h3>Prediction made so far by the AI: </h3>
         <hr class="mt-1">
     </div>
+
+    
 </div>
+
+<!-- #region: Modal Show Suggested Recipe Details -->
+<div class="modal modal-xl fade" id="recipeViewModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalRecipeTitle"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="recipeViewContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
+        let counter = 0;
 
+        $(document).ready(function () {
             function previewFile() {
                 const preview = document.getElementById('file-preview');
                 const file = document.getElementById('file').files[0];
@@ -70,6 +113,36 @@
 
             // Bind the previewFile function to the global window object so it can be called from inline HTML
             window.previewFile = previewFile;
+
+            // #region handling click on suggested recipes
+            $(document).on('click', `div#predictedImageLabel span[data-recipe-id][data-recipe-name]`, function () {
+                let spanElem = $(this);
+                let recipeId = spanElem.data('recipe-id');
+                let recipeName = spanElem.data('recipe-name');
+                console.log(`recipeName: ${recipeName}, recipeId: ${recipeId}`)
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetRecipeViewPartial")',
+                    data: { recipeId },
+                    dataType: "html",
+                    success: function (response) {
+                        $('#modalRecipeTitle').text(recipeName);
+                        $('#recipeViewContainer').empty().html(response);
+                        $('#recipeViewModal').modal('show');
+                    },
+                    error: function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText;
+                        console.log('Error - ' + errorMessage);
+                        Swal.fire({
+                            title: "Error Occurred",
+                            text: errorMessage,
+                            icon: "error"
+                        });
+                    }
+                });
+
+            });
+            // #endregion
         });
 
         // AJAX form submission for image upload
@@ -140,15 +213,30 @@
                 type: 'POST',
                 data: ({ url : imageUrl}),
                 success: function (response) {
+                   
                     let arrayOfResponse = ["It seems like a ", "Oh! I see it looks like a ", "Yummy! Seems like a "];                    
                     let randomIndex = Math.floor(Math.random() * arrayOfResponse.length);
                     let arrayOfColors = ["bg-primary-subtle", "bg-body-tertiary", "bg-white", "bg-warning-subtle"];
                     let randomColorIndex = Math.floor(Math.random() * arrayOfColors.length);
                     //${arrayOfColors[randomColorIndex]}
                     let elem = $(`<div class="border p-2 mb-2 rounded-2 ${arrayOfColors[randomColorIndex]}">${arrayOfResponse[randomIndex]} <span class="fw-bold">${response.predictedImageName.toUpperCase()}</span></div>`);
-                    $(elem).hide();
+
+                    let dFlexElem = $(`<div class="mb-4 ps-0 d-inline-flex align-items-center gap-1"><span class="fw-semibold">Suggested Recipes:</span><div id="suggestedRecipesContainer${counter}" class="d-flex gap-2"></div></div>`)
                     $('#predictedImageLabel').append(elem);
+                    $('#predictedImageLabel').append(dFlexElem);
+                    $(elem).hide();
+
+                    if (response.suggestedRecipes.length === 0) {
+                        let sElem = $(`<span class="bg-warning rounded-2 p-2" style="font-size: 0.875rem; padding-block: 0.25rem; padding-inline: 0.5rem;">No Recipe Found<span>`)
+                        $(`#suggestedRecipesContainer${counter}`).append(sElem);
+                    } else { 
+                        for(var recipe of response.suggestedRecipes){
+                            let sElem = $(`<span data-recipe-id="${recipe.recipeId}" data-recipe-name="${recipe.recipeName}" class="btn btn-sm btn-warning">${recipe.recipeName}<span>`)
+                            $(`#suggestedRecipesContainer${counter}`).append(sElem);
+                        }
+                    }
                     $(elem).fadeIn();
+                    ++counter;
                 },
                 error: function (xhr, status, error) {
                     var errorMessage = xhr.status + ': ' + xhr.statusText;
