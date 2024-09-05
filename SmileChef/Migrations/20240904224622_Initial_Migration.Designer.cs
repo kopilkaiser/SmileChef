@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SmileChef.Migrations
 {
     [DbContext(typeof(ChefAppContext))]
-    [Migration("20240901181908_Initial_Create")]
-    partial class Initial_Create
+    [Migration("20240904224622_Initial_Migration")]
+    partial class Initial_Migration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,14 +38,18 @@ namespace SmileChef.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
 
                     b.Property<int?>("Rating")
-                        .HasMaxLength(5)
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RestaurantId")
                         .HasColumnType("int");
 
                     b.Property<decimal?>("SubscriptionCost")
@@ -55,6 +59,8 @@ namespace SmileChef.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ChefId");
+
+                    b.HasIndex("RestaurantId");
 
                     b.HasIndex("UserId");
 
@@ -1106,6 +1112,101 @@ namespace SmileChef.Migrations
                     b.ToTable("RecipeBookmarks");
                 });
 
+            modelBuilder.Entity("SmileChef.Models.DbModels.Restaurant", b =>
+                {
+                    b.Property<int>("RestaurantId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RestaurantId"));
+
+                    b.Property<int>("ChefId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Lat")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Lng")
+                        .HasColumnType("float");
+
+                    b.Property<string>("OperatingTIme")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("RestaurantId");
+
+                    b.HasIndex("ChefId");
+
+                    b.ToTable("Restaurants");
+
+                    b.HasData(
+                        new
+                        {
+                            RestaurantId = 1,
+                            ChefId = 1,
+                            Lat = 51.407856342781869,
+                            Lng = -0.29675218001524584,
+                            OperatingTIme = "09:00 - 17:00",
+                            Phone = "+447745566123",
+                            Title = "Kingston Upon Thames - FastBank"
+                        },
+                        new
+                        {
+                            RestaurantId = 2,
+                            ChefId = 2,
+                            Lat = 51.498995498502502,
+                            Lng = -0.11582109991560025,
+                            OperatingTIme = "09:00 - 18:00",
+                            Phone = "+447711223334",
+                            Title = "Central London - FastBank"
+                        },
+                        new
+                        {
+                            RestaurantId = 3,
+                            ChefId = 3,
+                            Lat = 51.509680652979817,
+                            Lng = -0.30602189042240918,
+                            OperatingTIme = "09:00 - 15:30",
+                            Phone = "+447733332222",
+                            Title = "Ealing - FastBank"
+                        },
+                        new
+                        {
+                            RestaurantId = 4,
+                            ChefId = 4,
+                            Lat = 51.411336229653351,
+                            Lng = 0.014899074168950227,
+                            OperatingTIme = "09:00 - 16:30",
+                            Phone = "+447799991111",
+                            Title = "Bromley - FastBank"
+                        },
+                        new
+                        {
+                            RestaurantId = 5,
+                            ChefId = 5,
+                            Lat = 51.614742280283551,
+                            Lng = -0.25151937991059076,
+                            OperatingTIme = "09:00 - 18:30",
+                            Phone = "+447723456789",
+                            Title = "Edgware - FastBank"
+                        },
+                        new
+                        {
+                            RestaurantId = 6,
+                            ChefId = 6,
+                            Lat = 51.552449586568827,
+                            Lng = 0.072577293612278118,
+                            OperatingTIme = "09:00 - 18:30",
+                            Phone = "+447766662345",
+                            Title = "Illford - FastBank"
+                        });
+                });
+
             modelBuilder.Entity("SmileChef.Models.DbModels.Review", b =>
                 {
                     b.Property<int>("Id")
@@ -1149,8 +1250,8 @@ namespace SmileChef.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
 
                     b.HasKey("UserId");
 
@@ -1307,11 +1408,17 @@ namespace SmileChef.Migrations
 
             modelBuilder.Entity("ChefApp.Models.DbModels.Chef", b =>
                 {
+                    b.HasOne("SmileChef.Models.DbModels.Restaurant", "Restaurant")
+                        .WithMany()
+                        .HasForeignKey("RestaurantId");
+
                     b.HasOne("SmileChef.Models.DbModels.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Restaurant");
 
                     b.Navigation("User");
                 });
@@ -1431,6 +1538,17 @@ namespace SmileChef.Migrations
                     b.Navigation("Chef");
 
                     b.Navigation("Recipe");
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.Restaurant", b =>
+                {
+                    b.HasOne("ChefApp.Models.DbModels.Chef", "Chef")
+                        .WithMany()
+                        .HasForeignKey("ChefId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chef");
                 });
 
             modelBuilder.Entity("SmileChef.Models.DbModels.Review", b =>

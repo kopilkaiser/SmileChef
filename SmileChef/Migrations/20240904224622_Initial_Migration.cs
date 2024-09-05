@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmileChef.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial_Create : Migration
+    public partial class Initial_Migration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,7 +20,7 @@ namespace SmileChef.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false)
+                    Password = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -33,12 +33,13 @@ namespace SmileChef.Migrations
                 {
                     ChefId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    Rating = table.Column<int>(type: "int", maxLength: 5, nullable: true),
+                    Rating = table.Column<int>(type: "int", nullable: true),
                     SubscriptionCost = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    AccountBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
+                    AccountBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    RestaurantId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -88,6 +89,30 @@ namespace SmileChef.Migrations
                     table.PrimaryKey("PK_Recipes", x => x.RecipeId);
                     table.ForeignKey(
                         name: "FK_Recipes_Chefs_ChefId",
+                        column: x => x.ChefId,
+                        principalTable: "Chefs",
+                        principalColumn: "ChefId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Restaurants",
+                columns: table => new
+                {
+                    RestaurantId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Lat = table.Column<double>(type: "float", nullable: false),
+                    Lng = table.Column<double>(type: "float", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OperatingTIme = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ChefId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Restaurants", x => x.RestaurantId);
+                    table.ForeignKey(
+                        name: "FK_Restaurants_Chefs_ChefId",
                         column: x => x.ChefId,
                         principalTable: "Chefs",
                         principalColumn: "ChefId",
@@ -163,7 +188,7 @@ namespace SmileChef.Migrations
                         column: x => x.PublisherId,
                         principalTable: "Chefs",
                         principalColumn: "ChefId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_NotifySubscribers_Chefs_SubscriberId",
                         column: x => x.SubscriberId,
@@ -175,7 +200,7 @@ namespace SmileChef.Migrations
                         column: x => x.RecipeId,
                         principalTable: "Recipes",
                         principalColumn: "RecipeId",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -276,15 +301,15 @@ namespace SmileChef.Migrations
 
             migrationBuilder.InsertData(
                 table: "Chefs",
-                columns: new[] { "ChefId", "AccountBalance", "FirstName", "LastName", "Rating", "SubscriptionCost", "UserId" },
+                columns: new[] { "ChefId", "AccountBalance", "FirstName", "LastName", "Rating", "RestaurantId", "SubscriptionCost", "UserId" },
                 values: new object[,]
                 {
-                    { 1, 10000m, "Gordon", "Ramsay", 3, 12.99m, 1 },
-                    { 2, 5500m, "Jamie", "Oliver", 1, 11.99m, 2 },
-                    { 3, 9000m, "Wolfgang", "Puck", 5, 5.99m, 3 },
-                    { 4, 15000m, "Alice", "Waters", 4, 6.99m, 4 },
-                    { 5, 8000m, "Thomas", "Keller", 2, 15.99m, 5 },
-                    { 6, 7000m, "Emeril", "Lagasse", 5, 10.99m, 6 }
+                    { 1, 10000m, "Gordon", "Ramsay", 3, null, 12.99m, 1 },
+                    { 2, 5500m, "Jamie", "Oliver", 1, null, 11.99m, 2 },
+                    { 3, 9000m, "Wolfgang", "Puck", 5, null, 5.99m, 3 },
+                    { 4, 15000m, "Alice", "Waters", 4, null, 6.99m, 4 },
+                    { 5, 8000m, "Thomas", "Keller", 2, null, 15.99m, 5 },
+                    { 6, 7000m, "Emeril", "Lagasse", 5, null, 10.99m, 6 }
                 });
 
             migrationBuilder.InsertData(
@@ -338,6 +363,19 @@ namespace SmileChef.Migrations
                     { 23, 4, "Truffle Mushroom Soup", 34.99f, "Premium" },
                     { 24, 5, "Duck à l'Orange", 54.99f, "Premium" },
                     { 25, 6, "Oysters Rockefeller", 44.99f, "Premium" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Restaurants",
+                columns: new[] { "RestaurantId", "ChefId", "Lat", "Lng", "OperatingTIme", "Phone", "Title" },
+                values: new object[,]
+                {
+                    { 1, 1, 51.407856342781869, -0.29675218001524584, "09:00 - 17:00", "+447745566123", "Kingston Upon Thames - FastBank" },
+                    { 2, 2, 51.498995498502502, -0.11582109991560025, "09:00 - 18:00", "+447711223334", "Central London - FastBank" },
+                    { 3, 3, 51.509680652979817, -0.30602189042240918, "09:00 - 15:30", "+447733332222", "Ealing - FastBank" },
+                    { 4, 4, 51.411336229653351, 0.014899074168950227, "09:00 - 16:30", "+447799991111", "Bromley - FastBank" },
+                    { 5, 5, 51.614742280283551, -0.25151937991059076, "09:00 - 18:30", "+447723456789", "Edgware - FastBank" },
+                    { 6, 6, 51.552449586568827, 0.072577293612278118, "09:00 - 18:30", "+447766662345", "Illford - FastBank" }
                 });
 
             migrationBuilder.InsertData(
@@ -442,6 +480,11 @@ namespace SmileChef.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Chefs_RestaurantId",
+                table: "Chefs",
+                column: "RestaurantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Chefs_UserId",
                 table: "Chefs",
                 column: "UserId");
@@ -497,6 +540,11 @@ namespace SmileChef.Migrations
                 column: "ChefId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Restaurants_ChefId",
+                table: "Restaurants",
+                column: "ChefId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Reviews_RecipeId",
                 table: "Reviews",
                 column: "RecipeId");
@@ -515,11 +563,22 @@ namespace SmileChef.Migrations
                 name: "IX_Subscriptions_SubscriberId",
                 table: "Subscriptions",
                 column: "SubscriberId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Chefs_Restaurants_RestaurantId",
+                table: "Chefs",
+                column: "RestaurantId",
+                principalTable: "Restaurants",
+                principalColumn: "RestaurantId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Chefs_Restaurants_RestaurantId",
+                table: "Chefs");
+
             migrationBuilder.DropTable(
                 name: "Instructions");
 
@@ -543,6 +602,9 @@ namespace SmileChef.Migrations
 
             migrationBuilder.DropTable(
                 name: "Recipes");
+
+            migrationBuilder.DropTable(
+                name: "Restaurants");
 
             migrationBuilder.DropTable(
                 name: "Chefs");

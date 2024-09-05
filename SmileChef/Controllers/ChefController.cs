@@ -18,6 +18,7 @@ using SmileChef.Models.Enums;
 using System.Linq;
 using Google.Protobuf.Collections;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Text.Json.Serialization;
 
 namespace SmileChef.Controllers
 {
@@ -190,6 +191,9 @@ namespace SmileChef.Controllers
             return Json(new { success = true, message = "Notification dismissed" });
         }
 
+
+        #region Restaurant Locator
+
         // #Todo: Add "Restaurant" Entity to hold details of Chef's Restaurants
         [HttpGet]
         public IActionResult ViewChefRestaurants()
@@ -197,6 +201,39 @@ namespace SmileChef.Controllers
             AssignCurrentPageStatus("ViewChefRestaurants");
             return View();
         }
+
+        [HttpGet]
+        public IActionResult GetRestaurants()
+        {
+            var restaurantsDb = _chefRepo.GetAllRestaurants();
+
+            var restaurants = restaurantsDb.Where(r => r.ChefId != _chefId).Select(r => new
+            {
+                title = r.Title,
+                lat = r.Lat,
+                lng = r.Lng,
+                operatingTime = r.OperatingTime,
+                phone = r.Phone,
+                location = r.Location
+
+            });
+
+             
+            var getMyRestaurant = _chefRepo.GetRestaurantByChefId(_chefId);
+            var myRestaurant = new
+            {
+                title = getMyRestaurant.Title,
+                lat = getMyRestaurant.Lat,
+                lng = getMyRestaurant.Lng,
+                operatingTime = getMyRestaurant.OperatingTime,
+                phone = getMyRestaurant.Phone,
+                location = getMyRestaurant.Location,
+                currentChefName = getMyRestaurant.Chef.FirstName + " " + getMyRestaurant.Chef.LastName
+            };
+            return Json(new { restaurants, myRestaurant });
+        }
+
+        #endregion
 
         [HttpPost]
         public async Task<IActionResult> AddAmountToBalance(decimal amountToAdd)

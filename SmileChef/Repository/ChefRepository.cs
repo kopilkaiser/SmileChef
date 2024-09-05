@@ -24,6 +24,7 @@ namespace SmileChef.Repository
                                     .ThenInclude(r => r.Reviews)
                                 .Include(c => c.SubscribedTo)
                                 .Include(c => c.PublishedSubscriptions)
+                                .Include(navigationPropertyPath: c => c.Restaurant)
                                 .ToListAsync();
 
             var chefViewModels = chefs.Select(c => new ChefViewModel
@@ -34,6 +35,7 @@ namespace SmileChef.Repository
                 Rating = c.Rating,
                 SubscriptionCost = c.SubscriptionCost,
                 AccountBalance = c.AccountBalance,
+                Restaurant = c.Restaurant,
                 Recipes = c.Recipes.Select(r => new RecipeViewModel
                 {
                     RecipeId = r.RecipeId,
@@ -82,6 +84,7 @@ namespace SmileChef.Repository
                     .ThenInclude(r => r.Reviews)
                 .Include(c => c.SubscribedTo)
                 .Include(c => c.PublishedSubscriptions)
+                .Include(c => c.Restaurant)
                 .ToList();
 
             // Transform domain models to view models
@@ -139,6 +142,7 @@ namespace SmileChef.Repository
                 .Include(c => c.SubscribedTo)
                 .Include(c => c.PublishedSubscriptions)
                 .Include(navigationPropertyPath: c => c.User)
+                .Include(c => c.Restaurant)
                 .FirstOrDefault(c => c.ChefId == id);
 
             if (chef == null)
@@ -153,8 +157,33 @@ namespace SmileChef.Repository
         {
             var chefs = _context.Chefs
                 .Include(c => c.User)
+                .Include(c => c.Recipes)
+                .ThenInclude(r => r.Instructions)
+                .Include(c => c.SubscribedTo)
+                .Include(c => c.PublishedSubscriptions)
+                .Include(navigationPropertyPath: c => c.User)
+                .Include(c => c.Restaurant)
                 .ToList();
+
             return chefs;
+        }
+
+        public List<Restaurant> GetAllRestaurants()
+        {
+            var restaurants = _context.Restaurants
+                                            .Include(r => r.Chef)
+                                            .ToList();
+            return restaurants;
+        }
+
+        public Restaurant GetRestaurantByChefId(int chefId)
+        {
+            var restaurant = _context.Restaurants
+                .Include(r => r.Chef)
+                .FirstOrDefault(r => r.ChefId == chefId);
+
+            ArgumentNullException.ThrowIfNull(restaurant);
+            return restaurant;
         }
     }
 }

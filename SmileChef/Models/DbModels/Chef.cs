@@ -51,6 +51,8 @@ namespace ChefApp.Models.DbModels
 
         [ValidateNever]
         public List<Order> Orders { get; set; }
+
+        public Restaurant Restaurant { get; set; }
     }
 
     public class CustomRangeAttribute : ValidationAttribute

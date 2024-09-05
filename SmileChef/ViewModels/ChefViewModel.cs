@@ -16,7 +16,8 @@ namespace SmileChef.ViewModels
         public int? Rating { get; set; }
         public decimal? SubscriptionCost { get; set; }
         public decimal? AccountBalance { get; set; }
-
         public List<NotifySubscribers> Notifications { get; set; }
+        
+        public Restaurant Restaurant { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using ChefApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SmileChef.Migrations
 {
     [DbContext(typeof(ChefAppContext))]
-    partial class ChefAppContextModelSnapshot : ModelSnapshot
+    [Migration("20240904231629_rename_RestaurantEntity_OperatingTimeColumn")]
+    partial class rename_RestaurantEntity_OperatingTimeColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1121,11 +1124,6 @@ namespace SmileChef.Migrations
                     b.Property<double>("Lng")
                         .HasColumnType("float");
 
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("OperatingTime")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1155,10 +1153,9 @@ namespace SmileChef.Migrations
                             ChefId = 1,
                             Lat = 51.407856342781869,
                             Lng = -0.29675218001524584,
-                            Location = "Located in Kingston Upon Thames",
                             OperatingTime = "09:00 - 17:00",
                             Phone = "+447745566123",
-                            Title = "Gordon Restaurant"
+                            Title = "Kingston Upon Thames - FastBank"
                         },
                         new
                         {
@@ -1166,10 +1163,9 @@ namespace SmileChef.Migrations
                             ChefId = 2,
                             Lat = 51.498995498502502,
                             Lng = -0.11582109991560025,
-                            Location = "Located in Central London",
                             OperatingTime = "09:00 - 18:00",
                             Phone = "+447711223334",
-                            Title = "Oliver Cake shop"
+                            Title = "Central London - FastBank"
                         },
                         new
                         {
@@ -1177,10 +1173,9 @@ namespace SmileChef.Migrations
                             ChefId = 3,
                             Lat = 51.509680652979817,
                             Lng = -0.30602189042240918,
-                            Location = "Located in Ealing",
                             OperatingTime = "09:00 - 15:30",
                             Phone = "+447733332222",
-                            Title = "Wolfgang Barbeque Zone"
+                            Title = "Ealing - FastBank"
                         },
                         new
                         {
@@ -1188,10 +1183,9 @@ namespace SmileChef.Migrations
                             ChefId = 4,
                             Lat = 51.411336229653351,
                             Lng = 0.014899074168950227,
-                            Location = "Located in Bromley",
                             OperatingTime = "09:00 - 16:30",
                             Phone = "+447799991111",
-                            Title = "Alice Supermarket"
+                            Title = "Bromley - FastBank"
                         },
                         new
                         {
@@ -1199,10 +1193,9 @@ namespace SmileChef.Migrations
                             ChefId = 5,
                             Lat = 51.614742280283551,
                             Lng = -0.25151937991059076,
-                            Location = "Located in Edgeware",
                             OperatingTime = "09:00 - 18:30",
                             Phone = "+447723456789",
-                            Title = "Thomas Yummy Restaurant"
+                            Title = "Edgware - FastBank"
                         },
                         new
                         {
@@ -1210,10 +1203,9 @@ namespace SmileChef.Migrations
                             ChefId = 6,
                             Lat = 51.552449586568827,
                             Lng = 0.072577293612278118,
-                            Location = "Located in Illford",
                             OperatingTime = "09:00 - 18:30",
                             Phone = "+447766662345",
-                            Title = "Emeril Dirty Icecreams"
+                            Title = "Illford - FastBank"
                         });
                 });
 

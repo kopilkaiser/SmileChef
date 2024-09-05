@@ -24,7 +24,7 @@ namespace ChefApp.Models
 
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderLine> OrderLines { get; set; }
-
+        public DbSet<Restaurant> Restaurants { get; set; }
 
         public ChefAppContext(DbContextOptions<ChefAppContext> options, IConfiguration config, ISqlSettings sqlSettings) : base(options)
         {

@@ -10,181 +10,287 @@
 }
 
 <div class="container row gap-2 pt-2 pb-4">
-    <h3 class="fw-light">Locate Chef Restaurants Locations:</h3>
+    <h3 class="fw-light">Chef Restaurants Locator:</h3>
     <hr>
     <div>
         <div id="map" style="height: 80vh;"></div>
     </div>
 </div>
 @section Scripts {
-    <script>
-        // Declare global variables for map, InfoWindows, and state flags
-        let map = null;
-        let infoWindow = null;
-        let infoWindow2 = null;
-        let homeInfoWindow = null;
-        let isInfoWindowOpen = false;
-        let customOriginMarker = null;
-        let directionsRender = null;
-        let homeMarker = null;
+        <script>
 
-        const bankBranches = [
-            { lat: 51.40785634278187, lng: -0.29675218001524584, title: "Kingston Upon Thames - FastBank", location: "Located in Kingston Upon Thames", operatingTime: "09:00 - 17:00", phone: "+447745566123" },
-            { lat: 51.4989954985025, lng: -0.11582109991560025, title: "Central London - FastBank", location: "Located in Kingston Upon Thames", operatingTime: "09:00 - 18:00", phone: "+447711223334" },
-            { lat: 51.50968065297982, lng: -0.3060218904224092, title: "Ealing - FastBank", location: "Located in Kingston Upon Thames", operatingTime: "09:00 - 15:30", phone: "+447733332222" },
-            { lat: 51.41133622965335, lng: 0.014899074168950227, title: "Bromley - FastBank", location: "Located in Brixton", operatingTime: "09:00 - 16:30", phone: "+447799991111" },
-            { lat: 51.61474228028355, lng: -0.25151937991059076, title: "Edgware - FastBank", location: "Located in Edgware", operatingTime: "09:00 - 18:30", phone: "+447723456789" },
-            { lat: 51.55244958656883, lng: 0.07257729361227812, title: "Illford - FastBank", location: "Located in Illford", operatingTime: "09:00 - 18:30", phone: "+447766662345" }
-        ];
-
-        // Initialize the Google Map
-        async function initMap() {
-            const { Map, InfoWindow } = await google.maps.importLibrary("maps");
-            const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
-
-            const centerMapAtHome = new google.maps.LatLng(51.41702394686937, -0.21643608325841981); // Home location
-            const centerMapAtLondon = new google.maps.LatLng(51.4989954985025, -0.11582109991560025); // Initial center for the map
-
-            map = new Map(document.getElementById("map"), {
-                zoom: 10,
-                center: centerMapAtLondon,
-                mapId: "c03c281411373709"
-            });
-
-            // Initialize InfoWindows
-            infoWindow = new InfoWindow();
-            infoWindow2 = new InfoWindow();
-            homeInfoWindow = new InfoWindow();
-
-            // Reset flags when InfoWindows are closed
-            infoWindow.addListener('closeclick', () => { isInfoWindowOpen = false; });
-            infoWindow2.addListener('closeclick', () => { isInfoWindowOpen = false; });
-
-            // Initialize DirectionsService and DirectionsRenderer
-            const directionsService = new google.maps.DirectionsService();
-            directionsRenderer = new google.maps.DirectionsRenderer();
-            directionsRenderer.setMap(map);
-
-            // Place the home marker on the map
-            placeMarker(centerMapAtHome, "My Home", homeInfoWindow);
-
-            // Create markers for bank branches
-            bankBranches.forEach((branch, i) => {
-                const pin = new PinElement({
-                    background: "#e5002e",
-                    borderColor: "#ea3156",
-                    glyphColor: "#ffffff",
-                    glyph: `${i + 1}`,
-                    scale: 1.35,
-                });
-
-                const specialMarker = new AdvancedMarkerElement({
-                    position: { lat: branch.lat, lng: branch.lng },
-                    map,
-                    title: `${i + 1}. ${branch.title}`,
-                    content: pin.element
-                });
-
-                // Add click listener to calculate and display route
-                specialMarker.addListener("click", () => {
-                    calculateAndDisplayRoute(directionsService, directionsRenderer, centerMapAtHome, specialMarker, branch.location);
-                });
-
-                // Add data-marker-index to the marker element for mouseover identification
-                pin.element.setAttribute('data-marker-index', i);
-            });
-
-            map.addListener("click", () => {
-                infoWindow.close();
-                homeInfoWindow.close();
-                infoWindow2.close();
-                isInfoWindowOpen = false;
-                isInfoWindow2Open = false;
-
-                // Clear the directions from the map
-                directionsRenderer.set('directions', null);; // This clears the displayed route
-                // Reset the zoom level and center of the map
-                map.setZoom(10); // Replace with your initial zoom level
-                map.setCenter(centerMapAtLondon); // Replace with your initial center coordinates
-            });
-        }
-
-        // Display route from home location to clicked marker
-        function calculateAndDisplayRoute(directionsService, directionsRenderer, origin, destinationMarker, location) {
-            directionsService.route({
-                origin: origin,
-                destination: destinationMarker.position,
-                travelMode: google.maps.TravelMode.DRIVING,
-            }, (response, status) => {
-                if (status === "OK") {
-                    directionsRenderer.setDirections(response);
-                    // Prevent the 'A' origin marker from being created
-                    directionsRenderer.setOptions({
-                        suppressMarkers: true
+            async function getRestaurants() {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("GetRestaurants", "Chef")',
+                        dataType: "json",
+                        success: function (response) {
+                            console.log(response);
+                            resolve(response); // Resolve the restaurants when the AJAX call succeeds
+                        },
+                        error: function (xhr, status, error) {
+                            let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                            console.log(`Error - ${errorMessage}`);
+                            Swal.fire({
+                                title: "Error Occurred",
+                                text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                                icon: "error"
+                            });
+                            reject(error);  // Reject in case of error
+                        }
                     });
+                });
+            }
+
+
+            // Declare global variables for map, InfoWindows, and state flags
+            let map = null;
+            let infoWindow = null;
+            let infoWindow2 = null;
+            let isInfoWindowOpen = false;
+            let customOriginMarker = null;
+            let directionsRender = null;
+
+            let homeInfoWindow = null;
+            let homeMarker = null;
+            let homePin = null;
+
+            const bankBranches = [
+                { lat: 51.40785634278187, lng: -0.29675218001524584, title: "Kingston Upon Thames - FastBank", location: "Located in Kingston Upon Thames", operatingTime: "09:00 - 17:00", phone: "+447745566123" },
+                { lat: 51.4989954985025, lng: -0.11582109991560025, title: "Central London - FastBank", location: "Located in Kingston Upon Thames", operatingTime: "09:00 - 18:00", phone: "+447711223334" },
+                { lat: 51.50968065297982, lng: -0.3060218904224092, title: "Ealing - FastBank", location: "Located in Kingston Upon Thames", operatingTime: "09:00 - 15:30", phone: "+447733332222" },
+                { lat: 51.41133622965335, lng: 0.014899074168950227, title: "Bromley - FastBank", location: "Located in Brixton", operatingTime: "09:00 - 16:30", phone: "+447799991111" },
+                { lat: 51.61474228028355, lng: -0.25151937991059076, title: "Edgware - FastBank", location: "Located in Edgware", operatingTime: "09:00 - 18:30", phone: "+447723456789" },
+                { lat: 51.55244958656883, lng: 0.07257729361227812, title: "Illford - FastBank", location: "Located in Illford", operatingTime: "09:00 - 18:30", phone: "+447766662345" }
+            ];
+
+            // Declare global variables
+            let chefRestaurants = null;  // Declare globally, initialize later
+            let myRestaurant = null;  // Declare another variable for myRestaurant
+
+            // Initialize the Google Map
+            async function initMap() {
+                const { Map, InfoWindow } = await google.maps.importLibrary("maps");
+                const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+
+                // Wait for restaurant data before initializing the map
+                const response = await getRestaurants();           
+
+               // Destructure the response to get both chefRestaurants and myRestaurant
+                const { restaurants: chefRestaurants, myRestaurant } = response;
+
+                const centerMapAtHome = new google.maps.LatLng(myRestaurant.lat, myRestaurant.lng); // Home location
+                const centerMapAtLondon = new google.maps.LatLng(51.4989954985025, -0.11582109991560025); // Initial center for the map
+                map = new Map(document.getElementById("map"), {
+                    zoom: 10,
+                    center: centerMapAtLondon,
+                    mapId: "c03c281411373709"
+                });
+
+                // Initialize InfoWindows
+                infoWindow = new InfoWindow();
+                infoWindow2 = new InfoWindow();
+                homeInfoWindow = new InfoWindow();
+
+                // Reset flags when InfoWindows are closed
+                infoWindow.addListener('closeclick', () => { isInfoWindowOpen = false; });
+                infoWindow2.addListener('closeclick', () => { isInfoWindowOpen = false; });
+
+                // Initialize DirectionsService and DirectionsRenderer
+                const directionsService = new google.maps.DirectionsService();
+                directionsRenderer = new google.maps.DirectionsRenderer();
+                directionsRenderer.setMap(map);
+
+                // Place the home marker on the map
+                placeMarker(centerMapAtHome, myRestaurant.title, myRestaurant.currentChefName, myRestaurant.location, homeInfoWindow, PinElement, AdvancedMarkerElement);
+
+                // Create markers for bank branches
+                chefRestaurants.forEach((branch, i) => {
+                    const pin = new PinElement({
+                        background: "#e5002e",
+                        borderColor: "#ea3156",
+                        glyphColor: "#ffffff",
+                        glyph: `${i + 1}`,
+                        scale: 1.35,
+                    });
+
+                    const specialMarker = new AdvancedMarkerElement({
+                        position: { lat: branch.lat, lng: branch.lng },
+                        map,
+                        title: `${i + 1}. ${branch.title}`,
+                        content: pin.element,
+                        gmpClickable: true,
+                    });
+
+                    // Add click listener to calculate and display route
+                    specialMarker.addListener("click", function() {
+                        calculateAndDisplayRoute(directionsService, directionsRenderer, centerMapAtHome, this, branch.location);
+                    });                  
+
+                    // Add data-marker-index to the marker element for mouseover identification
+                    pin.element.setAttribute('data-marker-index', i);
+                });
+
+                 // Now that chefRestaurants is fully initialized, attach the mouseover event
+                attachMouseoverEvent(chefRestaurants);
+
+                map.addListener("click", () => {
+                    infoWindow.close();
+                    homeInfoWindow.close();
                     infoWindow2.close();
+                    isInfoWindowOpen = false;
+                    isInfoWindow2Open = false;
 
-                    const route = response.routes[0];
-                    const duration = route.legs[0].duration.text;
+                    // Clear the directions from the map
+                    directionsRenderer.set('directions', null);; // This clears the displayed route
+                    // Reset the zoom level and center of the map
+                    map.setZoom(10); // Replace with your initial zoom level
+                    map.setCenter(centerMapAtLondon); // Replace with your initial center coordinates
+                });
+            }
 
-                    infoWindow.setContent(`
-                        <span class="fs-6 alert-link">${destinationMarker.title}</span><br><hr>
-                        <b class="alert-link">Location</b>: ${location} <br>
-                        <b class="alert-link">Estimated Duration</b>: ${duration} <br>
-                    `);
-                    infoWindow.open(map, destinationMarker);
-                    isInfoWindowOpen = true;
-                } else {
-                    window.alert("Directions request failed due to " + status);
+            // Display route from home location to clicked marker
+            function calculateAndDisplayRoute(directionsService, directionsRenderer, origin, destinationMarker, location) {
+                directionsService.route({
+                    origin: origin,
+                    destination: destinationMarker.position,
+                    travelMode: google.maps.TravelMode.DRIVING,
+                }, (response, status) => {
+                    if (status === "OK") {
+                        directionsRenderer.setDirections(response);
+                        // Prevent the 'A' origin marker from being created
+                        directionsRenderer.setOptions({
+                            suppressMarkers: true
+                        });
+
+                        infoWindow2.close();
+
+                        const route = response.routes[0];
+                        const duration = route.legs[0].duration.text;
+
+                        infoWindow.setContent(`
+                            <span class="fs-6 alert-link">${destinationMarker.title}</span><br/>
+                            <hr class="mt-1 mb-2"/>
+                            <b class="alert-link">Location</b>: ${location} <br/>
+                            <b class="alert-link">Estimated Duration</b>: ${duration} <br/>
+                        `);
+                        infoWindow.open(map, destinationMarker);
+                        isInfoWindowOpen = true;
+                    } else {
+                        window.alert("Directions request failed due to " + status);
+                    }
+                });
+            }
+
+            function placeMarker(markerPosition, titleOfMarker, chefName, location, homeInfoWindow, PinElement, AdvancedMarkerElement) {
+                // Check if the homeMarker is not already created
+                if (homeMarker === null) {
+                    // Create the PinElement for the home marker
+                    homePin = new PinElement({
+                        background: "#33cc66",      // Use green color for home marker
+                        borderColor: "#009966",     // Border color
+                        glyphColor: "#ffffff",      // Glyph (text) color
+                        glyph: `${titleOfMarker[0]}`, // Use the first letter of the title for the label
+                        scale: 1.35,
+                    });
+
+                    // Create the AdvancedMarkerElement for the home marker
+                    homeMarker = new AdvancedMarkerElement({
+                        position: markerPosition,
+                        map: map,
+                        title: titleOfMarker,
+                        content: homePin.element, // Use the PinElement created above
+                        draggable: false,
+                    });
+
+                    // Add a click listener to show an InfoWindow when the marker is clicked
+                    homeMarker.addListener("click", () => {
+                        homeInfoWindow.setContent(
+                            `
+                            <span class="fs-6"><b class="fw-semibold">My Restaurant:</b> ${titleOfMarker}</span><br/>
+                            <hr class="mt-1 mb-2"/>
+                            <span><b class="alert-link">Current User</b>: ${chefName} </span><br/>
+                            <span><b class="alert-link">Location:</b> ${location}</span>
+                            `
+                        );
+                        infoWindow2.close();
+                        homeInfoWindow.open(map, homeMarker);
+                    });
                 }
-            });
-        }
+            }
 
-        // Place a marker on the map at the specified position
-        function placeMarker(markerPosition, titleOfMarker, homeInfoWindow) {
-            if (homeMarker == null) {
-                homeMarker = new google.maps.Marker({
-                    position: markerPosition,
-                    map: map,
-                    title: titleOfMarker,
-                    label: titleOfMarker[0], // First letter of the title
-                    draggable: false,
-                    animation: google.maps.Animation.DROP
-                });
+            initMap();
 
-                homeMarker.addListener("click", () => {
-                    homeInfoWindow.setContent(
-                        `<span class="fs-6 alert-link">${titleOfMarker}</span><br>
-                                 <b class="alert-link">User</b>: Kopil Kaiser <br>`
-                    );
-                    homeInfoWindow.open(map, homeMarker);
+            // Function to attach the mouseover event
+            function attachMouseoverEvent(chefRestaurants) {
+                document.getElementById('map').addEventListener('mouseover', function (event) {
+                    // Ensure that chefRestaurants is not null or undefined
+                    if (chefRestaurants && Array.isArray(chefRestaurants)) {
+                        const markerElement = event.target.closest('[data-marker-index]');
+                        if (markerElement && !isInfoWindowOpen) {
+                            const index = markerElement.getAttribute('data-marker-index');
+                            // Check if the index exists in the array
+                            const marker = chefRestaurants[index];
+
+                            if (marker) {
+                                // Set position and content for infoWindow2
+                                infoWindow2.setContent(`
+                                    <span class="fs-6 alert-link">${marker.title}</span><br/>
+                                    <hr class="mt-1 mb-2"/>
+                                    <b class="alert-link">Location</b>: ${marker.location} <br/>
+                                    <b class="alert-link">Opening hours</b>: ${marker.operatingTime} <br/>
+                                    <b class="alert-link">Phone</b>: ${marker.phone}`
+                                );
+
+                                infoWindow2.setPosition(new google.maps.LatLng(marker.lat, marker.lng));
+                                infoWindow2.setOptions({ pixelOffset: new google.maps.Size(0, -30) });
+
+                                homeInfoWindow.close();
+                                // Open the InfoWindow at the specified position
+                                infoWindow2.open(map);
+                            } else {
+                                console.error(`Marker not found for index: ${index}`);
+                            }
+                        }
+                    } else {
+                        console.error('chefRestaurants is not initialized or is not an array.');
+                    }
                 });
             }
-        }
+            //  $(() => {
+            //     // Event listener for mouseover to display secondary InfoWindow
+            //     document.getElementById('map').addEventListener('mouseover', function (event) {
+            //         // Ensure that chefRestaurants is not null or undefined
+            //         if (chefRestaurants && Array.isArray(chefRestaurants)) {
+            //             const markerElement = event.target.closest('[data-marker-index]');
+            //             if (markerElement && !isInfoWindowOpen) {
+            //                 const index = markerElement.getAttribute('data-marker-index');
+            //                 // Check if the index exists in the array
+            //                 const marker = chefRestaurants[index];
 
-        // Event listener for mouseover to display secondary InfoWindow
-        document.getElementById('map').addEventListener('mouseover', function (event) {
-            const markerElement = event.target.closest('[data-marker-index]');
-            if (markerElement && !isInfoWindowOpen) {
-                const index = markerElement.getAttribute('data-marker-index');
-                const marker = bankBranches[index];
+            //                 if (marker) {
+            //                     // Set position and content for infoWindow2
+            //                     infoWindow2.setContent(`
+            //                         <span class="fs-6 alert-link">${marker.title}</span><br><hr>
+            //                         <b class="alert-link">Location</b>: ${marker.location} <br>
+            //                         <b class="alert-link">Opening hours</b>: ${marker.operatingTime} <br>
+            //                         <b class="alert-link">Phone</b>: ${marker.phone}`
+            //                     );
 
-                // Set position and content for infoWindow2
-                infoWindow2.setContent(`
-                            <span class="fs-6 alert-link">${marker.title}</span><br><hr>
-                            <b class="alert-link">Location</b>: ${marker.location} <br>
-                            <b class="alert-link">Opening hours</b>: ${marker.operatingTime} <br>
-                            <b class="alert-link">Phone</b>: ${marker.phone}`
-                );
+            //                     infoWindow2.setPosition(new google.maps.LatLng(marker.lat, marker.lng));
+            //                     infoWindow2.setOptions({ pixelOffset: new google.maps.Size(0, -30) });
 
-                infoWindow2.setPosition(new google.maps.LatLng(marker.lat, marker.lng));
-                infoWindow2.setOptions({ pixelOffset: new google.maps.Size(0, -30) });
-
-                // Open the InfoWindow at the specified position
-                infoWindow2.open(map);
-            }
-        });
-
-        initMap();
-    </script>
+            //                     // Open the InfoWindow at the specified position
+            //                     infoWindow2.open(map);
+            //                 } else {
+            //                     console.error(`Marker not found for index: ${index}`);
+            //                 }
+            //             }
+            //         } else {
+            //             console.error('chefRestaurants is not initialized or is not an array.');
+            //         }
+            //     });
+            // })
+        </script>
 }

@@ -93,23 +93,18 @@ namespace ChefApp.Extensions
                 new Instruction { InstructionId = 27, Description = "Prepare gourmet beef", RecipeId = 9, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
                 new Instruction { InstructionId = 28, Description = "Wrap with prosciutto and puff pastry", RecipeId = 9, OrderId = 2 },
                 new Instruction { InstructionId = 29, Description = "Bake to perfection", RecipeId = 9, OrderId = 3, Duration = TimeSpan.FromMinutes(25) },
-
                 new Instruction { InstructionId = 30, Description = "Prepare truffle stock", RecipeId = 10, OrderId = 1, Duration = TimeSpan.FromMinutes(10) },
                 new Instruction { InstructionId = 31, Description = "Cook Arborio rice", RecipeId = 10, OrderId = 2, Duration = TimeSpan.FromMinutes(18) },
                 new Instruction { InstructionId = 32, Description = "Add truffle and parmesan", RecipeId = 10, OrderId = 3 },
-
                 new Instruction { InstructionId = 33, Description = "Prepare sushi-grade tuna", RecipeId = 11, OrderId = 1 },
                 new Instruction { InstructionId = 34, Description = "Roll with sushi rice and nori", RecipeId = 11, OrderId = 2, Duration = TimeSpan.FromMinutes(8) },
                 new Instruction { InstructionId = 35, Description = "Garnish with caviar", RecipeId = 11, OrderId = 3 },
-
                 new Instruction { InstructionId = 36, Description = "Chop organic vegetables", RecipeId = 12, OrderId = 1, Duration = TimeSpan.FromMinutes(12) },
                 new Instruction { InstructionId = 37, Description = "Prepare vinaigrette dressing", RecipeId = 12, OrderId = 2 },
                 new Instruction { InstructionId = 38, Description = "Toss and serve fresh", RecipeId = 12, OrderId = 3 },
-
                 new Instruction { InstructionId = 39, Description = "Prepare foie gras", RecipeId = 13, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
                 new Instruction { InstructionId = 40, Description = "Cook terrine with truffles", RecipeId = 13, OrderId = 2, Duration = TimeSpan.FromMinutes(30) },
                 new Instruction { InstructionId = 41, Description = "Serve with toasted brioche", RecipeId = 13, OrderId = 3 },
-
                 new Instruction { InstructionId = 42, Description = "Mix Emeril's special spices", RecipeId = 14, OrderId = 1 },
                 new Instruction { InstructionId = 43, Description = "Marinate the meat", RecipeId = 14, OrderId = 2, Duration = TimeSpan.FromMinutes(20) },
                 new Instruction { InstructionId = 44, Description = "Cook to desired doneness", RecipeId = 14, OrderId = 3 },
@@ -117,44 +112,34 @@ namespace ChefApp.Extensions
                 new Instruction { InstructionId = 45, Description = "Prepare pizza dough", RecipeId = 15, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
                 new Instruction { InstructionId = 46, Description = "Add tomato sauce and mozzarella", RecipeId = 15, OrderId = 2 },
                 new Instruction { InstructionId = 47, Description = "Bake in oven", RecipeId = 15, OrderId = 3, Duration = TimeSpan.FromMinutes(10) },
-
                 new Instruction { InstructionId = 48, Description = "Cook seafood", RecipeId = 16, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
                 new Instruction { InstructionId = 49, Description = "Prepare paella rice", RecipeId = 16, OrderId = 2 },
                 new Instruction { InstructionId = 50, Description = "Combine seafood with rice", RecipeId = 16, OrderId = 3, Duration = TimeSpan.FromMinutes(20) },
-
                 new Instruction { InstructionId = 51, Description = "Chop vegetables", RecipeId = 17, OrderId = 1, Duration = TimeSpan.FromMinutes(10) },
                 new Instruction { InstructionId = 52, Description = "Stir fry in wok", RecipeId = 17, OrderId = 2 },
                 new Instruction { InstructionId = 53, Description = "Serve with soy sauce", RecipeId = 17, OrderId = 3, Duration = TimeSpan.FromMinutes(5) },
-
                 new Instruction { InstructionId = 54, Description = "Prepare lamb shank", RecipeId = 18, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
                 new Instruction { InstructionId = 55, Description = "Slow cook for 4 hours", RecipeId = 18, OrderId = 2, Duration = TimeSpan.FromHours(4) },
                 new Instruction { InstructionId = 56, Description = "Serve with mashed potatoes", RecipeId = 18, OrderId = 3 },
-
                 new Instruction { InstructionId = 57, Description = "Prepare roux", RecipeId = 19, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
                 new Instruction { InstructionId = 58, Description = "Add seafood and sausage", RecipeId = 19, OrderId = 2 },
                 new Instruction { InstructionId = 59, Description = "Simmer and serve over rice", RecipeId = 19, OrderId = 3, Duration = TimeSpan.FromMinutes(20) },
-
                 // Instructions for new premium recipes
                 new Instruction { InstructionId = 60, Description = "Prepare lobster", RecipeId = 20, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
                 new Instruction { InstructionId = 61, Description = "Cook thermidor sauce", RecipeId = 20, OrderId = 2, Duration = TimeSpan.FromMinutes(10) },
                 new Instruction { InstructionId = 62, Description = "Bake lobster with sauce", RecipeId = 20, OrderId = 3, Duration = TimeSpan.FromMinutes(20) },
-
                 new Instruction { InstructionId = 63, Description = "Prepare blini batter", RecipeId = 21, OrderId = 1, Duration = TimeSpan.FromMinutes(10) },
                 new Instruction { InstructionId = 64, Description = "Cook blinis", RecipeId = 21, OrderId = 2, Duration = TimeSpan.FromMinutes(5) },
                 new Instruction { InstructionId = 65, Description = "Top with caviar", RecipeId = 21, OrderId = 3 },
-
                 new Instruction { InstructionId = 66, Description = "Prepare wagyu beef", RecipeId = 22, OrderId = 1, Duration = TimeSpan.FromMinutes(10) },
                 new Instruction { InstructionId = 67, Description = "Roll sushi with wagyu and rice", RecipeId = 22, OrderId = 2 },
                 new Instruction { InstructionId = 68, Description = "Serve with soy sauce", RecipeId = 22, OrderId = 3 },
-
                 new Instruction { InstructionId = 69, Description = "Prepare mushroom soup base", RecipeId = 23, OrderId = 1, Duration = TimeSpan.FromMinutes(15) },
                 new Instruction { InstructionId = 70, Description = "Add truffle oil and cream", RecipeId = 23, OrderId = 2 },
                 new Instruction { InstructionId = 71, Description = "Simmer and serve", RecipeId = 23, OrderId = 3, Duration = TimeSpan.FromMinutes(10) },
-
                 new Instruction { InstructionId = 72, Description = "Prepare duck", RecipeId = 24, OrderId = 1, Duration = TimeSpan.FromMinutes(20) },
                 new Instruction { InstructionId = 73, Description = "Cook orange sauce", RecipeId = 24, OrderId = 2 },
                 new Instruction { InstructionId = 74, Description = "Serve duck with sauce", RecipeId = 24, OrderId = 3, Duration = TimeSpan.FromMinutes(15) },
-
                 new Instruction { InstructionId = 75, Description = "Prepare oysters", RecipeId = 25, OrderId = 1, Duration = TimeSpan.FromMinutes(10) },
                 new Instruction { InstructionId = 76, Description = "Top with Rockefeller sauce", RecipeId = 25, OrderId = 2 },
                 new Instruction { InstructionId = 77, Description = "Bake oysters", RecipeId = 25, OrderId = 3, Duration = TimeSpan.FromMinutes(8) }
@@ -258,6 +243,16 @@ namespace ChefApp.Extensions
                     Amount = 80.00m,
                     SubscriptionType = SubscriptionType.Monthly
                 }
+            );
+
+            // Seed Restaurants
+            modelBuilder.Entity<Restaurant>().HasData(
+                new Restaurant { RestaurantId = 1, Lat = 51.40785634278187, Lng = -0.29675218001524584, Location = "Located in Kingston Upon Thames", Title = "Gordon Restaurant", Phone = "+447745566123", OperatingTime = "09:00 - 17:00", ChefId = 1 },
+                new Restaurant { RestaurantId = 2, Lat = 51.4989954985025, Lng = -0.11582109991560025, Location = "Located in Central London", Title = "Oliver Cake shop", Phone = "+447711223334", OperatingTime = "09:00 - 18:00", ChefId = 2 },
+                new Restaurant { RestaurantId = 3, Lat = 51.50968065297982, Lng = -0.3060218904224092, Location = "Located in Ealing", Title = "Wolfgang Barbeque Zone", Phone = "+447733332222", OperatingTime = "09:00 - 15:30", ChefId = 3 },
+                new Restaurant { RestaurantId = 4, Lat = 51.41133622965335, Lng = 0.014899074168950227, Location = "Located in Bromley", Title = "Alice Supermarket", Phone = "+447799991111", OperatingTime = "09:00 - 16:30", ChefId = 4 },
+                new Restaurant { RestaurantId = 5, Lat = 51.61474228028355, Lng = -0.25151937991059076, Location = "Located in Edgeware", Title = "Thomas Yummy Restaurant", Phone = "+447723456789", OperatingTime = "09:00 - 18:30", ChefId = 5 },
+                new Restaurant { RestaurantId = 6, Lat = 51.55244958656883, Lng = 0.07257729361227812, Location = "Located in Illford", Title = "Emeril Dirty Icecreams", Phone = "+447766662345", OperatingTime = "09:00 - 18:30", ChefId = 6 }
             );
         }
     }

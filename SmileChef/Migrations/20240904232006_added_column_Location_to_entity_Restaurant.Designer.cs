@@ -4,6 +4,7 @@ using ChefApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SmileChef.Migrations
 {
     [DbContext(typeof(ChefAppContext))]
-    partial class ChefAppContextModelSnapshot : ModelSnapshot
+    [Migration("20240904232006_added_column_Location_to_entity_Restaurant")]
+    partial class added_column_Location_to_entity_Restaurant
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1158,7 +1161,7 @@ namespace SmileChef.Migrations
                             Location = "Located in Kingston Upon Thames",
                             OperatingTime = "09:00 - 17:00",
                             Phone = "+447745566123",
-                            Title = "Gordon Restaurant"
+                            Title = "Kingston Upon Thames - FastBank"
                         },
                         new
                         {
@@ -1169,7 +1172,7 @@ namespace SmileChef.Migrations
                             Location = "Located in Central London",
                             OperatingTime = "09:00 - 18:00",
                             Phone = "+447711223334",
-                            Title = "Oliver Cake shop"
+                            Title = "Central London - FastBank"
                         },
                         new
                         {
@@ -1180,7 +1183,7 @@ namespace SmileChef.Migrations
                             Location = "Located in Ealing",
                             OperatingTime = "09:00 - 15:30",
                             Phone = "+447733332222",
-                            Title = "Wolfgang Barbeque Zone"
+                            Title = "Ealing - FastBank"
                         },
                         new
                         {
@@ -1191,7 +1194,7 @@ namespace SmileChef.Migrations
                             Location = "Located in Bromley",
                             OperatingTime = "09:00 - 16:30",
                             Phone = "+447799991111",
-                            Title = "Alice Supermarket"
+                            Title = "Bromley - FastBank"
                         },
                         new
                         {
@@ -1202,7 +1205,7 @@ namespace SmileChef.Migrations
                             Location = "Located in Edgeware",
                             OperatingTime = "09:00 - 18:30",
                             Phone = "+447723456789",
-                            Title = "Thomas Yummy Restaurant"
+                            Title = "Edgware - FastBank"
                         },
                         new
                         {
@@ -1213,7 +1216,7 @@ namespace SmileChef.Migrations
                             Location = "Located in Illford",
                             OperatingTime = "09:00 - 18:30",
                             Phone = "+447766662345",
-                            Title = "Emeril Dirty Icecreams"
+                            Title = "Illford - FastBank"
                         });
                 });
 
