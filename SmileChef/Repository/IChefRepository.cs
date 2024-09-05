@@ -13,5 +13,11 @@ namespace SmileChef.Repository
         List<Restaurant> GetAllRestaurants();
 
         Restaurant GetRestaurantByChefId(int chefId);
+
+        void AddRestaurant(Restaurant res);
+
+        void UpdateRestaurant(Restaurant res);
+
+        void DeleteRestaurant(Restaurant res);
     }
 }

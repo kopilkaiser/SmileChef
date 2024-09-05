@@ -68,7 +68,7 @@ namespace SmileChef.Controllers
             _viewEngine = viewEngine;
             _orderRepo = orderRepo;
 
-            if(_httpContextAccessor != null && _httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.Session != null)
+            if (_httpContextAccessor != null && _httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.Session != null)
             {
                 var userId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUserId");
                 AssignChefAndUserId(userId);
@@ -191,6 +191,117 @@ namespace SmileChef.Controllers
             return Json(new { success = true, message = "Notification dismissed" });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddAmountToBalance(decimal amountToAdd)
+        {
+            var chef = _chefRepo.GetById(_chefId);
+            chef.AccountBalance += amountToAdd;
+
+            if (chef.AccountBalance > 999999)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"Your total balance cannot exceed £999,999",
+                    accountBalance = chef.AccountBalance
+                });
+            }
+
+            _chefRepo.Update(chef);
+            UpdateChefBalance(chef.AccountBalance);
+            return Json(new
+            {
+                success = true,
+                message = $"<p class=\"mb-2\">Amount <b class=\"text-success fs-5\">£{amountToAdd}</b> added successfully! </p>" +
+                $"<p>Your new Balance is <b class=\"text-success fs-5\">£{chef.AccountBalance}</b></p",
+                accountBalance = chef.AccountBalance
+            });
+        }
+
+
+
+        #region Restaurant Management
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken] // Ensure the token is being validated
+        // 1st Way: working code structuring "Restaurant" JSON object from FormData(this) and then sending it
+        //public async Task<IActionResult> AddOrUpdateRestaurant(Restaurant rest)
+        //{
+        //    if(rest.RestaurantId == 0)
+        //    {
+        //        return Json(new { success = true, message = "A new restaurant has been added" });
+        //    }
+        //    else
+        //    {
+        //        return Json(new { success = true, message = "An existing restaurant has been updated" });
+        //    }
+        //}
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        //Working 2nd Way of sending Restaurant Details: using FormData to be sent directly
+        public async Task<IActionResult> AddOrUpdateRestaurant(Chef chef)
+        {
+            if (chef.Restaurant == null)
+            {
+                return Json(new { success = false, message = "Restaurant data is null" });
+            }
+
+            try
+            {
+                Restaurant res;
+                if (chef.Restaurant.RestaurantId == 0)
+                {
+                    // Add new restaurant
+                    res = new Restaurant
+                    {
+                        ChefId = chef.Restaurant.ChefId,
+                        Title = chef.Restaurant.Title,
+                        Phone = chef.Restaurant.Phone,
+                        Location = chef.Restaurant.Location,
+                        Lat = chef.Restaurant.Lat,
+                        Lng = chef.Restaurant.Lng,
+                        OperatingTime = chef.Restaurant.OperatingTime
+                    };
+                    _chefRepo.AddRestaurant(res);
+                    return Json(new { success = true, message = "The Restaurant has been created", restaurant = res, operation = "add" });
+                }
+                else
+                {
+                    // Update existing restaurant
+                    res = _chefRepo.GetRestaurantByChefId(chef.Restaurant.ChefId);
+                    if (res == null) return Json(new { success = false, message = "Restaurant not found" });
+                    res.Title = chef.Restaurant.Title;
+                    res.Phone = chef.Restaurant.Phone;
+                    res.Location = chef.Restaurant.Location;
+                    res.Lat = chef.Restaurant.Lat;
+                    res.Lng = chef.Restaurant.Lng;
+                    res.OperatingTime = chef.Restaurant.OperatingTime;
+                    _chefRepo.UpdateRestaurant(res);
+                    res.Chef = null;
+                    return Json(new { success = true, message = "The Restaurant details have been updated", restaurant = res, operation = "update" });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (use a logger here if available)
+                return Json(new { success = false, message = "An error occurred while processing the restaurant data. Please try again." });
+            }
+        }
+
+        //Working 2nd Way of sending Restaurant Details: using FormData to be sent directly
+        public async Task<IActionResult> DeleteRestaurant(int chefId)
+        {
+            var res = _chefRepo.GetRestaurantByChefId(chefId);
+            if (res != null)
+            {
+                _chefRepo.DeleteRestaurant(res);
+                return Json(new { success = true, message = "Restaurant has been deleted" });
+            }
+            return Json(new { success = false, message = "Restaurant not found" });
+        }
+
+        #endregion
 
         #region Restaurant Locator
 
@@ -218,54 +329,57 @@ namespace SmileChef.Controllers
 
             });
 
-             
+
             var getMyRestaurant = _chefRepo.GetRestaurantByChefId(_chefId);
-            var myRestaurant = new
+            var currentChef = _chefRepo.GetById(_chefId);
+            object myRestaurant;
+
+            if(getMyRestaurant != null) { 
+                myRestaurant = new
+                {
+                    title = getMyRestaurant.Title,
+                    lat = getMyRestaurant.Lat,
+                    lng = getMyRestaurant.Lng,
+                    operatingTime = getMyRestaurant.OperatingTime,
+                    phone = getMyRestaurant.Phone,
+                    location = getMyRestaurant.Location,
+                    currentChefName = getMyRestaurant.Chef.FirstName + " " + getMyRestaurant.Chef.LastName
+                };
+            }
+            else
             {
-                title = getMyRestaurant.Title,
-                lat = getMyRestaurant.Lat,
-                lng = getMyRestaurant.Lng,
-                operatingTime = getMyRestaurant.OperatingTime,
-                phone = getMyRestaurant.Phone,
-                location = getMyRestaurant.Location,
-                currentChefName = getMyRestaurant.Chef.FirstName + " " + getMyRestaurant.Chef.LastName
-            };
+                myRestaurant = new
+                {
+                    title = "No Restaurant Created",
+                    lat = 51.4989954985025,
+                    lng = -0.11582109991560025,
+                    operatingTime = "not specified",
+                    phone = "not specified",
+                    location = "not specified",
+                    currentChefName = currentChef.FirstName + " " + currentChef.LastName
+                };
+            }
             return Json(new { restaurants, myRestaurant });
         }
 
         #endregion
 
-        [HttpPost]
-        public async Task<IActionResult> AddAmountToBalance(decimal amountToAdd)
-        {
-            var chef = _chefRepo.GetById(_chefId);
-            chef.AccountBalance += amountToAdd;
-
-            if(chef.AccountBalance > 999999)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = $"Your total balance cannot exceed £999,999",
-                    accountBalance = chef.AccountBalance
-                });
-            }
-
-            _chefRepo.Update(chef);
-            UpdateChefBalance(chef.AccountBalance);
-            return Json(new
-            {
-                success = true,
-                message = $"<p class=\"mb-2\">Amount <b class=\"text-success fs-5\">£{amountToAdd}</b> added successfully! </p>" +
-                $"<p>Your new Balance is <b class=\"text-success fs-5\">£{chef.AccountBalance}</b></p",
-                accountBalance  = chef.AccountBalance
-            });
-        }
-
         #region Login Page
         [HttpGet]
         public async Task<IActionResult> LoginPage()
         {
+            //Reset the previous user values
+            if (_currentUserId != 0)
+            {
+                _currentUserId = 0;
+                _chefId = 0;
+                HttpContext.Session.SetObjectAsJson("CurrentUserEmail", null);
+                HttpContext.Session.SetObjectAsJson("CurrentUserName", null);
+                HttpContext.Session.SetObjectAsJson("CurrentUserBalance", null);
+                _httpContextAccessor.HttpContext?.Session.SetObjectAsJson(key: "CurrentUserId", 0);
+                _httpContextAccessor.HttpContext?.Session.SetInt32("CurrentChefId", 0);
+            }
+
             var chef = new Chef();
             chef.User = new User();
             return View(chef);
@@ -302,6 +416,11 @@ namespace SmileChef.Controllers
         {
             AssignCurrentPageStatus("ManageProfile");
             var chef = _chefRepo.GetById(_chefId);
+
+            if (chef.Restaurant == null)
+            {
+                chef.Restaurant = new Restaurant();
+            }
             return View(chef);
         }
 
@@ -339,7 +458,7 @@ namespace SmileChef.Controllers
             chef.AccountBalance = 0;
             chef.User = new User();
 
-            return View("RegisterPage",chef);
+            return View("RegisterPage", chef);
         }
 
         [HttpPost]
@@ -349,7 +468,7 @@ namespace SmileChef.Controllers
             if (ModelState.IsValid)
             {
                 var geChefWithEmail = _chefRepo.GetAll().Where(c => c.User.Email == chef.User.Email).FirstOrDefault();
-                if(geChefWithEmail != null)
+                if (geChefWithEmail != null)
                 {
                     ViewBag.EmailExistsMessage = "Chef exists with the same email. Please choose a different one";
                     return View(chef);
@@ -358,12 +477,12 @@ namespace SmileChef.Controllers
                 _chefRepo.Add(chef);
                 UpdateChefDetails(chef.ChefId, "RegisterPage");
                 ViewBag.SuccessMessage = "You have been successfully registered. You can Login now.";
-                return View("RegisterPage",chef);
+                return View("RegisterPage", chef);
             }
             else
             {
                 ViewBag.ErrorMessage = "Incorrect details given. Registration failed";
-                return View("RegisterPage",chef);
+                return View("RegisterPage", chef);
             }
         }
 
@@ -1000,7 +1119,7 @@ namespace SmileChef.Controllers
         {
             var currentCart = _httpContextAccessor.HttpContext.Session.GetObjectFromJson<Order>("CurrentOrder");
 
-            if(currentCart == null)
+            if (currentCart == null)
             {
                 return Json(new { });
             }
@@ -1137,10 +1256,16 @@ namespace SmileChef.Controllers
 
             var view = await RenderPartialViewToStringAsync("_OrderDetailsPartial", order);
 
-            return Json(new { success = true, partialView = view, message = $"" +
+            return Json(new
+            {
+                success = true,
+                partialView = view,
+                message = $"" +
                 $"<p class=\"mb-2 fs-4 fw-semibold\">Your order has been placed <i class=\"fa-solid fa-truck ps-1 text-primary\"></i></p>" +
-                $"<p class=\"fw-semibold mb-2 \">Remaining Balance: <b class=\"text-success fs-5\">{chef.AccountBalance:C2}</b></p>" + 
-                $"<p class=\"fs-5\">Tasty Recipes will be at your door soon !</p>", accountBalance = chef.AccountBalance });
+                $"<p class=\"fw-semibold mb-2 \">Remaining Balance: <b class=\"text-success fs-5\">{chef.AccountBalance:C2}</b></p>" +
+                $"<p class=\"fs-5\">Tasty Recipes will be at your door soon !</p>",
+                accountBalance = chef.AccountBalance
+            });
         }
 
         #endregion
@@ -1186,14 +1311,14 @@ namespace SmileChef.Controllers
             if (_currentUserId == 0)
             {
                 _currentUserId = userId; // Default user ID if not set
-                _httpContextAccessor.HttpContext?.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
+                _httpContextAccessor.HttpContext?.Session.SetObjectAsJson(key: "CurrentUserId", _currentUserId);
 
             }
-       
+
             _chefId = _httpContextAccessor.HttpContext?.Session.GetInt32("CurrentChefId") ?? 0;
             if (_chefId == 0)
             {
-                if(_currentUserId == 0)
+                if (_currentUserId == 0)
                 {
                     return;
                 }

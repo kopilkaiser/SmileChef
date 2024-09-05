@@ -248,7 +248,7 @@ namespace ChefApp.Extensions
             // Seed Restaurants
             modelBuilder.Entity<Restaurant>().HasData(
                 new Restaurant { RestaurantId = 1, Lat = 51.40785634278187, Lng = -0.29675218001524584, Location = "Located in Kingston Upon Thames", Title = "Gordon Restaurant", Phone = "+447745566123", OperatingTime = "09:00 - 17:00", ChefId = 1 },
-                new Restaurant { RestaurantId = 2, Lat = 51.4989954985025, Lng = -0.11582109991560025, Location = "Located in Central London", Title = "Oliver Cake shop", Phone = "+447711223334", OperatingTime = "09:00 - 18:00", ChefId = 2 },
+                new Restaurant { RestaurantId = 2, Lat = 51.48230385097871, Lng = 0.16090573471658554, Location = "Located in Erith", Title = "Oliver Cake shop", Phone = "+447711223334", OperatingTime = "09:00 - 18:00", ChefId = 2 },
                 new Restaurant { RestaurantId = 3, Lat = 51.50968065297982, Lng = -0.3060218904224092, Location = "Located in Ealing", Title = "Wolfgang Barbeque Zone", Phone = "+447733332222", OperatingTime = "09:00 - 15:30", ChefId = 3 },
                 new Restaurant { RestaurantId = 4, Lat = 51.41133622965335, Lng = 0.014899074168950227, Location = "Located in Bromley", Title = "Alice Supermarket", Phone = "+447799991111", OperatingTime = "09:00 - 16:30", ChefId = 4 },
                 new Restaurant { RestaurantId = 5, Lat = 51.61474228028355, Lng = -0.25151937991059076, Location = "Located in Edgeware", Title = "Thomas Yummy Restaurant", Phone = "+447723456789", OperatingTime = "09:00 - 18:30", ChefId = 5 },

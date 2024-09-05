@@ -52,6 +52,7 @@ namespace ChefApp.Models.DbModels
         [ValidateNever]
         public List<Order> Orders { get; set; }
 
+        [ValidateNever]
         public Restaurant Restaurant { get; set; }
     }
 

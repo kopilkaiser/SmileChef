@@ -6,7 +6,9 @@
 }
 
 <div class="md-8">
-    <h4><span class="lead">Login Page</span></h4>
+    <p><span class="h3 d-flex-inline align-items-center"><i class="fa-solid fa-robot pe-2 text-primary"></i>Smile Chef</span> &nbsp;<q class="blockquote">A comprehensive recipe application for food lovers</q></p>
+    <hr class="mb-4"/>
+    <h4><span class="lead fs-2">Login Page</span></h4>
     <hr class="mt-2" />
     @using (Html.BeginForm("LoginPage", "Chef", FormMethod.Post))
     {
@@ -37,7 +39,15 @@
                 <div class="col-md-2"></div>
                 <div class="col-md-5 d-flex justify-content-end gap-3">
                     <button style="width:25%;" class="btn btn-success" type="submit">Login</button>
-                    <a style="width:25%;" class="btn btn-success" asp-action="RegisterPage" asp-controller="Chef">Register</a>
+                    <a style="width:25%;" class="btn btn-info text-black" asp-action="RegisterPage" asp-controller="Chef">Register</a>
+                </div>
+            </div>
+            <div class="row mx-auto mt-3 justify-content-end">
+                <div class="col-auto">
+                    <div>
+                        <span><b>All Right Reserved® by <i class="text-success">Kopil Kaiser</i></b> </span>
+                    </div>
+                    <div>StudentID: <b class="text-success">K2360182</b><br /> University: <b class="text-success">Kingston University London™</b></div>
                 </div>
             </div>
         </div>

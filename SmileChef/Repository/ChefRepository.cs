@@ -182,8 +182,29 @@ namespace SmileChef.Repository
                 .Include(r => r.Chef)
                 .FirstOrDefault(r => r.ChefId == chefId);
 
-            ArgumentNullException.ThrowIfNull(restaurant);
+            //ArgumentNullException.ThrowIfNull(restaurant);
             return restaurant;
+        }
+
+        public void AddRestaurant(Restaurant res)
+        {
+            ArgumentNullException.ThrowIfNull(res);
+            _context.Restaurants.Add(res);
+            _context.SaveChanges();
+        }
+
+        public void UpdateRestaurant(Restaurant res)
+        {
+            ArgumentNullException.ThrowIfNull(res);
+            _context.Restaurants.Update(res);
+            _context.SaveChanges();
+        }
+
+        public void DeleteRestaurant(Restaurant res)
+        {
+            ArgumentNullException.ThrowIfNull(res);
+            _context.Restaurants.Remove(res);
+            _context.SaveChanges();
         }
     }
 }

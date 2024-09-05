@@ -5,7 +5,7 @@
 }
 
 <div class="md-8">
-    <h4>Managing Profile for: <span class="lead">@Model.FirstName @Model.LastName</span></h4>
+    <h4>Managing Account for: <span class="lead">@Model.FirstName @Model.LastName</span></h4>
     <hr class="mt-2" />
     @using (Html.BeginForm("ManageProfile", "Chef", FormMethod.Post))
     {
@@ -72,8 +72,8 @@
             </div>
             <div class="row gap-2 gx-1 border p-2 rounded-1">
                 <h2 class="lead mb-0" data-bs-toggle="collapse" href="#">
-                    <a class="btn btn-sm btn-primary" id="showAccountBalanceModal" href="#">Manage Account Balance</a>
-                    <a class="btn btn-sm btn-warning" href="#">Manage Restaurant Details</a>
+                    <a class="btn btn-sm btn-warning" id="showRestaurantModal" href="javasript:void(0)">Manage Restaurant Details</a>
+                    <a class="btn btn-sm btn-primary" id="showAccountBalanceModal" href="javasript:void(0)">Top-up Account Balance</a>
                 </h2>
             </div>
             <div class="row mx-auto align-items-center fs-5 mt-3">
@@ -86,9 +86,94 @@
     }
 </div>
 
+<!-- #region: Modal Show Suggested Recipe Details -->
+<div class="modal modal-xl fade" id="manageRestaurantDetails" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Managing Restaurant Details</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex gap-2">
+                    <button id="btnAddRestaurant" class="btn btn-sm bg-primary text-white @(Model.Restaurant.RestaurantId == 0 ? "" : "d-none")" data-bs-toggle="collapse" data-bs-target="#addOrUpdateRestaurant">Add</button>
+                    <button id="btnUpdateRestaurant" class="btn btn-sm bg-primary text-white @(Model.Restaurant.RestaurantId == 0 ? "d-none" : "")" data-bs-toggle="collapse" data-bs-target="#addOrUpdateRestaurant">Update</button>
+                    <button id="btnDeleteRestaurant" class="btn btn-sm bg-danger text-white @(Model.Restaurant.RestaurantId == 0 ? "d-none" : "")">Delete</button>
+                </div>
+                <div class="collapse mt-2 show" id="addOrUpdateRestaurant">
+                    @using (Html.BeginForm("AddOrUpdateRestaurant", "Chef", FormMethod.Post, new { @id = "restaurantDetailsForm" }))
+                    {
+                        <div class="row gap-3 gap-lg-2">
+                            <div class="row">
+                                @*<input type="hidden" name="ChefId" value="@Model.ChefId" />*@ <!-- 1st Way:  this works because the property name is being matched -->
+                                @*<input id="hfChefId" type="hidden" name="Chef.ChefId" value="@Model.ChefId" />*@ <!-- 2nd Way: Using this way to send ChefId to bind to Chef property  because it is required-->
+                                <input id="hfChefId" type="hidden" name="Chef.Restaurant.ChefId" value="@Model.ChefId" /> <!-- 2nd Way: Also we can bind to the nested Object property for ChefID to retrieve it -->
+                                <input id="hfRestaurantId" type="hidden" name="Chef.Restaurant.RestaurantId" value="@Model.Restaurant.RestaurantId" />
+                            </div>
+                            <div class="row gap-1 gap-lg-0">
+                                <div class="col-lg-6 mb-1">
+                                    <div class="form-floating">
+                                        <input class="form-control" type="text" id="Chef.Restaurant.Title" name="Chef.Restaurant.Title" value="@Model.Restaurant.Title" placeholder="Restaurant Title" />
+                                        <label for="Chef.Restaurant.Title">Restaurant Title</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input class="form-control" type="text" id="Chef.Restaurant.Phone" name="Chef.Restaurant.Phone" value="@Model.Restaurant.Phone" placeholder="Contact no." />
+                                        <label for="Chef.Restaurant.Phone">Contact no.</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row gap-1 gap-lg-0">
+                                <div class="col-lg-6 mb-1 mb-lg-2">
+                                    <div class="form-floating">
+                                        <input class="form-control" type="text" id="Chef.Restaurant.Location" name="Chef.Restaurant.Location" value="@Model.Restaurant.Location" placeholder="Restaurant Location" />
+                                        <label for="Chef.Restaurant.Location">Restaurant Location</label>
+                                    </div>
+                                </div>
+                                <div class="w-100"></div>
+                                <div class="col-lg-6 mb-1">
+                                    <div class="form-floating">
+                                        <input class="form-control" type="text" id="Chef.Restaurant.Lat" name="Chef.Restaurant.Lat" value="@Model.Restaurant.Lat" placeholder="Restaurant Latitude" />
+                                        <label for="Chef.Restaurant.Lat">Restaurant Latitude</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-floating">
+                                        <input class="form-control" type="text" id="Chef.Restaurant.Lng" name="Chef.Restaurant.Lng" value="@Model.Restaurant.Lng" placeholder="Restaurant Longitude" />
+                                        <label for="Chef.Restaurant.Lng">Restaurant Longitude</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-5">
+                                    <input class="form-control" type="text" id="Chef.Restaurant.OperatingTime" name="Chef.Restaurant.OperatingTime" value="@Model.Restaurant.OperatingTime" placeholder="Enter Operating time" />
+                                </div>
+                            </div>
+                            <div class="row justify-content-start justify-content-lg-center mt-0 mt-lg-2">
+                                <div class="col-auto">
+                                    <button class="btn btn-primary" type="submit">Submit Restaurant Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
 @section Scripts {
     <script>
         $(function () {
+
+            $('#showRestaurantModal').on('click', function () {
+                $('#manageRestaurantDetails').modal('toggle');
+            })
+
             // Handle string (escape properly)
             let errorMessage = '@(ViewBag.ErrorMessage ?? "")';
             let successMessage = '@(ViewBag.SuccessMessage ?? "")';
@@ -100,6 +185,206 @@
                     icon: errorMessage !== "" ? "error" : "success",
                 })
             }
+
+            // #region Restaurant Details Submission
+            // 1st Way (Adding/Updating Restaurant): working code structuring "Restaurant" JSON object from FormData(this) and then sending it
+            // $('#restaurantDetailsForm').on('submit', function (e) {
+            //     e.preventDefault();
+
+            //     var formData = new FormData(this);
+
+            //     let rest = {};
+            //     let token = null;
+
+            //     for (var pair of formData.entries()) {
+            //         let key = pair[0];
+
+            //         // Separate the anti-forgery token from the 'rest' object
+            //         if (key === '__RequestVerificationToken') {
+            //             token = pair[1];  // Capture the anti-forgery token separately
+            //         } else {
+            //             key = key.replace('Chef.Restaurant.', ''); // Remove 'Chef.Restaurant.' prefix
+            //             rest[key] = pair[1];
+            //         }
+            //     }
+
+            //     // Pretty-print the JSON object in the console with tabs for indentation
+            //     console.log(JSON.stringify(rest, null, "\t"));
+
+            //     // Send the cleaned-up object as form URL-encoded data
+            //     $.ajax({
+            //         type: "POST",
+            //         url: '@Url.Action("AddOrUpdateRestaurant")',
+            //         data: {
+            //             rest: rest, // Send the restaurant data
+            //             __RequestVerificationToken: token // Send the anti-forgery token
+            //         },
+            //         success: function (response) {
+            //             console.log(`response from server: ${JSON.stringify(response)}`);
+            //         },
+            //         error: function (xhr, status, error) {
+            //             let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+            //             console.log(`Error - ${errorMessage}`);
+            //             Swal.fire({
+            //                 title: "Error Occurred",
+            //                 text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+            //                 icon: "error"
+            //             });
+            //         }
+            //     });
+            // });
+
+            //Working 2nd Way (Adding/Updating Restaurant): of sending Restaurant Details: using FormData to be sent directly
+            $('#restaurantDetailsForm').on('submit', function (e) {
+                e.preventDefault();
+
+
+                // escpate the '.' of the actual Id of the element with '\\' as jQuery interprets it is a 'class selector'
+                var title = $('#Chef\\.Restaurant\\.Title').val().trim();
+                var phone = $('#Chef\\.Restaurant\\.Phone').val().trim();
+                var location = $('#Chef\\.Restaurant\\.Location').val().trim();
+                var lat = $('#Chef\\.Restaurant\\.Lat').val().trim();
+                var lng = $('#Chef\\.Restaurant\\.Lng').val().trim();
+                var operatingTime = $('#Chef\\.Restaurant\\.OperatingTime').val().trim();
+
+                if (!title || !phone || !lat || !lng || !location || !operatingTime) {
+                    Swal.fire({
+                        title: "Validation Error",
+                        html: "Please fill out all required fields: <br/> <b>Restaurant Title</b> <br/><b>Contact no.</b> <br/><b>Restaurant Location</b> <br/><b>Restaurant Latitude</b> <br/><b>Restaurant Longitude</b> <br/><b>Operating Time</b>",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                var formData = new FormData(this); // Capture form data including Chef.Restaurant fields
+                for (var pair of formData.entries()) {
+                    console.log(pair[0] + ": " + pair[1]);
+                }
+
+                $('#restaurantDetailsForm button[type="submit"]').prop('disabled', true);  // Disable button
+                $('#loadingSpinnerContainer').removeClass('d-none'); // Show spinner
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("AddOrUpdateRestaurant")',
+                    data: formData,
+                    processData: false, // Prevent jQuery from processing the data into a query string
+                    contentType: false, // Let the browser set the correct multipart/form-data header
+                    success: function (response) {
+
+                        if (response.success) {
+                            let rest = response.restaurant;
+                            console.log(JSON.stringify(rest, null, '\t'));
+                            if (response.operation === 'add') {
+                                $('#hfRestaurantId').val(rest.restaurantId);
+                                $('#Chef\\.Restaurant\\.Title').val(rest.title);
+                                $('#Chef\\.Restaurant\\.Phone').val(rest.phone);
+                                $('#Chef\\.Restaurant\\.Location').val(rest.location);
+                                $('#Chef\\.Restaurant\\.Lat').val(rest.lat);
+                                $('#Chef\\.Restaurant\\.Lng').val(rest.lng);
+                                $('#Chef\\.Restaurant\\.OperatingTime').val(rest.operatingTime);
+                                $('#btnAddRestaurant').addClass('d-none');
+                                $('#btnUpdateRestaurant').removeClass('d-none');
+                                $('#btnDeleteRestaurant').removeClass('d-none');
+                                Swal.fire({
+                                    title: "Restaurant created successfully",
+                                    message: response.message,
+                                    icon: 'success'
+                                })
+                            } else if (response.operation === 'update') {
+                                $('#Chef\\.Restaurant\\.Title').val(rest.title);
+                                $('#Chef\\.Restaurant\\.Phone').val(rest.phone);
+                                $('#Chef\\.Restaurant\\.Location').val(rest.location);
+                                $('#Chef\\.Restaurant\\.Lat').val(rest.lat);
+                                $('#Chef\\.Restaurant\\.Lng').val(rest.lng);
+                                $('#Chef\\.Restaurant\\.OperatingTime').val(rest.operatingTime);
+                                Swal.fire({
+                                    title: "Restaurant details updated successfully",
+                                    message: response.message,
+                                    icon: 'success'
+                                })
+                            }
+                            console.log(`response from server: ${JSON.stringify(response, null, '\t')}`);
+                        } else {
+                            Swal.fire({
+                                title: "Server-side error occurred",
+                                message: response.message,
+                                icon: 'error'
+                            })
+                        }
+
+                        $('#restaurantDetailsForm button[type="submit"]').prop('disabled', false);  // Re-enable button on success
+                        $('#loadingSpinnerContainer').addClass('d-none'); // Hide spinner on response received
+                    },
+                    error: function (xhr, status, error) {
+                        $('#restaurantDetailsForm button[type="submit"]').prop('disabled', false);  // Re-enable button on error
+                        $('#loadingSpinnerContainer').addClass('d-none'); // Hide spinner on error thrown
+                        Swal.fire({
+                            title: "Error",
+                            text: "An error occurred while processing the request. Please try again.",
+                            icon: 'error'
+                        });
+                        console.log(`Error - ${xhr.status}: ${xhr.statusText}: ${xhr.responseText}`);
+                    }
+                });
+            });
+
+            // Deleting a Restaurant
+            $('#manageRestaurantDetails #btnDeleteRestaurant').on('click', function () {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You are about to delete the restaurant. This action cannot be undone!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, keep it'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let chefId = $('#hfChefId').val();
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("DeleteRestaurant")',
+                            data: { chefId: chefId },
+                            dataType: "json",
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (response) {
+                                if (response.success) {
+                                    $('#hfRestaurantId').val('0');
+                                    $('#Chef\\.Restaurant\\.Title').val('');
+                                    $('#Chef\\.Restaurant\\.Phone').val('');
+                                    $('#Chef\\.Restaurant\\.Location').val('');
+                                    $('#Chef\\.Restaurant\\.Lat').val('');
+                                    $('#Chef\\.Restaurant\\.Lng').val('');
+                                    $('#Chef\\.Restaurant\\.OperatingTime').val('');
+                                    $('#btnUpdateRestaurant').addClass('d-none');
+                                    $('#btnDeleteRestaurant').addClass('d-none');
+                                    $('#btnAddRestaurant').removeClass('d-none');
+                                    $('div#addOrUpdateRestaurant').removeClass('show');
+                                    Swal.fire({
+                                        title: "Restaurant deleted successfully",
+                                        text: response.message,
+                                        icon: 'success'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: "Server-side Error",
+                                        text: response.message,
+                                        icon: 'error'
+                                    });
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "An error occurred while deleting the restaurant. Please try again.",
+                                    icon: 'error'
+                                });
+                                console.log(`Error - ${xhr.status}: ${xhr.statusText}: ${xhr.responseText}`);
+                            }
+                        });
+                    }
+                });
+            })
+            // #endregion
 
             // #region example of getting different dataTypes from MVC method into javaScript
             // Handle number (no quotes needed for numbers)

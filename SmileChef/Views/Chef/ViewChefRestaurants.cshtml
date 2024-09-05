@@ -103,7 +103,7 @@
                 directionsRenderer.setMap(map);
 
                 // Place the home marker on the map
-                placeMarker(centerMapAtHome, myRestaurant.title, myRestaurant.currentChefName, myRestaurant.location, homeInfoWindow, PinElement, AdvancedMarkerElement);
+               placeMarker(centerMapAtHome, myRestaurant, homeInfoWindow, PinElement, AdvancedMarkerElement);
 
                 // Create markers for bank branches
                 chefRestaurants.forEach((branch, i) => {
@@ -183,7 +183,7 @@
                 });
             }
 
-            function placeMarker(markerPosition, titleOfMarker, chefName, location, homeInfoWindow, PinElement, AdvancedMarkerElement) {
+            function placeMarker(markerPosition, rest, homeInfoWindow, PinElement, AdvancedMarkerElement) {
                 // Check if the homeMarker is not already created
                 if (homeMarker === null) {
                     // Create the PinElement for the home marker
@@ -191,15 +191,15 @@
                         background: "#33cc66",      // Use green color for home marker
                         borderColor: "#009966",     // Border color
                         glyphColor: "#ffffff",      // Glyph (text) color
-                        glyph: `${titleOfMarker[0]}`, // Use the first letter of the title for the label
+                        glyph: `${rest.title[0]}`, // Use the first letter of the title for the label
                         scale: 1.35,
                     });
-
+                // 51.48230385097871, 0.16090573471658554
                     // Create the AdvancedMarkerElement for the home marker
                     homeMarker = new AdvancedMarkerElement({
                         position: markerPosition,
                         map: map,
-                        title: titleOfMarker,
+                        title: rest.title,
                         content: homePin.element, // Use the PinElement created above
                         draggable: false,
                     });
@@ -208,10 +208,12 @@
                     homeMarker.addListener("click", () => {
                         homeInfoWindow.setContent(
                             `
-                            <span class="fs-6"><b class="fw-semibold">My Restaurant:</b> ${titleOfMarker}</span><br/>
+                            <span class="fs-6"><b class="fw-semibold">My Restaurant:</b> ${rest.title}</span><br/>
                             <hr class="mt-1 mb-2"/>
-                            <span><b class="alert-link">Current User</b>: ${chefName} </span><br/>
-                            <span><b class="alert-link">Location:</b> ${location}</span>
+                            <span><b class="alert-link">Phone:</b> ${rest.phone}</span><br/>
+                            <span><b class="alert-link">Location:</b> ${rest.location}</span><br/>
+                            <span><b class="alert-link">Operating Time:</b> ${rest.operatingTime}</span><br/>
+                            <span><b class="alert-link">Current User</b>: ${rest.currentChefName} </span><br/>
                             `
                         );
                         infoWindow2.close();
