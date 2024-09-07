@@ -33,7 +33,7 @@
     </button>
 </div>
 <div class="container mb-4">
-    @Html.ActionLink("Add Recipe", "AddRecipe", "Chef", new { }, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Add Recipe", "AddOrUpdateRecipe", "Chef", new { }, new { @class = "btn btn-primary" })
 </div>
 <div id="recipesContainer">
     @await Html.PartialAsync("_RecipesPartial", Model)

@@ -145,6 +145,8 @@ namespace SmileChef.Repository
                 .Include(c => c.Restaurant)
                 .FirstOrDefault(c => c.ChefId == id);
 
+            chef.Restaurant = chef.Restaurant == null ? new Restaurant() : chef.Restaurant;
+
             if (chef == null)
             {
                 throw new Exception($"Chef not found with id: {id}");

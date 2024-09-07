@@ -1,191 +1,162 @@
-﻿@using SmileChef.Models.Enums
-@using SmileChef.ViewModels
-@model RecipeViewModel
+﻿@using ChefApp.Models.DbModels
+@using SmileChef.Models.DbModels
+@model Recipe
 
-@{
-    List<SelectListItem> recipeTypeSelectList = new List<SelectListItem>();
-    var enumValues = Enum.GetValues<RecipeType>();
-    foreach (var e in enumValues)
-    {
-        SelectListItem item = new SelectListItem();
-        item.Text = e.ToString();
-        item.Value = e.ToString();
-        recipeTypeSelectList.Add(item);
-    }
-}
-
-@using (Html.BeginForm("SaveRecipe", "Chef", FormMethod.Post))
+@using(Html.BeginForm("SaveRecipe", "Chef", FormMethod.Post, new { @id = "recipeOperationForm"}))
 {
-    @Html.HiddenFor(m => m.RecipeId)
-    <div class="container">
-        <div class="row align-items-center my-4">
-            <div class="col-12 fs-5 pb-1">@Html.LabelFor(m => m.Name, "Recipe name")</div>
-            <div class="col-12 mb-2">@Html.TextBoxFor(m => m.Name, new { @class = "form-control", @placeholder = "Enter recipe name", id = "recipeName", required = "required", @maxlength="35"})</div>
-            <div class="col-12">@Html.ValidationMessageFor(m => m.Name)</div>
-            <div class="col-md-5 mb-2 mb-md-0">
-                @Html.DropDownListFor(m => m.RecipeType, recipeTypeSelectList, "Select Recipe Type", new { @class = "form-select", id = "recipeTypeDropdown" })
+    <div class="row gap-3">
+        <input id="hfRecipeId" type="hidden" name="RecipeId" value="@Model.RecipeId"/>
+        <input id="hfRecipePrice" name="recipePrice" type="hidden"/>
+        <div class="col-12">
+            <h4>@(Model.RecipeId == 0 ? "Add" : "Update") Recipe</h4>
+            <hr class="my-1">
+        </div>
+        <div class="col-6">
+            @Html.TextBoxFor(m => m.Name, "",new { @id = "tbRecipeName", @class="form-control", @placeholder = "Enter your recipe Name", @required = true})
+            
+        </div>
+
+        <div class="row">
+            <div class="w-100 pb-1 lead">
+                Select Recipe Type
             </div>
-            <div class="col-md-4 col-xl-3">
-                @Html.TextBoxFor(m => m.Price, new { @class = "form-control", id = "priceTextbox", @type = "number", @min = "0", @step = "0.01", disabled = "disabled", @placeholder = "Enter Premium Recipe price" })
+            <div class="col-md-6">
+                @Html.DropDownListFor(m => m.RecipeType, new SelectList(new string[] { "Basic", "Premium" }) { }, new { @id = "selectRecipeType", @class = "form-control", @placeholder = "Enter Recipe Name" })
+            </div>
+            <div class="col-md-4 mt-2 mt-md-0">
+                <input id="tbRecipePrice" class="form-control" type="number" min="0.01" max="999.99" step="0.01" value="" placeholder="Enter Recipe Price" required @(Model is PremiumRecipe ? "" : "disabled") />
             </div>
         </div>
-        <div class="row bg-body-secondary">
-            <h3 class="mt-2">Instructions</h3>
-            <div class="col-12 mt-2 mb-3">
-                <button type="button" class="btn btn-primary w-auto select" onclick="showAddInstructionModal()">Add Instruction</button>
+
+
+        <div class="row border mx-auto px-0 py-2 mt-1 rounded-2">
+            <div class="col-12">
+                <h5>Add Instructions</h5>
+                <hr class="mt-1">
             </div>
-            <table class="table table-group-divider table-hover">
-                <thead>
-                    <tr>
-                        <th>Order</th>
-                        <th>Description</th>
-                        <th>Duration (mins)</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (int i = 0; i < Model.Instructions.Count; i++)
-                    {
-                        <tr>
-                            <td>
-                                @Html.HiddenFor(m => m.Instructions[i].OrderId)
-                                @Html.HiddenFor(m => m.Instructions[i].InstructionId)
-                                @*@Html.TextBoxFor(m => m.Instructions[i].OrderId, new { @class = "form-control", @readonly = "readonly" })
-                                @Html.ValidationMessageFor(m => m.Instructions[i].OrderId)*@
-                                @Html.TextBox("Index", i + 1, "", new { @class = "form-control", @readonly = "readonly" })
-                            </td>
-                            <td>
-                                @Html.TextBoxFor(m => m.Instructions[i].Description, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(m => m.Instructions[i].Description)
-                            </td>
-                            <td>
-                                <input type="number" class="form-control" name="Instructions[@i].Duration" value="@(Model.Instructions[i].Duration.HasValue ? Model.Instructions[i].Duration.Value.TotalMinutes : 0)" />
-                                @Html.ValidationMessageFor(m => m.Instructions[i].Duration)
-                            </td>
-                            <td>
-                               @*  @using (Html.BeginForm("DeleteInstruction", "Home", FormMethod.Post))
-                                {
-                                    @Html.HiddenFor(m => m.RecipeId)
-                                    @Html.HiddenFor(m => m.Instructions[i].InstructionId)
-                                    <button type="submit" class="btn btn-danger">Remove</button>
-                                } *@
-                                @Html.ActionLink("Remove", "DeleteInstruction", "Chef", new { @recipeId = Model.RecipeId, @instructionId = Model.Instructions[i].InstructionId }, new { @class = "btn btn-danger" })
-                            </td>
-                        </tr>
-                    }
-                    @if (Model.Instructions.Count == 0)
-                    {
-                        <tr id="noInstructionsMessage">
-                            <td colspan="4">No instructions. Click "Add Instruction" to create one.</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <div class="col-md-5">
+                <input class="form-control" id="instructDescription" placeholder="Enter instruction description" />
+            </div>
+            <div class="col-md-5 mt-2 mt-md-0">
+                <input class="form-control" type="number" min="0" max="999" id="instructDuration" placeholder="Enter duration (minutes)"/>
+            </div>
+            <div class="col-md-12 mt-3">
+                <a class="btn btn-secondary btn-sm" id="btnAddInstruct" >Add Instruction</a>
+            </div>
         </div>
-        <div class="row mt-3 ps-2">
-            <div class="col ps-0">
-                <button class="btn btn-primary" type="submit">Save Recipe</button>
+        <div class="row px-0 py-2 mx-auto">
+            <div class="col-md-12">
+                <h5>Instruction List</h5>
+                <hr class="mt-1">
             </div>
+            <div class="col-md-12" id="instructionsListContainer" style="max-height: 300px; overflow-y:scroll;">
+                @await Html.PartialAsync("_RecipeInstructionsPartial", Model.Instructions)
+            </div>
+        </div>
+        
+
+        <div class="col-md-4">
+            <button class="btn btn-success" type="submit">Save Recipe</button>
+            <a class="btn btn-info ms-2" asp-action="ManageRecipes" asp-controller="Chef">Cancel</a>
         </div>
     </div>
 }
 
-<!-- Add Instruction Modal -->
-<div class="modal fade" id="addInstructionModal" tabindex="-1" aria-labelledby="addInstructionModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addInstructionModalLabel">Add Instruction</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                @using (Html.BeginForm("AddInstruction", "Chef", FormMethod.Post))
-                {
-                    @Html.Hidden("RecipeName", "", new { @id = "recipeNameHidden" })
-                    @Html.Hidden("RecipeId", Model.RecipeId)
-                    @Html.Hidden("RecipeType", Model.RecipeType.ToString(), new { @id = "recipeTypeHidden" })
-                    @Html.Hidden("Price", Model.Price.HasValue ? Model.Price.Value.ToString("0.00") : "", new { @id = "priceHidden" })
-                    <div class="mb-3">
-                        <label for="instructionDescription" class="form-label">Description</label>
-                        <input type="text" class="form-control" name="Description" id="instructionDescription" placeholder="Enter instruction description">
-                    </div>
-                    <div class="mb-3">
-                        <label for="instructionDuration" class="form-label">Duration (mins)</label>
-                        <input type="number" class="form-control" name="Duration" id="instructionDuration" placeholder="Enter duration in minutes">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Add Instruction</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
-
-@section Scripts {
+@section Scripts{
     <script>
+        $(() => {
 
-        // Function to toggle price textbox
-        function togglePriceTextbox() {
-            var recipeType = document.getElementById('recipeTypeDropdown').value;
-            var priceTextbox = document.getElementById('priceTextbox');
-            if (recipeType === "Premium") {
-                priceTextbox.disabled = false;
-                priceTextbox.required = true; // Make it required when Premium is selected
-            } else {
-                priceTextbox.disabled = true;
-                priceTextbox.required = false;
-                priceTextbox.value = ''; // Clear the value if not premium
-            }
-
-            document.getElementById('recipeTypeHidden').value = recipeType;
-        }
-
-        // Attach change event to dropdown
-        document.getElementById('recipeTypeDropdown').addEventListener('change', togglePriceTextbox);
-
-        // Run on page load in case the form is pre-filled
-        togglePriceTextbox();
-
-        function showAddInstructionModal() {
-            var modal = new bootstrap.Modal(document.getElementById('addInstructionModal'));
-            let recipeName = $('#recipeName').val();
-            let recipeType = $('#recipeTypeDropdown').val();
-            let price = $('#priceTextbox').val();
-
-            console.log(`recipeName: ${typeof recipeName}`)
-            if (recipeName === "" || recipeName === null) {
-                Swal.fire({
-                    title: "Invalid Recipe Name", 
-                    text: "Recipe Name cannot be left blank", 
-                    icon: "error"
-                }).then(function () {
-                    alert("Recipe name invalid validation has been shown successfully!");
-                });
-                return;
-            } else if (recipeName.length > 50){
-                Swal.fire({
-                    title: "Invalid Recipe Name",
-                    text: "Recipe Name cannot exceed 50 characters",
-                    icon: "error"
+            $(document).on('click', '#instructionsListContainer .deleteInstruction', function () {
+                let $anchorElem = $(this);
+                let instructIdx = $anchorElem.data('instruction-index');
+                console.log(`value of instructIdx: ${instructIdx}`);
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteInstruction")',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    data: { instructionIndex : instructIdx },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: "Successful",
+                                text: response.message,
+                                icon: 'success'
+                            })
+                            $('#instructionsListContainer').empty().html(response.partialView);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                        console.log(`Error - ${errorMessage}`)
+                        Swal.fire({
+                            title: "Error Occurred",
+                            text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                            icon: "error"
+                        });
+                    }
                 })
-                return;
-            }
-            modal.show();
-        }
+            });
 
-        // Update hidden field when recipe name changes
-        document.getElementById('recipeName').addEventListener('input', function () {
-            document.getElementById('recipeNameHidden').value = this.value;
-        });
+            //Submiting the form
+            $('#recipeOperationForm').on('submit', function (event) {
+                let recipeName = $('#tbRecipeName').val();
+                let recipeSelected = $('#selectRecipeType').find(':selected').val();
+                let recipePrice = $('#tbRecipePrice').val();
+                $('#hfRecipePrice').val(recipePrice);
+            })
 
-    
+            $('#selectRecipeType').on('change', function () {
+                let valueSelected = $(this).find(':selected').text();
+                console.log(`the value of selectRecipeType selected: ${valueSelected}`)
+                if (valueSelected === 'Premium') $('#tbRecipePrice').prop('disabled', false);
+                else $('#tbRecipePrice').prop('disabled', true);
+            });
 
-        // Update hidden field when recipe Price changes
-        document.getElementById('priceTextbox').addEventListener('input', function () {
-            document.getElementById('priceHidden').value = this.value;
+            // Add Instruction button click handler
+            $('#btnAddInstruct').on('click', () =>{
+                let instructDesc = $('#instructDescription').val();
+                let instructDuration = $('#instructDuration').val();
+                if (!instructDesc || !instructDuration) {
+                    Swal.fire({
+                        title : "Invalid Instruction Addition",
+                        html : "Give valid Instruction Description & Duration. <br/>Choose 0 for duration if u don't need to specify time",
+                        icon : 'error'
+                    })
+                    return;
+                }
+
+                $.ajax({
+                    type : "POST",
+                    url : '@Url.Action("AddInstruction")',
+                    contentType : "application/x-www-form-urlencoded; charset=UTF-8",
+                    data: { description : instructDesc, duration : instructDuration},
+                    dataType : "json",
+                    success: function (response) {
+                        if (response.success) { 
+                            Swal.fire({
+                                title: "Successful",
+                                text: response.message,
+                                icon: 'success'
+                            }).then((result) => {
+                                $('#instructionsListContainer').empty().html(response.partialView);
+                                $('#instructDescription').val('').focus();
+                                $('#instructDuration').val('')
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                        console.log(`Error - ${errorMessage}`)
+                        Swal.fire({
+                            title: "Error Occurred",
+                            text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                            icon: "error"
+                        });
+                    }
+                })
+            });
+        
         });
     </script>
 }

@@ -75,6 +75,11 @@ footer {
     Extra Extra Large (xxl): ≥1400px - Navbar is expanded
 */
 
+@media(max-width: 1199px) {
+    main {
+        padding-top: 50px; /* Adjust if needed for your navbar height */
+    }
+}
 
 
 @media (max-width: 768px ) {
@@ -97,6 +102,18 @@ footer {
     div.navbar-collapse > ul.navbar-nav > li:last-child {
         margin-bottom: 1rem;
     }
+
+    main {
+        padding-top: 45px; /* Adjust if needed for your navbar height */
+    }
+}
+
+@media (max-width: 575px ) {
+    main.pb-3{
+        padding-top:25px;
+    }
+
+}
 
     /*.navbar {
     position: fixed;

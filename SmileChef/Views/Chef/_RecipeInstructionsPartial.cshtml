@@ -1,0 +1,31 @@
+﻿@using ChefApp.Models.DbModels
+@model List<Instruction>
+
+@{
+}
+
+@if(Model.Count > 0)
+{
+    <ul id="instructionsList" class="list-group">
+        @for(int i = 0; i < Model.Count(); i++)
+        {
+            <li class="list-group-item" data-instruction-index="@i">
+                <div class="row gap-1 gap-md-0 align-items-center bg-body-tertiary rounded-1 p-1">
+                    <div class="col-auto p-1 ms-auto ms-md-0">
+                        <a class="btn btn-sm btn-danger deleteInstruction" href="javascript:void(0)" data-instruction-index="@i">X</a>
+                    </div>
+                    <div class="col-md-8 p-1">
+                        @Html.TextBox($"Instructions[{i}].Description", Model[i].Description, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                    <div class="col-md-1 p-1">
+                        @Html.TextBox($"Instructions[{i}].Duration", Model[i].Duration.HasValue ? Model[i].Duration!.Value.TotalMinutes : "N/A", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <div>No Instructions have been added yet...</div>
+}

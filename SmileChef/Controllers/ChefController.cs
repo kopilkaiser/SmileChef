@@ -30,7 +30,7 @@ namespace SmileChef.Controllers
         private readonly ILogger<ChefController> _logger;
         private readonly IConfiguration _config;
         private readonly IWebHostEnvironment _webHostEnvironment;
-
+        private readonly ISession _session;
         private readonly RecipeSmartModel _recipeModel;
         private readonly ImageSmartModel _imageModel;
 
@@ -67,6 +67,7 @@ namespace SmileChef.Controllers
             _config = config;
             _viewEngine = viewEngine;
             _orderRepo = orderRepo;
+            _session = _httpContextAccessor.HttpContext.Session;
 
             if (_httpContextAccessor != null && _httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.Session != null)
             {
@@ -416,11 +417,6 @@ namespace SmileChef.Controllers
         {
             AssignCurrentPageStatus("ManageProfile");
             var chef = _chefRepo.GetById(_chefId);
-
-            if (chef.Restaurant == null)
-            {
-                chef.Restaurant = new Restaurant();
-            }
             return View(chef);
         }
 
@@ -428,9 +424,10 @@ namespace SmileChef.Controllers
         public async Task<IActionResult> ManageProfile(Chef chef)
         {
             AssignCurrentPageStatus("ManageProfile");
+            var getChef = _chefRepo.GetById(_chefId);
+            chef.Restaurant = getChef.Restaurant;
             if (ModelState.IsValid)
             {
-                var getChef = _chefRepo.GetById(_chefId);
                 getChef.FirstName = chef.FirstName;
                 getChef.LastName = chef.LastName;
                 getChef.User.Email = chef.User.Email;
@@ -596,145 +593,124 @@ namespace SmileChef.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AddRecipe(int recipeId)
+        public async Task<IActionResult> AddOrUpdateRecipe(int recipeId)
         {
-            AssignCurrentPageStatus("");
-
-            RecipeViewModel vm;
+            //This page serves both Adding new Recipe & Updating existing Recipe
+            AssignCurrentPageStatus("AddRecipe");
+            Recipe recipe;
             if (recipeId == 0)
             {
-                vm = new RecipeViewModel();
-                vm.Instructions = new();
+                recipe = new Recipe();
             }
             else
             {
-                var chef = (await _chefRepo.GetChefsWithDetailsAsync()).FirstOrDefault(c => c.ChefId == _chefId);
-                vm = chef.Recipes.FirstOrDefault(r => r.RecipeId == recipeId)!;
+                recipe = _recipeRepo.GetById(recipeId);
             }
-            return View("AddOrUpdateRecipe", vm);
+
+            if (recipe.Instructions.Count > 0)
+            {
+                foreach (var i in recipe.Instructions) i.Recipe = null;
+            }
+
+            _session.SetObjectAsJson("InstructionList", recipe.Instructions);
+            return View(recipe);
         }
 
         [HttpPost]
-        public IActionResult SaveRecipe(RecipeViewModel model)
+        public async Task<IActionResult> AddInstruction(string description, string duration)
         {
-            // Remove entries for removed instructions from the ModelState
-            var keysToRemove = ModelState.Keys
-                .Where(key => key.StartsWith("Instructions") && model.Instructions.Any(i => i.IsRemoved && key.Contains($"Instructions[{model.Instructions.IndexOf(i)}]")))
-                .ToList();
+            var instructions = _session.GetObjectFromJson<List<Instruction>>("InstructionList");
 
-            foreach (var key in keysToRemove)
+            var instruction = new Instruction()
             {
-                ModelState.Remove(key);
-            }
+                Description = description,
+                Duration = new TimeSpan(0, Convert.ToInt32(duration), 0)
+            };
 
-            if (ModelState.IsValid)
+            instructions.Add(instruction);
+
+            _session.SetObjectAsJson("InstructionList", instructions);
+
+            var view = await RenderPartialViewToStringAsync("_RecipeInstructionsPartial", instructions);
+
+            return Json(new { success = true, message = "Instructions added", partialView = view });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteInstruction(int instructionIndex)
+        {
+            var instructions = _session.GetObjectFromJson<List<Instruction>>("InstructionList");
+            instructions.RemoveAt(instructionIndex);
+            _session.SetObjectAsJson("InstructionList", instructions);
+            var view = await RenderPartialViewToStringAsync("_RecipeInstructionsPartial", instructions);
+            return Json(new { success = true, message = "Instruction removed", partialView = view });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveRecipe(Recipe recipe, decimal recipePrice)
+        {
+            var instructions = _session.GetObjectFromJson<List<Instruction>>("InstructionList");
+            string message = "";
+            TempData["RecipeSuccessMessage"] = recipe.RecipeId == 0 ? "Recipe added successfully" : "Recipe updated successfully";
+            if (recipe.RecipeId == 0)
             {
-                var chef = _chefRepo.GetById(_chefId);
-
-                if (chef == null) throw new Exception($"Chef not found with ChefId: {_chefId}");
-
-                if (model.Instructions == null) model.Instructions = new List<InstructionViewModel>();
-                // Sort instructions by OrderId
-                if (model.Instructions != null)
+                if (recipePrice != 0)
                 {
-                    // Filter out removed instructions
-                    model.Instructions = model.Instructions.Where(i => !i.IsRemoved).ToList();
-                    model.Instructions = model.Instructions.OrderBy(i => i.OrderId).ToList();
+                    PremiumRecipe pr = new PremiumRecipe()
+                    {
+                        ChefId = _chefId,
+                        Name = recipe.Name,
+                        Price = (float)recipePrice,
+                        RecipeType = RecipeType.Premium,
+                        Instructions = instructions
+                    };
+
+                    _recipeRepo.Add(pr);
                 }
-
-                Recipe recipe;
-
-                if (model.RecipeId == 0) // Add new recipe
+                else
                 {
-                    // Create a new recipe based on the RecipeType
-                    if (model.RecipeType == Models.Enums.RecipeType.Premium)
-                    {
-                        var premiumRecipe = new PremiumRecipe
-                        {
-                            Price = model.Price
-                        };
-                        recipe = premiumRecipe; // Treat it as a generic recipe after creation
-                    }
-                    else
-                    {
-                        recipe = new Recipe();
-                    }
-
-                    recipe.Name = model.Name!;
-                    chef.Recipes.Add(recipe);
+                    recipe.Instructions = instructions;
+                    recipe.ChefId = _chefId;
                     _recipeRepo.Add(recipe);
-                    //create the notification
-                    foreach (var subscriber in chef.PublishedSubscriptions)
-                    {
-                        var notification = new NotifySubscribers()
-                        {
-                            PublisherId = chef.ChefId,
-                            SubscriberId = subscriber.SubscriberId,
-                            RecipeId = recipe.RecipeId,
-                            PublishedDate = DateTime.Now
-                        };
-
-                        _notifySubscribers.Add(notification);
-                    }
                 }
-                else // Update existing recipe
-                {
-                    recipe = chef.Recipes.FirstOrDefault(r => r.RecipeId == model.RecipeId);
-                    if (recipe == null)
-                    {
-                        TempData["RecipeSuccessMessage"] = "Recipe not found.";
-                        TempData["RecipeSuccess"] = false;
-                        return RedirectToAction("Index");
-                    }
-
-                    // Remove instructions that are no longer present in the model
-                    var instructionsToRemove = recipe.Instructions
-                        .Where(ri => !model.Instructions.Any(mi => mi.InstructionId == ri.InstructionId))
-                        .ToList();
-
-                    foreach (var instruction in instructionsToRemove)
-                    {
-                        recipe.Instructions.Remove(instruction);
-                    }
-                }
-
-                recipe.Name = model.Name;
-
-                foreach (var i in model.Instructions)
-                {
-                    var instruction = recipe.Instructions.FirstOrDefault(instr => instr.InstructionId == i.InstructionId);
-                    if (instruction == null) // Add new instruction
-                    {
-                        instruction = new Instruction
-                        {
-                            Description = i.Description,
-                            OrderId = i.OrderId,
-                        };
-
-                        if (i.Duration != null) instruction.Duration = new TimeSpan(0, i.Duration.Value.Days, 0);
-
-                        recipe.Instructions.Add(instruction);
-                    }
-                    else // Update existing instruction
-                    {
-                        instruction.Description = i.Description;
-                        instruction.OrderId = i.OrderId;
-                        if (i.Duration != null) instruction.Duration = new TimeSpan(0, i.Duration.Value.Days, 0);
-                    }
-                }
-
-                _chefRepo.Update(chef);
-
-                TempData["RecipeSuccessMessage"] = model.RecipeId == 0 ? "Recipe added successfully" : "Recipe updated successfully";
-                TempData["RecipeSuccess"] = true;
-                return RedirectToAction("ManageRecipes");
+                //means it is a new recipe
+                message = "Recipe have been added successfully";
             }
             else
             {
-                TempData["RecipeSuccessMessage"] = "Recipe failed to save due to errors";
-                TempData["RecipeSuccess"] = false;
-                return View("AddOrUpdateRecipe", model); // Pass the original model back to the view
+                // Update logic for existing recipe
+                if (recipePrice != 0)
+                {
+                    // Update PremiumRecipe
+                    var existingPremiumRecipe = _recipeRepo.GetById(recipe.RecipeId) as PremiumRecipe; // Assuming you have a method to get by id
+                    if (existingPremiumRecipe != null)
+                    {
+                        existingPremiumRecipe.Name = recipe.Name;
+                        existingPremiumRecipe.Price = (float)recipePrice;
+                        existingPremiumRecipe.Instructions = instructions;
+                        foreach (var i in existingPremiumRecipe.Instructions) i.Recipe = existingPremiumRecipe;
+                        _recipeRepo.Update(existingPremiumRecipe);
+                    }
+                }
+                else
+                {
+                    // Update Basic Recipe
+                    var existingRecipe = _recipeRepo.GetById(recipe.RecipeId); // Assuming you have a method to get by id
+                    if (existingRecipe != null)
+                    {
+                        existingRecipe.Name = recipe.Name;
+                        existingRecipe.Instructions = instructions;
+                        existingRecipe.ChefId = _chefId;
+                        foreach (var i in existingRecipe.Instructions) i.Recipe = existingRecipe;
+                        _recipeRepo.Update(existingRecipe);
+                    }
+                }
+                message = "Recipe has been updated successfully";
             }
+
+            TempData["RecipeSuccess"] = true;
+            _session.SetObjectAsJson("InstructionList", new List<Instruction>());
+            return RedirectToAction(nameof(ManageRecipes));
         }
 
         public IActionResult DeleteRecipe(int id)
@@ -757,123 +733,6 @@ namespace SmileChef.Controllers
             TempData["RecipeSuccessMessage"] = "Recipe deleted successfully";
             TempData["RecipeSuccess"] = false;
             return RedirectToAction("ManageRecipes");
-        }
-
-        [HttpPost]
-        public IActionResult AddInstruction(int recipeId, string recipeName, InstructionViewModel instruction, RecipeType recipeType, float? price)
-        {
-            var chef = _chefRepo.GetById(_chefId);
-            if (chef == null) throw new Exception($"Chef not found with chefId: {_chefId}");
-            Recipe recipe;
-
-            if (recipeId == 0)
-            {
-                // Create a new recipe based on RecipeType
-                if (recipeType == RecipeType.Premium)
-                {
-                    recipe = new PremiumRecipe
-                    {
-                        Name = recipeName,
-                        Price = price,
-                        Instructions = new List<Instruction>()
-                    };
-                }
-                else
-                {
-                    recipe = new Recipe
-                    {
-                        Name = recipeName,
-                        Instructions = new List<Instruction>(),
-                    };
-                }
-
-                chef.Recipes.Add(recipe);
-                _chefRepo.Update(chef);
-                //create the notification
-                foreach (var subscriber in chef.PublishedSubscriptions)
-                {
-                    var notification = new NotifySubscribers()
-                    {
-                        PublisherId = chef.ChefId,
-                        SubscriberId = subscriber.SubscriberId,
-                        RecipeId = recipe.RecipeId,
-                        PublishedDate = DateTime.Now
-                    };
-
-                    _notifySubscribers.Add(notification);
-                }
-            }
-            else
-            {
-                // Find the existing recipe
-                recipe = chef.Recipes.FirstOrDefault(r => r.RecipeId == recipeId);
-                if (recipe == null)
-                {
-                    return NotFound("Recipe not found.");
-                }
-            }
-
-            // Add the new instruction
-            var newInstruction = new Instruction
-            {
-                Description = instruction.Description ?? "No Description Given",
-                OrderId = recipe.Instructions.Count + 1,
-            };
-            if (instruction.Duration != null)
-            {
-                newInstruction.Duration = new TimeSpan(0, instruction.Duration.Value.Days, 0);
-            }
-
-            recipe.Instructions.Add(newInstruction);
-            _chefRepo.Update(chef);
-
-            return RedirectToAction("AddRecipe", new { recipeId = recipe.RecipeId });
-        }
-
-        [HttpPost]
-        public IActionResult UpdateInstruction(int recipeId, InstructionViewModel instruction)
-        {
-            var chef = _chefRepo.GetById(_chefId);
-            var recipe = chef.Recipes.FirstOrDefault(r => r.RecipeId == recipeId);
-            if (recipe == null)
-            {
-                return NotFound("Recipe not found.");
-            }
-
-            var existingInstruction = recipe.Instructions.FirstOrDefault(i => i.InstructionId == instruction.InstructionId);
-            if (existingInstruction == null)
-            {
-                return NotFound("Instruction not found.");
-            }
-
-            existingInstruction.Description = instruction.Description;
-            existingInstruction.OrderId = instruction.OrderId;
-            if (instruction.Duration != null) existingInstruction.Duration = new TimeSpan(0, instruction.Duration.Value.Days, 0);
-
-            _chefRepo.Update(chef);
-
-            return RedirectToAction("AddRecipe", new { recipeId = recipeId });
-        }
-
-        public IActionResult DeleteInstruction(int recipeId, int instructionId)
-        {
-            var chef = _chefRepo.GetById(_chefId);
-            var recipe = chef.Recipes.FirstOrDefault(r => r.RecipeId == recipeId);
-            if (recipe == null)
-            {
-                return NotFound("Recipe not found.");
-            }
-
-            var instruction = recipe.Instructions.FirstOrDefault(i => i.InstructionId == instructionId);
-            if (instruction == null)
-            {
-                return NotFound("Instruction not found.");
-            }
-
-            recipe.Instructions.Remove(instruction);
-            _chefRepo.Update(chef);
-
-            return RedirectToAction("AddRecipe", new { recipeId = recipeId });
         }
 
         [HttpPost]
@@ -1361,13 +1220,13 @@ namespace SmileChef.Controllers
         private void AssignCurrentPageStatus(string currentPageName)
         {
             if (_currentUserId == 0) return;
-            var chefVM = _chefRepo.GetChefsWithDetails().Find(c => c.User.UserId == _currentUserId);
+            var chef = _chefRepo.GetAll().FirstOrDefault(c => c.User.UserId == _currentUserId);
 
             if (HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail") == null)
             {
-                HttpContext.Session.SetObjectAsJson("CurrentUserEmail", chefVM.User.Email);
-                HttpContext.Session.SetObjectAsJson("CurrentUserName", chefVM.ChefName);
-                HttpContext.Session.SetObjectAsJson("CurrentUserBalance", chefVM.AccountBalance);
+                HttpContext.Session.SetObjectAsJson("CurrentUserEmail", chef.User.Email);
+                HttpContext.Session.SetObjectAsJson("CurrentUserName", $"{chef.FirstName} {chef.LastName}");
+                HttpContext.Session.SetObjectAsJson("CurrentUserBalance", chef.AccountBalance);
             }
             ViewBag.CurrentActive = currentPageName;
             ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
