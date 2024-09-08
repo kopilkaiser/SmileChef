@@ -1,9 +1,11 @@
-﻿namespace SmileChef.ViewModels
+﻿using ChefApp.Models.DbModels;
+
+namespace SmileChef.ViewModels
 {
     public class ChefSubsciptionViewModel
     {
-        public List<ChefViewModel> Chefs { get; set; } = new();
+        public List<Chef> Chefs { get; set; } = new();
 
-        public ChefViewModel? CurrentChef { get; set; }
+        public Chef? CurrentChef { get; set; }
     }
 }

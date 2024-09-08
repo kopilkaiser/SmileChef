@@ -96,7 +96,7 @@ namespace SmileChef.Controllers
             {
                 currentChefUserId = _httpContextAccessor.HttpContext.Session.GetObjectFromJson<int>("CurrentUserId");
             }
-            var chefs = (await _chefRepo.GetChefsWithDetailsAsync()).Where(c => c.User.UserId != currentChefUserId).OrderByDescending(c => c.Rating).ToList();
+            var chefs = _chefRepo.GetAll().Where(c => c.User.UserId != currentChefUserId).OrderByDescending(c => c.Rating).ToList();
             var currentChef = GetCurrentChef();
 
             ChefSubsciptionViewModel vm = new();
@@ -120,17 +120,17 @@ namespace SmileChef.Controllers
             AssignCurrentPageStatus("");
 
             if (chefId == 0) chefId = HttpContext.Session.GetObjectFromJson<int>("ChefIdToSubscribe");
-            var chefViewModel = (await _chefRepo.GetChefsWithDetailsAsync()).FirstOrDefault(c => c.ChefId == chefId);
+            var chef = _chefRepo.GetById(chefId);
             var loggedChef = GetCurrentChef();
 
-            bool isSubscribed = loggedChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == chefViewModel.ChefName) != null;
+            bool isSubscribed = loggedChef.SubscribedTo.FirstOrDefault(s => s.Publisher.ChefId == chef.ChefId) != null;
 
             ViewBag.IsSubscribed = isSubscribed;
 
             ViewBag.ShowSubscriptionModal = showSubscriptionModal;
             ViewBag.ShowUnsubscribedMessage = showUnsubscribedMessage;
 
-            return View(chefViewModel);
+            return View(chef);
         }
 
         [HttpGet]
@@ -139,9 +139,9 @@ namespace SmileChef.Controllers
             bool showUnsubscribedMessage = false;
 
             var currentChef = GetCurrentChef();
-            var destChef = (await _chefRepo.GetChefsWithDetailsAsync()).FirstOrDefault(c => c.ChefId == chefId);
+            var destChef = _chefRepo.GetById(chefId);
 
-            var subscription = currentChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == destChef.ChefName);
+            var subscription = currentChef.SubscribedTo.FirstOrDefault(s => s.Publisher.ChefId == destChef.ChefId);
             HttpContext.Session.SetObjectAsJson(key: "ChefIdToSubscribe", destChef.ChefId);
 
             if (subscription == null)
@@ -652,6 +652,7 @@ namespace SmileChef.Controllers
             var instructions = _session.GetObjectFromJson<List<Instruction>>("InstructionList");
             string message = "";
             TempData["RecipeSuccessMessage"] = recipe.RecipeId == 0 ? "Recipe added successfully" : "Recipe updated successfully";
+            var chef = GetCurrentChef();
             if (recipe.RecipeId == 0)
             {
                 if (recipePrice != 0)
@@ -666,12 +667,32 @@ namespace SmileChef.Controllers
                     };
 
                     _recipeRepo.Add(pr);
+
+                    foreach(var subscribers in chef.PublishedSubscriptions)
+                    {
+                        NotifySubscribers ns = new NotifySubscribers();
+                        ns.Subscriber = subscribers.Subscriber;
+                        ns.Publisher = chef;
+                        ns.PublishedDate = DateTime.Now;
+                        ns.Recipe = pr;
+                        _notifySubscribers.Add(ns);
+                    }
                 }
                 else
                 {
                     recipe.Instructions = instructions;
                     recipe.ChefId = _chefId;
                     _recipeRepo.Add(recipe);
+
+                    foreach (var subscribers in chef.PublishedSubscriptions)
+                    {
+                        NotifySubscribers ns = new NotifySubscribers();
+                        ns.Subscriber = subscribers.Subscriber;
+                        ns.Publisher = chef;
+                        ns.PublishedDate = DateTime.Now;
+                        ns.Recipe = recipe;
+                        _notifySubscribers.Add(ns);
+                    }
                 }
                 //means it is a new recipe
                 message = "Recipe have been added successfully";
@@ -1193,9 +1214,9 @@ namespace SmileChef.Controllers
             }
         }
 
-        private ChefViewModel GetCurrentChef()
+        private Chef GetCurrentChef()
         {
-            var chef = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.User.UserId == _currentUserId);
+            var chef = _chefRepo.GetAll().FirstOrDefault(c => c.User.UserId == _currentUserId);
             return chef;
         }
 

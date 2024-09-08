@@ -1,5 +1,6 @@
-﻿@using SmileChef.ViewModels;
-@model ChefViewModel
+﻿@using ChefApp.Models.DbModels
+@using SmileChef.ViewModels;
+@model Chef
 
 @{
     var currentAction = Url.ActionContext.RouteData.Values["action"].ToString();
@@ -63,9 +64,9 @@
 
 <div id="chefDetailsContainer" class="container rounded-2">
     <div class="row p-3">
-        <h1 class="col-12">@Model.ChefName</h1>
+        <h1 class="col-12">@($"{Model.FirstName} {Model.LastName}")</h1>
         <div class="col-12">
-            <img id="chefImage" class="img-thumbnail" src="~/images/chef.png" alt="@Model.ChefName Picture">
+            <img id="chefImage" class="img-thumbnail" src="~/images/chef.png" alt="@($"{Model.FirstName} {Model.LastName}") Picture">
         </div>
         <div class="col-12 d-flex align-items-center gap-0 mt-2">
             <span class="pe-2 small">Rating: </span>

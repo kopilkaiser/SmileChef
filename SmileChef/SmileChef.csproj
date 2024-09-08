@@ -15,13 +15,7 @@
     <OutputPath>$(SolutionDir)bin\Instance2\</OutputPath>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="ML\ImageAI\Data\**" />
-    <Content Remove="ML\ImageAI\Data\**" />
-    <EmbeddedResource Remove="ML\ImageAI\Data\**" />
-    <None Remove="ML\ImageAI\Data\**" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="CsvHelper" Version="33.0.1" />
@@ -57,11 +51,37 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
+  <!--<ItemGroup>
     <Folder Include="ML\ImageAI\Model\" />
     <Folder Include="ML\RecipeAI\Model\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ML\ImageAI\Data\**" />
+    <Content Remove="ML\ImageAI\Data\**" />
+    <EmbeddedResource Remove="ML\ImageAI\Data\**" />
+    <None Remove="ML\ImageAI\Data\**" />
+  </ItemGroup>-->
+
+  <!-- Ensure all files in ML\ImageAI and ML\RecipeAI are copied -->
+  <ItemGroup>
+    <!-- Include all files in ML\ImageAI -->
+    <None Update="ML\ImageAI\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <!-- Include all files in ML\RecipeAI -->
+    <None Update="ML\RecipeAI\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <!-- Include all files in wwwroot -->
+    <None Update="wwwroot\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
   <ItemGroup>
     <Content Update="Views\Home\Index_with_ajax_code.cshtml">

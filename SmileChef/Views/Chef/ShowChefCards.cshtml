@@ -68,10 +68,10 @@
                         <div class="card-header">
                             <div class="row align-items-center">
                                 <div class="col-auto">
-                                    <img class="img-thumbnail" src="~/images/chef.png" width="90" height="100" alt="@chef.ChefName Picture">
+                                    <img class="img-thumbnail" src="~/images/chef.png" width="90" height="100" alt="@(chef.FirstName + " " + chef.LastName) Picture">
                                 </div>
                                 <div class="col-auto">
-                                    <div class="col-12"><b class="pe-1">Name:</b> @chef.ChefName</div>
+                                    <div class="col-12"><b class="pe-1">Name:</b> @(chef.FirstName + " " + chef.LastName)</div>
                                     <div class="col-12">
                                         <b class="pe-1">Rating:</b>
                                         @for (int i = 0; i < @chef.Rating; i++)
@@ -90,7 +90,7 @@
                                 <a class="btn btn-info" asp-action="ViewChefDetails" asp-controller="Chef" asp-route-chefId="@chef.ChefId">View More</a>
                                 <a class="btn btn-success" asp-action="ManageSubscription" asp-route-chefId="@chef.ChefId" asp-route-returnUrl="@currentAction">
                                     @{
-                                        var isChefSubscribed = Model.CurrentChef.SubscribedTo.FirstOrDefault(s => s.PublisherName == chef.ChefName);
+                                        var isChefSubscribed = Model.CurrentChef.SubscribedTo.FirstOrDefault(s => s.Publisher.ChefId == chef.ChefId);
                                     }
                                     @( isChefSubscribed  == null ? "Subscribe" : "Unsubscribe")
                                 </a>
@@ -164,7 +164,6 @@
                                     console.log(`window.location.pathname: ${window.location.pathname}`);
                                     console.log(`window.location.search: ${window.location.search}`);
                                     console.log(`window.location.hash: ${window.location.hash}`);
-
                                     window.location.href = window.location.pathname;
                                 }
                             });
