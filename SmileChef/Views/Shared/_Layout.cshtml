@@ -63,14 +63,14 @@
                         
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Smart Chef
+                                Recipe Prediction
                             </a>
                             <ul class="dropdown-menu ps-1 pt-1 pb-0 border-0">
                                 <li class="dropdown-item p-0" id="homeNavButton">
-                                    <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "RecipeSmartAI" ? "active" : "")" asp-controller="Chef" asp-action="RecipeSmartAI">Recipe Prediction</a>
+                                    <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "RecipeSmartAI" ? "active" : "")" asp-controller="Chef" asp-action="RecipeSmartAI">Prediction with Ingredients</a>
                                 </li>
                                 <li class="dropdown-item p-0" id="homeNavButton">
-                                    <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "ImageSmartAI" ? "active" : "")" asp-controller="Chef" asp-action="ImageSmartAI">Image Prediction</a>
+                                    <a class="nav-link text-dark p-1 rounded-1 @(ViewBag.CurrentActive == "ImageSmartAI" ? "active" : "")" asp-controller="Chef" asp-action="ImageSmartAI">Prediction with Image</a>
                                 </li>                                @* <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="#">Something else here</a></li> *@
                             </ul>

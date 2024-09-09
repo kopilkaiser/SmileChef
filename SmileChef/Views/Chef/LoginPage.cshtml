@@ -41,7 +41,7 @@
                 </div>
                 <div class="col-auto text-start text-md-end p-0">
                         <a class="btn btn-info text-black " asp-action="RegisterPage" asp-controller="Chef">Register</a>
-                        <a class="btn btn-sm btn-secondary btn-lg fs-6" href="javascript:void(0)">Reset Password</a>
+                        <a id="anchorResetPassword" class="btn btn-sm btn-secondary btn-lg fs-6" href="javascript:void(0)">Reset Password</a>
                 </div>
             </div>
             <div class="row mx-auto mt-3 justify-content-end">
@@ -55,6 +55,46 @@
         </div>
     }
 </div>
+
+<!-- #region Submit Email Modal -->
+<div class="modal" tabindex="-1" id="submitEmailModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Enter registered Email Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input id="tbEmailAddr" class="form-control" type="email" value="" placeholder="Enter Email Address" required />
+            </div>
+            <div class="modal-footer">
+                <button id="btnSubmitEmail" type="button" class="btn btn-primary">Confirm Email</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion Submit Email Modal -->
+
+<!-- #region Reset Password Modal -->
+<div class="modal" tabindex="-1" id="resetPasswordModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Enter new Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input id="hfEmailAddr" type="hidden"/>
+                <input class="form-control" id="tbPass" type="password" value="" placeholder="Enter new Password"/>
+                <input class="form-control mt-2" id="tbConfirmPass" type="password" value="" placeholder="Confirm Password" />
+            </div>
+            <div class="modal-footer">
+                <button id="btnResetPassword" type="button" class="btn btn-primary">Reset Password</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion Reset Password Modal -->
 
 @section Scripts {
     <script>
@@ -88,6 +128,129 @@
                 });
             }
 
+            // show the Submit Email Modal;
+            $('#anchorResetPassword').on('click', function () {
+                $('#submitEmailModal').modal('show');
+                $('#tbEmailAddr').focus();
+            });
+
+            // #region Submit Email AJAX Request Process
+
+            // Prevent the button from ever receiving focus
+            $('#btnSubmitEmail').on('mousedown focus', function (e) {
+                e.preventDefault();
+            });
+
+            $('#btnSubmitEmail').on('click', function (e) {
+                e.preventDefault();
+                let email = $('#tbEmailAddr').val();
+                if(!email){
+                    Swal.fire({
+                        title: "Invalid Email",
+                        text: "Email address field is required",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    }).then((result) => { });
+                    return;
+                }
+                $.ajax({
+                    type : "POST",
+                    url : '@Url.Action("VerifyEmailAddress", "Chef")',
+                    data: { emailAddress: email },
+                    success: function (response) {
+                        if(response.success){
+                            Swal.fire({
+                                title: response.message,
+                                text: "Please proceed providing new password",
+                                icon: "success",
+                                confirmButtonText: "Sure"
+                            }).then((result) => {
+                                $('#hfEmailAddr').val(email);
+                                $('#submitEmailModal').modal('hide');
+                                $('#resetPasswordModal').modal('show');
+                                $('#tbPass').focus();
+                            });
+                        }else{
+                            Swal.fire({
+                                title: response.message,
+                                text: "No Email registered with the given Email Address",
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            }).then((result) => {
+                                setTimeout(() => {
+                                    $('#tbEmailAddr').focus();
+                                }, 300)
+                            });
+                        }
+                    }
+                });
+            });
+            // #endregion
+
+            // #region RESET PASSWORD ajax Request
+            $('#btnResetPassword').on('click', function (e) {
+                e.preventDefault();
+                let password = $('#tbPass').val();
+                let confirmPassword = $('#tbConfirmPass').val();
+                let email = $('#hfEmailAddr').val();
+                if (!password) {
+                    Swal.fire({
+                        title: "Invalid Password",
+                        text: "Password field is required",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    }).then((result) => { });
+                    return;
+                } else if (!confirmPassword) {
+                    Swal.fire({
+                        title: "Invalid Confirm Password",
+                        text: "Confirm Password field is required",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    }).then((result) => {  });
+                    return;
+                }else if(password !== confirmPassword){
+                    Swal.fire({
+                        title: "Passwords need to match",
+                        text: "Password & Confirm Password do not match",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    }).then((result) => {  });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ResetPassword", "Chef")',
+                    data: { emailAddress: email, password : confirmPassword },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: response.message,
+                                text: "Please now proceed logging in with the new password",
+                                icon: "success",
+                                confirmButtonText: "OK"
+                            }).then((result) => {
+                                $('#tbPass').val('');
+                                $('#tbConfirmPass').val('');
+                                $('#hfEmailAddr').val('');
+                                $('#resetPasswordModal').modal('hide')
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Invalid Operation",
+                                text: response.message,
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            }).then((result) => {
+                               
+                            });
+                        }
+                    }
+                });
+            });
+            // #endregion
+
             // #region example of getting different dataTypes from MVC method into javaScript
             // Handle number (no quotes needed for numbers)
             let someNumber = Number('@(ViewBag.SomeNumber ?? 0)'); // Example number in ViewBag
@@ -97,6 +260,24 @@
             //console.log(`type of someNumber: ${typeof someNumber}, someBoolean: ${typeof someBoolean}`)
             //console.log(`value of someNumber: ${someNumber}, someBoolean: ${someBoolean}`)
             // #endregion
+
+            // this event will be triggered when the resetPasswordModal is dismissed or closed. 
+            // So we make sure we reset the fields to keep user interface interaction consistent
+            $('#resetPasswordModal').on('hidden.bs.modal', function () {
+                // This event triggers after the modal has been completely hidden.
+                // You can add your additional logic here
+                $('#tbPass').val('');
+                $('#tbConfirmPass').val('');
+                $('#hfEmailAddr').val('');
+            });
+
+            // this event will be triggered when the submitEmailModal is dismissed or closed.
+            $('#submitEmailModal').on('hidden.bs.modal', function () {
+                // This event triggers after the modal has been completely hidden.
+                // You can add your additional logic here
+                $('#tbEmailAddr').val('');
+            });
+
         });
     </script>
 }

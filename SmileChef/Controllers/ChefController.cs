@@ -220,6 +220,40 @@ namespace SmileChef.Controllers
         }
 
 
+        #region Reset Password
+        [HttpPost]
+        public async Task<IActionResult> VerifyEmailAddress(string emailAddress)
+        {
+            var isEmailValid = _chefRepo.GetAll().FirstOrDefault(c => c.User.Email == emailAddress) != null;
+
+            if (isEmailValid)
+            {
+                return Json(new { success = true, message = "Email address found" });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Email not found" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(string emailAddress, string password)
+        {
+            if(password == null || emailAddress == null)
+            {
+                return Json(new { success = false, message = "Invalid Email address or Password given" });
+            }
+            var chef = _chefRepo.GetAll().FirstOrDefault(c => c.User.Email == emailAddress);
+
+            chef.User.Password = password;
+            _chefRepo.Update(chef);
+
+            return Json(new { success = true, message = "Password has been reset successfully" });
+        }
+
+
+        #endregion
+
 
         #region Restaurant Management
 
