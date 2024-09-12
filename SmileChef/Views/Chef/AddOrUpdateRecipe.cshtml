@@ -27,7 +27,8 @@
 
         <div class="row">
             <label class="pb-1 lead" for="ImageUrl">Select your Recipe Image</label>
-            <input type="file" name="ImageUrl" id="ImageUrl" value="" onchange="previewFile()" />
+            <input id="hfImageUrl" type="hidden" name="ImageUrl" value="@Model.ImageUrl" />
+            <input type="file" id="ImageUrl" onchange="previewFile()" />
             <div class="my-2">
                 <img id="image-file-preview" src="#" alt="Image Preview" style="display: none; max-width: 200px; max-height: 200px;" />
             </div>
@@ -40,7 +41,7 @@
             </div>
             <div class="col-md-5">
                 <label class="lead pb-1" for="tbRecipePrice">Enter Recipe Price</label>
-                <input id="tbRecipePrice" class="form-control" type="number" min="0.01" max="999.99" step="0.01" value="" placeholder="Enter Recipe Price" required @(Model is PremiumRecipe ? "" : "disabled") />
+                <input id="tbRecipePrice" class="form-control" type="number" min="0.01" max="999.99" step="0.01" value="@(Model is PremiumRecipe pr ? pr.Price : "")" placeholder="Enter Recipe Price" required @(Model is PremiumRecipe ? "" : "disabled") />
             </div>
         </div>
 
@@ -93,6 +94,8 @@
             }, false);
 
             if (file) {
+                $('#hfImageUrl').val(file.name);
+                console.log(`value of hfImageUrl: ${$('#hfImageUrl').val()}`);
                 reader.readAsDataURL(file);
             }
         }
