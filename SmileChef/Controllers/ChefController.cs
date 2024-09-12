@@ -80,15 +80,24 @@ namespace SmileChef.Controllers
         {
             AssignChefAndUserId(userId);
             AssignCurrentPageStatus("ChefIndex");
-            var viewModel = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.User.UserId == _currentUserId);
-            var userNotifications = _notifySubscribers.GetAll().Where(n => n.SubscriberId == viewModel.ChefId);
-            if (userNotifications.Count() > 0) viewModel.Notifications = userNotifications.ToList();
-            else viewModel.Notifications = new List<NotifySubscribers>();
-            return View("ChefIndex", viewModel);
+            var allChefs = _chefRepo.GetAll();
+
+            var getCurrentChef = allChefs.FirstOrDefault(c => c.User.UserId == _currentUserId);
+            var userNotifications = _notifySubscribers.GetAll().Where(n => n.SubscriberId == getCurrentChef.ChefId);
+            if (userNotifications.Count() > 0) getCurrentChef.Notifications = userNotifications.ToList();
+            else getCurrentChef.Notifications = new List<NotifySubscribers>();
+
+            IndexViewModel vm = new IndexViewModel();
+            vm.CurrentChef = getCurrentChef;
+
+            vm.TopFiveChefs = allChefs.OrderByDescending(c => c.Rating).Take(5).ToList();
+
+
+            return View("ChefIndex", vm);
         }
 
         [HttpGet]
-        public async Task<IActionResult> ShowChefCards(bool showSubscriptionModal = false, bool showUnsubscribedMessage = false)
+        public async Task<IActionResult> ShowChefCards(bool showSubscriptionModal = false, bool showUnsubscribedMessage = false, decimal subscriptionCost = 0m)
         {
             AssignCurrentPageStatus("ShowChefCards");
             int currentChefUserId = -1;
@@ -109,13 +118,14 @@ namespace SmileChef.Controllers
             }
             else @ViewBag.ShowSubscriptionModal = false;
 
+            ViewBag.SubscriptionCost = subscriptionCost;
             ViewBag.ShowUnsubscribedMessage = showUnsubscribedMessage;
 
             return View(vm);
         }
 
         [HttpGet]
-        public async Task<IActionResult> ViewChefDetails(int chefId, bool showSubscriptionModal = false, bool showUnsubscribedMessage = false)
+        public async Task<IActionResult> ViewChefDetails(int chefId, bool showSubscriptionModal = false, bool showUnsubscribedMessage = false, decimal subscriptionCost = 0m)
         {
             AssignCurrentPageStatus("");
 
@@ -128,13 +138,14 @@ namespace SmileChef.Controllers
             ViewBag.IsSubscribed = isSubscribed;
 
             ViewBag.ShowSubscriptionModal = showSubscriptionModal;
+            ViewBag.SubscriptionCost = subscriptionCost;
             ViewBag.ShowUnsubscribedMessage = showUnsubscribedMessage;
 
             return View(chef);
         }
 
         [HttpGet]
-        public async Task<IActionResult> ManageSubscription(int chefId, string returnUrl)
+        public async Task<IActionResult> ManageSubscription(int chefId, string returnUrl, decimal subscriptionCost = 0m)
         {
             bool showUnsubscribedMessage = false;
 
@@ -147,7 +158,7 @@ namespace SmileChef.Controllers
             if (subscription == null)
             {
                 // means currentChef will subscribe to destChef (Subscript to subscription)
-                return RedirectToAction(returnUrl, new { showSubscriptionModal = true });
+                return RedirectToAction(returnUrl, new { showSubscriptionModal = true, subscriptionCost = subscriptionCost });
             }
             else
             {

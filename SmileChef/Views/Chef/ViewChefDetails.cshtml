@@ -35,18 +35,16 @@
             </div>
             <div class="modal-body">
                 <p>
-                    <span>Amount To Pay:</span>
-                    <select id="selectSubAmount">
-                        <option value="5.99" selected>£5.99</option>
-                        <option value="10.99">£10.99</option>
-                        <option value="15.99">£15.99</option>
+                    <label class="form-label" for="selectSubAmount">Amount to Pay:</label>
+                    <select class="form-select" id="selectSubAmount">
+                        <option value="@ViewBag.SubscriptionCost" selected>@ViewBag.SubscriptionCost.ToString("C2")</option>
+                       @*  <option value="10.99">£10.99</option>
+                        <option value="15.99">£15.99</option> *@
                     </select>
                 </p>
                 <p>
-                    <span>
-                        Subscription Type:
-                    </span>
-                    <select id="selectSubType">
+                    <label class="form-label" for="selectSubType">Subscription Type:</label>
+                    <select class="form-select" id="selectSubType">
                         <option value="Weekly" selected>Weekly</option>
                         <option value="Monthly">Monthly</option>
                         <option value="Yearly">Yearly</option>
@@ -79,7 +77,7 @@
             <p class="mt-2 mb-0">
                 @if (ViewBag.IsSubscribed != null && ViewBag.IsSubscribed is bool)
                 {
-                    <a class="btn btn-success" asp-action="ManageSubscription" asp-route-chefId="@Model.ChefId" asp-route-returnUrl="@currentAction">
+                    <a class="btn btn-success" asp-action="ManageSubscription" asp-route-chefId="@Model.ChefId" asp-route-returnUrl="@currentAction" asp-route-subscriptionCost="@Model.SubscriptionCost">
                         @(Convert.ToBoolean(ViewBag.IsSubscribed) ? "Unsubscribe" : "Subscribe")
                     </a>
                 }

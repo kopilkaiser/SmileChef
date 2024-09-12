@@ -1,11 +1,21 @@
-﻿@using SmileChef.Controllers;
-@using SmileChef.ViewModels;
-@model ChefViewModel;
+﻿@using SmileChef.ViewModels;
+@model IndexViewModel;
 @*ChefController.Index*@
 @*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 
+<style>
+    .custom-carousel-item-inner{
+        width: min(400px, 100vw);
+        min-height: 425px;
+        margin-inline: auto;
+      /*border: 2px solid black;*/    
+        border-radius: 2%;
+        display: flex;
+        justify-content: center;
+    }
+</style>
 
 @*#region NOTIFICATION LOGIC*@
 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasWithBackdrop" aria-labelledby="offcanvasWithBackdropLabel">
@@ -14,14 +24,14 @@
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        @if (Model.Notifications != null && Model.Notifications.Count == 0)
+        @if (Model.CurrentChef.Notifications != null && Model.CurrentChef.Notifications.Count == 0)
         {
             <p>No new notifications...</p>
         }
         else
         {
             <div class="row gap-2">
-                @foreach (var n in Model.Notifications)
+                @foreach (var n in Model.CurrentChef.Notifications)
                 {
                     <ul class="p-2 col-12 border border-black list-unstyled rounded-2">
                         <li class="text-end"><button onclick="dismissNotification(@n.Id)" class="btn btn-sm btn-danger"><i class="fa-solid fa-x"></i></button></li>
@@ -38,11 +48,133 @@
 @*#endregion NOTIFICATION LOGIC*@
 
 <div class="container-fluid mt-xl-2">
-    <div class="d-flex justify-content-start">
+    <div class="d-flex flex-column flex-md-row align-items-start gap-2 border p-2 rounded-1">
+        <div><i class="fa fa-circle-info pe-2 text-primary fs-5"></i><span class="fs-5">You have <b class="text-success">@Model.CurrentChef.Notifications.Count()</b> new notifications </span></div>
         <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBackdrop" aria-controls="offcanvasWithBackdrop">
             Show Notifications
         </button>
     </div>
+
+    <!-- #region Top Trending Recipes Carousel -->
+    <div class="mt-3">
+        <div class="lead fs-3">Top Trending Recipes</div>
+        <hr class="mt-1"/>
+        <div class="mt-3 d-flex justify-content-center" style="height: 60vh;">
+            <div class="col-md-10">
+                <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel" style="height: 100%;">
+                    <div class="carousel-indicators rounded-2" style="background-color: rgba(0,0,0, 0.6)">
+                        <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                    </div>
+                    <div class="carousel-inner rounded-2" style="height: inherit;">
+                        <div class="carousel-item active">
+                            <img src="~/images/recipe1.jpeg" class="img-fluid d-block rounded-2" style="width:100%; height: 100%; object-fit: cover;" alt="...">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="~/images/recipe2.jpeg" class="img-fluid d-block rounded-2" style="width:100%; height: 100%; object-fit: contain;" alt="...">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="~/images/recipe3.jpeg" class="img-fluid d-block rounded-2" style="width:100%; height: 100%; object-fit: cover;" alt="...">
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+                        <div class="rounded-5 p-1 d-flex align-items-center justify-content-center" style="background-color: rgba(0,0,0, 0.8)">
+                            <span class="carousel-control-prev-icon rounded-4" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </div>
+                        @* <span class="visually-hidden">Previous</span> *@
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+                        <div class="rounded-5 p-1 d-flex align-items-center justify-content-center" style="background-color: rgba(0,0,0, 0.8)">
+                            <span class="carousel-control-next-icon rounded-4" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </div>                    
+                   @*<span class="visually-hidden">Next</span>*@                
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- #region Top Trending Chefs Carousel -->
+    <div class="mt-3">
+        <div class="lead fs-3">Top Rated Chefs</div>
+        <hr class="mt-1" />
+        <div class="mt-3 d-flex justify-content-center" style="height: 60vh;">
+            <div class="col-md-10">
+                <div id="carouselExampleAutoplaying1" class="carousel slide"  style="height: 100%;">
+                    <div class="carousel-indicators rounded-2" style="background-color: rgba(0,0,0, 0.6)">
+                        @for(int i = 0; i < Model.TopFiveChefs.Count(); i ++)
+                        {
+                            <button type="button" data-bs-target="#carouselExampleAutoplaying1" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @i"></button>
+
+                        }
+                    </div>
+                    <div class="carousel-inner rounded-2" style="height: 100%;">
+                        <div class="carousel-inner rounded-2">
+                            @foreach(var c in Model.TopFiveChefs){
+                                <div class="carousel-item @(Model.TopFiveChefs.IndexOf(c) == 0 ? "active" : "") p-2" >
+                                    <div class="custom-carousel-item-inner">
+                                        <div class="card" style="width:100%;">
+                                            <div class="card-header bg-body-secondary">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="fs-5">
+                                                        @(c.FirstName + " " + c.LastName)
+                                                    </span>
+                                                    <div class="mt-1">
+                                                        @for (int i = 0; i < c.Rating; i++)
+                                                        {
+                                                            <span class="fw-bold fs-4 text-primary mt-1">*</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body text-center pt-1">
+                                                <div class="lead mb-1 fs-5">Chef's Top 5 Recipes: </div>                                                <ul class="list-group">
+                                                    @foreach(var recipe in c.Recipes.Take(5))
+                                                    {
+                                                        <li class="list-group-item">
+                                                            <a class="btn btn-link p-0" asp-action="ViewRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId">
+                                                                @recipe.Name
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                    <li class="list-group-item fs-6 mt-2 border-white rounded-2 p-1">
+                                                        <a class="btn btn-info" asp-action="ViewChefDetails" asp-controller="Chef" asp-route-chefId="@c.ChefId">
+                                                            View All Recipes
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="card-footer bg-body-secondary ">
+                                                <span class="fs-5">Total Recipes: <b>@(c.Recipes.Count())</b></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying1" data-bs-slide="prev">
+                        <div class="rounded-5 p-1 d-flex align-items-center justify-content-center" style="background-color: rgba(0,0,0, 0.8)">
+                            <span class="carousel-control-prev-icon rounded-4" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </div>
+                        @* <span class="visually-hidden">Previous</span> *@
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying1" data-bs-slide="next">
+                        <div class="rounded-5 p-1 d-flex align-items-center justify-content-center" style="background-color: rgba(0,0,0, 0.8)">
+                            <span class="carousel-control-next-icon rounded-4" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </div>
+                        @*<span class="visually-hidden">Next</span>*@
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- #endregion Top Trending Chefs Carousel -->
 </div>
 
 @section Scripts {

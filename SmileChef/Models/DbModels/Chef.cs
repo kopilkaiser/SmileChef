@@ -54,6 +54,9 @@ namespace ChefApp.Models.DbModels
 
         [ValidateNever]
         public Restaurant Restaurant { get; set; }
+
+        [NotMapped]
+        public List<NotifySubscribers> Notifications { get; set; } = new();
     }
 
     public class CustomRangeAttribute : ValidationAttribute

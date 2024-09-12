@@ -36,7 +36,7 @@
         <p>Name: <b class="fw-semibold">@Model.Name</b></p>
         <p>Publisher: <b class="fw-semibold">@Model.Chef.FirstName @Model.Chef.LastName</b></p>
     </div>
-    <div class="bg-body-tertiary mb-2 p-2">
+    <div class="bg-body-tertiary mb-3 p-2">
         <p class="fs-5 border-bottom border-3 border-secondary">Instructions</p>
         @if(Model.Instructions.Count == 0)
         {
@@ -60,7 +60,7 @@
             <input type="hidden" name="recipeId" value="@Model.RecipeId"/>
             <input type="hidden" name="chefId" value="@ViewBag.CurrentChefId" />
             <div class="mb-3">
-                <label for="reviewMessage" class="form-label">Example textarea</label>
+                <label for="reviewMessage" class="form-label">Add Your Review</label>
                 <textarea class="form-control" id="reviewMessage" name="reviewMessage" placeholder="Enter your review message here..." rows="4" style="resize: none;"></textarea>
             </div>
             <div><button class="btn btn-success" type="submit">Post Review</button></div>
