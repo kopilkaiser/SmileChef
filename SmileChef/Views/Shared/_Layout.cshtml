@@ -234,6 +234,7 @@
     @await RenderSectionAsync("Scripts", required: false)
     <!-- Scripts that depend on page-specific scripts -->
     <script>
+
         // #region Code to perform Account TopUp Balance logic
         function validateBalanceTextBox(tbElem){
             let $elem = $(tbElem);
@@ -301,6 +302,7 @@
             $('#predictedBalance').val(selectedBalance + userBalance);
         });
 
+        // Balance top-up process logic
         $('#processBalanceTopUp').click(() => {
             let checkedOption = $('input[name="balanceOption"]:checked').val();
             console.log(`value of checkedOption: ${checkedOption}`);
@@ -382,7 +384,6 @@
                 }
             })
         })
-
 
         // Show Quantity Selection Modal
         function showQuantityModal(anchorElem) {
@@ -559,7 +560,13 @@
         });
         // #endregion
 
+       
+
+        // $(document).on('ready', function(){
+        // 
+        // });
         $(() => {
+
             // #region Retrieving the current session Order
             $.ajax({
                 type: "POST",
@@ -589,6 +596,39 @@
                         icon: "error"
                     });
                 }
+            });
+            // #endregion
+
+            // #region Add Review to Recipe
+            $(document).on('submit', '#addReviewForm', function () {
+                event.preventDefault();
+
+                var formData = $(this).serialize();
+                $.ajax({
+                    type: "POST",
+                    url: "/Chef/AddReview",
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    dataType: "html",
+                    data: formData,
+                    success: function (response) {
+                        $('#reviewMessage').val('');
+                        $('#reviewsContainer').html(response);
+                        Swal.fire({
+                            title: "",
+                            text: "Your Review has been posted successfully",
+                            icon: "success"
+                        })
+                    },
+                    error: function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText;
+                        console.log('Error - ' + errorMessage);
+                        Swal.fire({
+                            title: "Error Occurred",
+                            text: errorMessage,
+                            icon: "error"
+                        });
+                    }
+                });
             });
             // #endregion
 

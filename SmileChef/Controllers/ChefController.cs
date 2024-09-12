@@ -710,6 +710,7 @@ namespace SmileChef.Controllers
                     {
                         ChefId = _chefId,
                         Name = recipe.Name,
+                        ImageUrl = recipe.ImageUrl,
                         Price = (float)recipePrice,
                         RecipeType = RecipeType.Premium,
                         Instructions = instructions
@@ -756,6 +757,7 @@ namespace SmileChef.Controllers
                     if (existingPremiumRecipe != null)
                     {
                         existingPremiumRecipe.Name = recipe.Name;
+                        existingPremiumRecipe.ImageUrl = recipe.ImageUrl;
                         existingPremiumRecipe.Price = (float)recipePrice;
                         existingPremiumRecipe.Instructions = instructions;
                         foreach (var i in existingPremiumRecipe.Instructions) i.Recipe = existingPremiumRecipe;
@@ -769,6 +771,7 @@ namespace SmileChef.Controllers
                     if (existingRecipe != null)
                     {
                         existingRecipe.Name = recipe.Name;
+                        existingRecipe.ImageUrl = recipe.ImageUrl;
                         existingRecipe.Instructions = instructions;
                         existingRecipe.ChefId = _chefId;
                         foreach (var i in existingRecipe.Instructions) i.Recipe = existingRecipe;
@@ -835,10 +838,7 @@ namespace SmileChef.Controllers
         public IActionResult AddReview(string reviewMessage, int recipeId, int chefId)
         {
             var recipe = _recipeRepo.GetById(recipeId);
-
             var reviewer = _chefRepo.GetById(chefId);
-
-            
 
             Review newReview = new Review
             {
@@ -927,15 +927,6 @@ namespace SmileChef.Controllers
         public IActionResult ImageSmartAI()
         {
             AssignCurrentPageStatus("ImageSmartAI");
-
-            _currentUserId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUser");
-
-            if (_currentUserId == 0)
-            {
-                _currentUserId = 1; // Default user ID if not set
-                HttpContext.Session.SetObjectAsJson("CurrentUserId", _currentUserId);
-            }
-
             return View();
         }
 
@@ -999,6 +990,7 @@ namespace SmileChef.Controllers
         public async Task<IActionResult> GetRecipeViewPartial(int recipeId)
         {
             var recipe = _recipeRepo.GetById(recipeId);
+            ViewBag.CurrentChefId = GetCurrentChef().ChefId;
             return PartialView("_ViewRecipePartial", recipe);
         }
         #endregion

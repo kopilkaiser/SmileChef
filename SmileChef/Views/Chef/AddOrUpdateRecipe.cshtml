@@ -4,26 +4,42 @@
 
 @using(Html.BeginForm("SaveRecipe", "Chef", FormMethod.Post, new { @id = "recipeOperationForm"}))
 {
-    <div class="row gap-3">
+    <div class="row gap-2">
         <input id="hfRecipeId" type="hidden" name="RecipeId" value="@Model.RecipeId"/>
         <input id="hfRecipePrice" name="recipePrice" type="hidden"/>
+
         <div class="col-12">
             <h4>@(Model.RecipeId == 0 ? "Add" : "Update") Recipe</h4>
             <hr class="my-1">
         </div>
+
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <div class="fs-5 lead">Current Recipe Image</div>
+            <div class="col-md-6">
+                <img src="@Url.Content($"~/images/{Model.ImageUrl}")" title="@Model.ImageUrl" />
+            </div>
+        }
         <div class="col-6">
+            <label class="lead pb-1" for="tbRecipeName">Enter Recipe Name</label>
             @Html.TextBoxFor(m => m.Name, "",new { @id = "tbRecipeName", @class="form-control", @placeholder = "Enter your recipe Name", @required = true})
-            
         </div>
 
         <div class="row">
-            <div class="w-100 pb-1 lead">
-                Select Recipe Type
+            <label class="pb-1 lead" for="ImageUrl">Select your Recipe Image</label>
+            <input type="file" name="ImageUrl" id="ImageUrl" value="" onchange="previewFile()" />
+            <div class="my-2">
+                <img id="image-file-preview" src="#" alt="Image Preview" style="display: none; max-width: 200px; max-height: 200px;" />
             </div>
-            <div class="col-md-6">
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <label class="lead pb-1" for="selectRecipeType">Select Recipe Type</label>
                 @Html.DropDownListFor(m => m.RecipeType, new SelectList(new string[] { "Basic", "Premium" }) { }, new { @id = "selectRecipeType", @class = "form-control", @placeholder = "Enter Recipe Name" })
             </div>
-            <div class="col-md-4 mt-2 mt-md-0">
+            <div class="col-md-5">
+                <label class="lead pb-1" for="tbRecipePrice">Enter Recipe Price</label>
                 <input id="tbRecipePrice" class="form-control" type="number" min="0.01" max="999.99" step="0.01" value="" placeholder="Enter Recipe Price" required @(Model is PremiumRecipe ? "" : "disabled") />
             </div>
         </div>
@@ -64,6 +80,23 @@
 
 @section Scripts{
     <script>
+
+        function previewFile() {
+            const preview = document.getElementById('image-file-preview');
+            const file = document.getElementById('ImageUrl').files[0];
+            const reader = new FileReader();
+
+            reader.addEventListener("load", function () {
+                // Convert image file to base64 string
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            }, false);
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
         $(() => {
 
             $(document).on('click', '#instructionsListContainer .deleteInstruction', function () {

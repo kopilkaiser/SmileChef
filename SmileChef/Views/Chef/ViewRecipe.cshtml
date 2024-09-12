@@ -19,7 +19,7 @@
 <div class="container-md">
     <div class="row mx-auto justify-content-lg-center">
         <div class="col-lg-6 bg-white border border-2 p-2 rounded-2">
-            <img class="img-fluid" src="@(string.IsNullOrEmpty(Model.ImageUrl) ? Url.Content("~/images/nophoto.jpeg") : Url.Content($"~/images/{Model.ImageUrl}"))" alt="@Model.Name" style="height: 400px; width: 100%; object-fit:cover;" />
+            <img class="img-fluid" src="@(string.IsNullOrEmpty(Model.ImageUrl) ? Url.Content("~/images/nophoto.jpeg") : Url.Content($"~/images/{Model.ImageUrl}"))" alt="@Model.Name" style="height: 400px; width: 100%; object-fit:contain;" />
         </div>
     </div>
     <div class="bg-body-tertiary my-2 p-2">
@@ -73,6 +73,7 @@
 @section Scripts{
     <script>
         $(document).ready(function () {
+            /*
             $("#addReviewForm").on('submit', function(){
                 event.preventDefault();
 
@@ -103,6 +104,7 @@
                     }
                 });
             })
+            */
         });
     </script>
 }
