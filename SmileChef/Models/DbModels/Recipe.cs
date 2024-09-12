@@ -25,5 +25,7 @@ namespace ChefApp.Models.DbModels
         public List<Review> Reviews { get; set; } = new();
 
         public RecipeType RecipeType { get; set; }
+
+        public string? ImageUrl { get; set; }
     }
 }

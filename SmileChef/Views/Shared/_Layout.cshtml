@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ChefApp</title>
+    <title>@ViewData["Title"] - SmileChef</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -193,6 +193,32 @@
     </div>
     <!-- #endregion: Account TopUp Modal -->
 
+    <!-- #region: Show Cart Quantity Modal -->
+    <div class="modal" tabindex="-1" id="showQuantityModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Item Quantity</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input id="hfRecipeId" type="hidden" />
+                    <div><p>Adding to Cart Item: <span class="fw-bold" id="spanRecipeName"></span></p></div>
+                    <div><p>Price: <span id="spanRecipePrice"></span></p></div>
+                    <div class="form-group">
+                        <label class="form-label" for="tbOrderLineQuantity">Select Quantity: </label>
+                        <input class="form-control w-25 d-inline-block" id="tbOrderLineQuantity" type="number" min="1" max="999" step="1" value="" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @* <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> *@
+                    <button id="btnSaveRecipeToCart" type="button" class="btn btn-primary">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- #endregion: Show Cart Quantity Modal -->
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js"></script>
@@ -357,15 +383,225 @@
             })
         })
 
-        $(() => {
-            $('#cartLiElement').addClass('d-none');
-            let currentActionValue = '@Url.ActionContext.RouteData.Values["action"]';
-            if (currentActionValue === 'ViewRecipeMarket') {
-                $('#cartLiElement').removeClass('d-none');
-                $('#userDetailsLiElem').removeClass('ms-xl-auto');
-            }else{
-                $('#userDetailsLiElem').addClass('ms-xl-auto');
+
+        // Show Quantity Selection Modal
+        function showQuantityModal(anchorElem) {
+            let $anchorElem = $(anchorElem);
+            let recipeName = $anchorElem.data('recipe-name');
+            let recipePrice = $anchorElem.data('recipe-price');
+            let recipeId = $anchorElem.data('recipe-id');
+
+            $('#hfRecipeId').val(recipeId);
+            $('#spanRecipeName').text(recipeName);
+            $('#spanRecipePrice').text(recipePrice);
+            $('#tbOrderLineQuantity').val('1');
+            $('#showQuantityModal').modal('show');
+        }
+
+        // Removing Existing OrderLine from the Cart
+        function removeOrderLine(indexOfOrderLine) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("RemoveOrderLine")',
+                dataType: "json",
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                data: { aIndexOfOrderLine: indexOfOrderLine },
+                success: function (response) {
+                    if (response.success) {
+                        $('#orderDetailsContainer').empty().html(response.partialView);
+                        Swal.fire({
+                            title: "Successful",
+                            text: response.message,
+                            icon: "success"
+                        });
+                    } else {
+                        console.log(response);
+                        Swal.fire({
+                            title: "Invalid Operation",
+                            text: response.message,
+                            icon: "warning"
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                    console.log(`Error - ${errorMessage}`)
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                        icon: "error"
+                    });
+                }
+            });
+        }
+
+        // #region Performing CheckOut of Cart
+        $(document).on('click', '#btnCheckoutCart', () => {
+            let totalPrice = parseFloat($('#txtTotalPrice').text().replace('£', '').replace(/,/g, ''));
+            let totalBalance = $('#spanAccountBalance').text();
+            console.log(`value of totalBalance: ${totalBalance}`);
+            // Remove the currency symbol and commas, then parse the result as a float
+            let currentBalance = parseFloat(totalBalance.replace('£', '').replace(/,/g, ''));
+            console.log(`value of currentBalance: ${currentBalance}`);
+            if (totalPrice !== 0.00) {
+                const formattedBalance = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(currentBalance);
+                const formattedTotalPrice = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(totalPrice);
+                Swal.fire({
+                    title: "Confirmation",
+                    html:
+                        `
+                                    <p class="fs-4 mb-3">Current Balance: <b class="text-success">${formattedBalance}</b></p>
+                                    <p class="mb-2 fs-5">Total <b class="text-danger fw-bold">${formattedTotalPrice}</b> will be deducted from your balance</p>
+                                    <p class="text-black fw-semibold">Are you sure to place the order?</p>
+                                `,
+                    icon: "info",
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, checkout!',
+                    cancelButtonText: 'No, cancel!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // User confirmed, proceed with the AJAX request
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("CheckoutOrder")',
+                            dataType: "json",
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (response) {
+                                if (response.success) {
+                                    let formattedAccountBalance = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(response.accountBalance);
+                                    $('#orderDetailsContainer').empty().html(response.partialView);
+                                    $('#spanAccountBalance').text(`${formattedAccountBalance}`)
+                                    Swal.fire({
+                                        title: "Success",
+                                        html: response.message,
+                                        icon: "success"
+                                    }).then((result) => {
+                                        let dropDown = new bootstrap.Dropdown($('#anchorOrderDetails')[0]);
+                                        if (result.isConfirmed) {
+                                            console.log(`sweetalert was confirmed OK`);
+                                            dropDown.hide();
+                                        } else if (result.dismiss === Swal.DismissReason.close) {
+                                            console.log(`sweetalert was dismissed by clicking outside`);
+                                            dropDown.hide();
+                                        }
+                                    });
+                                } else {
+                                    console.log(response);
+                                    Swal.fire({
+                                        title: "Invalid Operation",
+                                        text: response.message,
+                                        icon: "error"
+                                    });
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                                console.log(`Error - ${errorMessage}`)
+                                Swal.fire({
+                                    title: "Error Occurred",
+                                    text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                                    icon: "error"
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: "Information",
+                    text: "No item has been added yet to checkout",
+                    icon: "info"
+                })
             }
+        });
+        // #endregion
+
+        // #region Performing Adding Recipes(OrderLine) to Cart
+        $(document).on('click', '#btnSaveRecipeToCart', () => {
+            let orderLineQuantity = $('#tbOrderLineQuantity').val();
+            let recipeId = $('#hfRecipeId').val();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AddOrderLine")',
+                dataType: "json",
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                data: { aRecipeId: recipeId, aQuantity: orderLineQuantity },
+                success: function (response) {
+                    if (response.success) {
+                        //console.log(response);
+                        $('#orderDetailsContainer').empty().html(response.partialView);
+                        Swal.fire({
+                            title: "Successful",
+                            text: response.message,
+                            icon: "success"
+                        });
+                        $('#tbOrderLineQuantity').val('1');
+                        $('#showQuantityModal').modal('hide');
+                    } else {
+                        console.log(response);
+                        Swal.fire({
+                            title: "Invalid Operation",
+                            text: response.message,
+                            icon: "warning"
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                    console.log(`Error - ${errorMessage}`)
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                        icon: "error"
+                    });
+                }
+            });
+        });
+        // #endregion
+
+        $(() => {
+            // #region Retrieving the current session Order
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetCurrentCart")',
+                dataType: "json",
+                success: function (response) {
+                    if ($.isEmptyObject(response) || !response.partialView) {
+                        // If the response is empty or does not contain the partialView property
+                        console.log("Cart is empty.");
+                        // Swal.fire({
+                        //     title: "Information",
+                        //     text: "Your cart is currently empty.",
+                        //     icon: "info"
+                        // });
+                    } else {
+                        // If the response contains the partialView
+                        console.log("Cart has been loaded.");
+                        $('#orderDetailsContainer').empty().html(response.partialView);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                    console.log(`Error - ${errorMessage}`);
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                        icon: "error"
+                    });
+                }
+            });
+            // #endregion
+
+            // #region Code to hide OrderDetails Navigation button
+            // $('#cartLiElement').addClass('d-none');
+            // let currentActionValue = '@Url.ActionContext.RouteData.Values["action"]';
+            // if (currentActionValue === 'ViewRecipeMarket') {
+            //     $('#cartLiElement').removeClass('d-none');
+            //     $('#userDetailsLiElem').removeClass('ms-xl-auto');
+            // }else{
+            //     $('#userDetailsLiElem').addClass('ms-xl-auto');
+            // }
+            // #endregion
         });
         // #endregion
     </script>

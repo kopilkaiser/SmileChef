@@ -1,6 +1,7 @@
 ﻿using ChefApp.Models;
 using ChefApp.Models.DbModels;
 using Microsoft.EntityFrameworkCore;
+using SmileChef.Models.DbModels;
 
 namespace SmileChef.Repository
 {

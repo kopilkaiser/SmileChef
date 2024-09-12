@@ -65,6 +65,13 @@ footer {
 }
 
 
+#recipeTrendingCarousel #imageSlider {
+    width: 60%;
+    height: auto;
+    margin: 0 auto;
+}
+
+
 
 /* 
     Extra Small (xs): <576px - Navbar is collapsed.
@@ -74,11 +81,18 @@ footer {
     Extra Large (xl): ≥1200px - Navbar is expanded.
     Extra Extra Large (xxl): ≥1400px - Navbar is expanded
 */
+@media(max-width: 1310px) {
+
+}
 
 @media(max-width: 1199px) {
     main {
         padding-top: 50px; /* Adjust if needed for your navbar height */
     }
+}
+
+@media (max-width: 991px) {
+
 }
 
 
@@ -114,6 +128,12 @@ footer {
     }
 
 }
+
+/*@media (max-width: 460px ) {
+    #recipeTrendingCarousel #imageSlider {
+        height: auto;
+    }
+}*/
 
     /*.navbar {
     position: fixed;

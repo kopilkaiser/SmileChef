@@ -19,6 +19,7 @@ using System.Linq;
 using Google.Protobuf.Collections;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace SmileChef.Controllers
 {
@@ -462,6 +463,9 @@ namespace SmileChef.Controllers
         {
             AssignCurrentPageStatus("ManageProfile");
             var chef = _chefRepo.GetById(_chefId);
+
+            if (chef.Restaurant == null) chef.Restaurant = new Restaurant();
+
             return View(chef);
         }
 
@@ -833,6 +837,8 @@ namespace SmileChef.Controllers
             var recipe = _recipeRepo.GetById(recipeId);
 
             var reviewer = _chefRepo.GetById(chefId);
+
+            
 
             Review newReview = new Review
             {

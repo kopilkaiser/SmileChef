@@ -28,9 +28,9 @@
             @if (Model is PremiumRecipe premiumRecipe)
             {
                 <span class="col-auto">Price: <b class="fw-semibold">@premiumRecipe.Price</b></span>
-                <div class="col-12 col-sm-auto ms-sm-auto ms-xl-0">
+                @* <div class="col-12 col-sm-auto ms-sm-auto ms-xl-0">
                     <a class="btn btn-primary" href="#">Add to Cart</a><!-- Need to implement after Order, Orderline is implemented -->
-                </div>
+                </div> *@
             }
         </div>
         <p>Name: <b class="fw-semibold">@Model.Name</b></p>
@@ -57,7 +57,7 @@
             </ol>
         }
     </div>
-    <div id="addReviewContainer" class="mb-2">
+    @* <div id="addReviewContainer" class="mb-2">
         <form id="addReviewForm">
             <input type="hidden" name="recipeId" value="@Model.RecipeId" />
             <input type="hidden" name="chefId" value="@ViewBag.CurrentChefId" />
@@ -70,7 +70,7 @@
     </div>
     <div id="reviewsContainer" class="bg-body-tertiary mb-2 p-2">
         @await Html.PartialAsync("_ViewRecipeReviews", Model.Reviews)
-    </div>
+    </div> *@
 
     @section Scripts {
         <script>

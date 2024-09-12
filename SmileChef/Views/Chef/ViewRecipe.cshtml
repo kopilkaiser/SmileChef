@@ -19,7 +19,7 @@
 <div class="container-md">
     <div class="row mx-auto justify-content-lg-center">
         <div class="col-lg-6 bg-white border border-2 p-2 rounded-2">
-            <img class="img-fluid" src="~/images/recipe1.jpeg" alt="@Model.Name" style="height: 400px; width: 100%; object-fit:cover;" />
+            <img class="img-fluid" src="@(string.IsNullOrEmpty(Model.ImageUrl) ? Url.Content("~/images/nophoto.jpeg") : Url.Content($"~/images/{Model.ImageUrl}"))" alt="@Model.Name" style="height: 400px; width: 100%; object-fit:cover;" />
         </div>
     </div>
     <div class="bg-body-tertiary my-2 p-2">
@@ -29,7 +29,7 @@
             {
                 <span class="col-auto">Price: <b class="fw-semibold">@premiumRecipe.Price</b></span>
                 <div class="col-12 col-sm-auto ms-sm-auto ms-xl-0">
-                        <a class="btn btn-primary" href="#">Add to Cart</a><!-- Need to implement after Order, Orderline is implemented -->
+                    <a class="btn btn-primary anchorCartButton" href="javascript:void(0)" data-recipe-name="@premiumRecipe.Name" data-recipe-price="@premiumRecipe.Price" data-recipe-id="@premiumRecipe.RecipeId" onclick="showQuantityModal(this)">Add to Cart</a>
                 </div>
             }
         </div>

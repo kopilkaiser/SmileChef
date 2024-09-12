@@ -4,6 +4,7 @@ using ChefApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SmileChef.Migrations
 {
     [DbContext(typeof(ChefAppContext))]
-    partial class ChefAppContextModelSnapshot : ModelSnapshot
+    [Migration("20240912162448_Added_ImageUrl_for_Recipes")]
+    partial class Added_ImageUrl_for_Recipes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
