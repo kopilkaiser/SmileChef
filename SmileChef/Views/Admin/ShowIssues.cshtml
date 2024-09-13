@@ -7,7 +7,21 @@
 @{
     Layout = "_LayoutAdmin";
 }
-
+<div class="mb-2 row">
+    <div class="col-md-6">
+        <input id="inputSearchIssues" class="form-control" type="search" value="" placeholder="Search Issues by Sender Email" />
+    </div>
+    @* <div class="col-md-4">
+        <button class="btn btn-success"><i class="fa fa-search pe-2"></i>Search</button>
+    </div> *@
+    <div class="w-100 mb-2"></div>
+    <div class="col-md-6">
+        <label class="pb-1 lead fs-6" for="filterIssuesByStatus">Select Issue type</label>
+        <select class="form-control" id="filterIssuesByStatus" asp-items="ViewBag.SelectStatusList">
+           
+        </select>
+    </div>
+</div>
 <div id="issuesContainer" class="container-md">
     @await Html.PartialAsync("_SupportMessagesPartial", Model)
 </div>
@@ -23,16 +37,88 @@
             let wrapperElem = anchorElem.closest('div.row');
             let adminTextBox = wrapperElem.find('input#tbAdminMessage');
 
-            let supportId = wrapperElem.data('support-id');
-            var text = adminTextBox.val();
-            console.log(`value of text: ${text}`)
-            if (!text) {
+            let supportMessageId = wrapperElem.data('support-id');
+            var adminMessage = adminTextBox.val();
+            console.log(`value of adminMessage: ${adminMessage}`);
+            if (!adminMessage) {
                 Swal.fire({
                     title : "Important notice",
-                    text: `Need valid Message from admin for Support ID: ${supportId}`,
+                    text: `Need valid Message from admin for Support ID: ${supportMessageId}`,
                     icon : "error"
                 })
+                return;
             }
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ResoleIssue")',
+                data: { supportMessageId: supportMessageId, adminMessage: adminMessage },
+                dataType: "html",
+                success: function (response) {
+                    $('#issuesContainer').empty().html(response);
+                },
+                error: function (xhr, status, error) {
+                    let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                    console.log(`Error - ${errorMessage}`)
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                        icon: "error"
+                    });
+                }
+            });
+        });
+        // #endregion
+
+        // #region Filtering Issues by Sender Email
+        $(document).on('input', '#inputSearchIssues', function () {
+            let givenEmail = $(this).val();
+            console.log(givenEmail);
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("FilterIssuesByEmail")',
+                data: { senderEmail : givenEmail },
+                dataType: "html",
+                success: function (response) {
+                    $('#issuesContainer').empty().html(response);
+                },
+                error: function (xhr, status, error) {
+                    let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                    console.log(`Error - ${errorMessage}`)
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                        icon: "error"
+                    });
+                }
+            });
+        });
+        // #endregion
+
+        // #region Filtering Issues by Issue Type
+        $(document).on('change', '#filterIssuesByStatus', function () {
+            let selectedStatus = $(this).val();
+            console.log("value: " + selectedStatus + ", type: " + typeof selectedStatus)
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("FilterIssuesByStatus")',
+                data: { status: selectedStatus },
+                dataType: "html",
+                success: function (response) {
+                    $('#issuesContainer').empty().html(response);
+                },
+                error: function (xhr, status, error) {
+                    let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                    console.log(`Error - ${errorMessage}`)
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                        icon: "error"
+                    });
+                }
+            });
         });
         // #endregion
     </script>

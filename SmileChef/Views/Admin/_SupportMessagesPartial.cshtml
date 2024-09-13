@@ -7,11 +7,12 @@
 
 @if(Model.Count > 0)
 {
+   
     @foreach(var sm in Model)
     {
         <div class="row mb-2 border gap-1 p-3" data-support-id="@sm.SupportMessageId">
-            <div class="col-12 d-flex justify-content-between">
-                <span>Support ID: <b>@sm.SupportMessageId</b></span>
+            <div class="col-12 d-flex justify-content-between border p-1 rounded-2">
+                <div><span class="me-4 fs-5">Support Id: <b>@sm.SupportMessageId</b></span><span>Current status: <b class="@(sm.SupportStatus == SupportStatus.Ongoing ? "text-danger" : "text-success")">@sm.SupportStatus</b></span></div>
                 <div>
                     @if(sm.SupportStatus == SupportStatus.Ongoing){
                         <a class="btn btn-info btn-sm" href="javascript:void(0)" data-type="resolve">Resolve</a>
@@ -24,11 +25,18 @@
                 <p class="mb-1">Submitted By: <b>@sm.Sender.User.Email</b></p>
                 <p class="mb-1">Subject: <b>@sm.Subject</b></p>
                 <p class="mb-1">Category: <b>@sm.SupportType</b></p>
-                <p class="mb-1">Message: <b>@sm.Message</b></p>
-                <p class="mb-1">Source Url: <b>@sm.SourceUrl</b></p>
+                <p class="mb-1">Chef Message: <b>@sm.Message</b></p>
+                <p class="mb-1">Source Url of Issue: <b>@sm.SourceUrl</b></p>
             </div>
+            @if(sm.AdminUser != null)
+            {
+                <p class="col-12 mb-1">
+                    <span>Resolved by: <i class="text-success fw-semibold">@sm.AdminUser.Email</i></span>
+                </p>
+            }
             <div class="col-12">
-                <input class="form-control" id="tbAdminMessage" type="text" value="" placeholder="Enter Admin Message" />
+                <label class="lead pb-1 fs-6" for="tbAdminMessage">Admin Message: </label>
+                <input class="form-control" id="tbAdminMessage" type="text" value="@sm.AdminMessage" placeholder="Enter Admin Message" @(sm.SupportStatus == SupportStatus.Resolved ? "disabled" : "") />
             </div>
         </div>
     }
