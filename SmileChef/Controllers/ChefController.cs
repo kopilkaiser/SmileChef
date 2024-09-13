@@ -40,29 +40,30 @@ namespace SmileChef.Controllers
 
         #region Repositories
         private readonly IChefRepository _chefRepo;
-        private readonly IRepository<Instruction> _instructRepo;
+        private readonly IRepository<Instruction> _instructionRepo;
         private readonly IRepository<Recipe> _recipeRepo;
-        private readonly IRepository<Subscription> _subRepo;
-        private readonly IRepository<NotifySubscribers> _notifySubscribers;
+        private readonly IRepository<Subscription> _subscriptionRepo;
+        private readonly IRepository<NotifySubscribers> _notifySubscribersRepo;
         private readonly IRepository<Review> _reviewRepo;
         private readonly IRepository<RecipeBookmark> _bookmarkRepo;
         private readonly IRepository<Order> _orderRepo;
+        private readonly IRepository<SupportMessage> _supportRepo;
         #endregion
 
         #endregion
 
-        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers, IRepository<Review> reviewRepo, IRepository<RecipeBookmark> bookmarkRepo, IConfiguration config, ICompositeViewEngine viewEngine, IRepository<Order> orderRepo)
+        public ChefController(ILogger<ChefController> logger, IHttpContextAccessor httpContextAccessor, IChefRepository chefRepo, IRepository<Instruction> instructRepo, IRepository<Recipe> recipeRepo, IRepository<Subscription> subRepo, IWebHostEnvironment webHostEnvironment, RecipeSmartModel recipeModel, IRepository<NotifySubscribers> notifySubscribers, IRepository<Review> reviewRepo, IRepository<RecipeBookmark> bookmarkRepo, IConfiguration config, ICompositeViewEngine viewEngine, IRepository<Order> orderRepo, IRepository<SupportMessage> supRepo)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             _chefRepo = chefRepo;
-            _instructRepo = instructRepo;
+            _instructionRepo = instructRepo;
             _recipeRepo = recipeRepo;
-            _subRepo = subRepo;
+            _subscriptionRepo = subRepo;
             _webHostEnvironment = webHostEnvironment;
             _recipeModel = recipeModel;
             _imageModel = new ImageSmartModel();
-            _notifySubscribers = notifySubscribers;
+            _notifySubscribersRepo = notifySubscribers;
             _reviewRepo = reviewRepo;
             _bookmarkRepo = bookmarkRepo;
             _config = config;
@@ -75,6 +76,8 @@ namespace SmileChef.Controllers
                 var userId = _httpContextAccessor.HttpContext?.Session.GetObjectFromJson<int>("CurrentUserId");
                 AssignChefAndUserId(userId);
             }
+
+            _supportRepo = supRepo;
         }
 
         public IActionResult Index(int userId)
@@ -84,15 +87,13 @@ namespace SmileChef.Controllers
             var allChefs = _chefRepo.GetAll();
 
             var getCurrentChef = allChefs.FirstOrDefault(c => c.User.UserId == _currentUserId);
-            var userNotifications = _notifySubscribers.GetAll().Where(n => n.SubscriberId == getCurrentChef.ChefId);
+            var userNotifications = _notifySubscribersRepo.GetAll().Where(n => n.SubscriberId == getCurrentChef.ChefId);
             if (userNotifications.Count() > 0) getCurrentChef.Notifications = userNotifications.ToList();
             else getCurrentChef.Notifications = new List<NotifySubscribers>();
 
             IndexViewModel vm = new IndexViewModel();
             vm.CurrentChef = getCurrentChef;
-
             vm.TopFiveChefs = allChefs.OrderByDescending(c => c.Rating).Take(5).ToList();
-
 
             return View("ChefIndex", vm);
         }
@@ -106,7 +107,7 @@ namespace SmileChef.Controllers
             {
                 currentChefUserId = _httpContextAccessor.HttpContext.Session.GetObjectFromJson<int>("CurrentUserId");
             }
-            var chefs = _chefRepo.GetAll().Where(c => c.User.UserId != currentChefUserId).OrderByDescending(c => c.Rating).ToList();
+            var chefs = _chefRepo.GetAll().Where(c => c.User.UserId != currentChefUserId && c.User.IsAdmin != true).OrderByDescending(c => c.Rating).ToList();
             var currentChef = GetCurrentChef();
 
             ChefSubsciptionViewModel vm = new();
@@ -164,8 +165,8 @@ namespace SmileChef.Controllers
             else
             {
                 // means currentChef will unsubscribe to destChef (Unscribe to subscription)
-                var sub = _subRepo.GetById(subscription.SubscriptionId);
-                _subRepo.Delete(sub);
+                var sub = _subscriptionRepo.GetById(subscription.SubscriptionId);
+                _subscriptionRepo.Delete(sub);
                 showUnsubscribedMessage = true;
             }
 
@@ -187,19 +188,19 @@ namespace SmileChef.Controllers
                 subscription.SubscriptionType = subType;
             }
 
-            _subRepo.Add(subscription);
+            _subscriptionRepo.Add(subscription);
             return Json(new { success = true });
         }
 
         [HttpPost]
         public IActionResult DismissNotification(int notificationId)
         {
-            var notification = _notifySubscribers.GetById(notificationId);
+            var notification = _notifySubscribersRepo.GetById(notificationId);
             if (notification == null) return Json(new { success = false, message = "Error occured on dismissing notification" });
 
-            _notifySubscribers.Delete(notification);
+            _notifySubscribersRepo.Delete(notification);
 
-            _notifySubscribers.SaveChanges();
+            _notifySubscribersRepo.SaveChanges();
 
             return Json(new { success = true, message = "Notification dismissed" });
         }
@@ -725,7 +726,7 @@ namespace SmileChef.Controllers
                         ns.Publisher = chef;
                         ns.PublishedDate = DateTime.Now;
                         ns.Recipe = pr;
-                        _notifySubscribers.Add(ns);
+                        _notifySubscribersRepo.Add(ns);
                     }
                 }
                 else
@@ -741,7 +742,7 @@ namespace SmileChef.Controllers
                         ns.Publisher = chef;
                         ns.PublishedDate = DateTime.Now;
                         ns.Recipe = recipe;
-                        _notifySubscribers.Add(ns);
+                        _notifySubscribersRepo.Add(ns);
                     }
                 }
                 //means it is a new recipe
@@ -792,11 +793,11 @@ namespace SmileChef.Controllers
             var recipeToRemove = chef.Recipes.FirstOrDefault(r => r.RecipeId == id);
             if (recipeToRemove == null) { throw new Exception($"Couldn't find recipe with recipeId: {id}"); }
 
-            var notifications = _notifySubscribers.GetAll().Where(ns => ns.RecipeId == recipeToRemove.RecipeId).ToList();
+            var notifications = _notifySubscribersRepo.GetAll().Where(ns => ns.RecipeId == recipeToRemove.RecipeId).ToList();
 
             notifications.ForEach(n =>
             {
-                _notifySubscribers.Delete(n);
+                _notifySubscribersRepo.Delete(n);
             });
 
 
@@ -1198,6 +1199,45 @@ namespace SmileChef.Controllers
 
         #endregion
 
+        #region Support
+
+        [HttpGet]
+        public async Task<IActionResult> GetSupportPage()
+        {
+            AssignCurrentPageStatus(currentPageName: "GetSupportPage");
+            SupportMessage model = new SupportMessage();
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetSupportPage(SupportMessage sm)
+        {
+            AssignCurrentPageStatus(currentPageName: "GetSupportPage");
+
+            // Way 1: one way of making an invalid Selection of a dropDownList by having a 'None' enum value
+            //if (sm.SupportType == SupportType.None)
+            //{
+            //    ModelState.AddModelError("SupportType", "Please select a valid support type.");
+            //}
+
+            if (ModelState.IsValid)
+            {
+                sm.SupportStatus = SupportStatus.Ongoing;
+                sm.Sender = GetCurrentChef();
+                _supportRepo.Add(sm);
+                // Save the SupportMessage
+                // Your save logic here...
+                TempData["Success"] = "Message has been submitted successfully";
+                return RedirectToAction("GetSupportPage"); // Redirect after successful submission
+            }
+
+            // If validation fails, return the form with validation errors
+            return View("GetSupportPage", sm);
+        }
+
+        #endregion
+
+
         #region Helper Methods
 
         //Used to convert PartialView to string in order to send in a JSON object
@@ -1291,11 +1331,13 @@ namespace SmileChef.Controllers
                 HttpContext.Session.SetObjectAsJson("CurrentUserEmail", chef.User.Email);
                 HttpContext.Session.SetObjectAsJson("CurrentUserName", $"{chef.FirstName} {chef.LastName}");
                 HttpContext.Session.SetObjectAsJson("CurrentUserBalance", chef.AccountBalance);
+                HttpContext.Session.SetObjectAsJson("ShowAdminPanel", chef.User.IsAdmin);
             }
             ViewBag.CurrentActive = currentPageName;
             ViewBag.CurrentUserEmail = HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail");
             ViewBag.CurrentUserName = HttpContext.Session.GetObjectFromJson<string>("CurrentUserName");
             ViewBag.CurrentUserBalance = HttpContext.Session.GetObjectFromJson<decimal>("CurrentUserBalance");
+            ViewBag.ShowAdminPanel = HttpContext.Session.GetObjectFromJson<bool>("ShowAdminPanel");
         }
 
         #endregion

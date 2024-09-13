@@ -87,6 +87,26 @@ namespace ChefApp.Models
                 .Property(r => r.RecipeType)
                 .HasConversion<string>();  // This line ensures that the enum is stored as a string in the database.
 
+            modelBuilder.Entity<SupportMessage>()
+                .HasOne(sm => sm.Sender)
+                .WithOne()  // Use WithOne() since a SupportMessage has one Chef as the sender
+                .HasForeignKey<SupportMessage>(sm => sm.ChefId)
+                .OnDelete(DeleteBehavior.NoAction); // or Cascade depending on your requirements
+
+            modelBuilder.Entity<SupportMessage>()
+                .HasOne(sm => sm.AdminUser)
+                .WithOne()  // Use WithOne() since a SupportMessage has one AdminUser
+                .HasForeignKey<SupportMessage>(sm => sm.UserId)
+                .OnDelete(DeleteBehavior.NoAction); // or Cascade depending on your requirements
+
+            modelBuilder.Entity<SupportMessage>()
+                .Property(sm => sm.SupportType)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<SupportMessage>()
+               .Property(sm => sm.SupportStatus)
+               .HasConversion<string>();
+
             modelBuilder.SeedAppData();
         }
     }

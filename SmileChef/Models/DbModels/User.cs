@@ -20,5 +20,7 @@ namespace SmileChef.Models.DbModels
         // Optional: Add regex for password complexity
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$", ErrorMessage = "Password must have at least one uppercase, one lowercase, one number, and one special character.")]
         public string Password { get; set; }
+
+        public bool? IsAdmin { get; set; }
     }
 }

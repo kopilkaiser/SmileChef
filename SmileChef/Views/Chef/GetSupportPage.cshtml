@@ -1,0 +1,63 @@
+﻿@using SmileChef.Models.DbModels
+@model SupportMessage
+
+
+@{
+    // Populate the SelectList using the SupportType enum
+    var supportTypeList = Enum.GetValues(typeof(SupportType))
+                              .Cast<SupportType>()
+                              .Select(e => new SelectListItem
+                                      {
+                                          Text = e.ToString(),
+                                          Value = e.ToString()
+                                      }).ToList();
+    supportTypeList.Insert(0, new SelectListItem { Text = "Select an option", Value = "" });
+}
+
+@if(TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<h2 class="lead fs-2">Submit your Issue</h2>
+<hr class="mt-1"/>
+<form asp-action="GetSupportPage" asp-controller="Chef" method="post">
+    <div class="row mb-2">
+        <div class="col-md-6">
+            @Html.TextBoxFor(m => m.Subject, new { @style = "resize: none;", @class = "form-control", @placeholder = "Enter Subject title" })
+            @Html.ValidationMessageFor(m => m.Subject, "", new { @class = "text-danger" })
+        </div>
+    </div>
+   
+    <div class="row mb-2">
+        <div class="col-md-6">
+            @Html.TextAreaFor(m => m.Message, 5,10, new { @style="resize: none;", @class="form-control", @placeholder="Enter your message"})
+            @Html.ValidationMessageFor(m => m.Message, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col-md-5">
+            @Html.DropDownListFor(
+                m => m.SupportType,
+                     supportTypeList,
+                new { @class="form-control"}
+            )
+            @Html.ValidationMessageFor(m => m.SupportType, "", new { @class = "text-danger" }) <!-- Display validation message -->
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-md-6">
+            @Html.TextBoxFor(m => m.SourceUrl, new { @style = "resize: none;", @class = "form-control", @placeholder = "Paste page address of the issue"  })
+            @Html.ValidationMessageFor(m => m.SourceUrl, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="btn btn-primary" type="submit">Submit</button>
+        </div>
+    </div>
+</form>

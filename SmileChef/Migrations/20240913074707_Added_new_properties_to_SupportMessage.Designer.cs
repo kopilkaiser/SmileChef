@@ -4,6 +4,7 @@ using ChefApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SmileChef.Migrations
 {
     [DbContext(typeof(ChefAppContext))]
-    partial class ChefAppContextModelSnapshot : ModelSnapshot
+    [Migration("20240913074707_Added_new_properties_to_SupportMessage")]
+    partial class Added_new_properties_to_SupportMessage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1282,10 +1285,6 @@ namespace SmileChef.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SupportStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

@@ -1,0 +1,104 @@
+﻿@using SmileChef.Models.DbModels
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SmileChef (Admin)</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        div.navbar-collapse ul.navbar-nav li.nav-item ul.dropdown-menu li.dropdown-item:active{
+            background-color: transparent;
+        }
+
+        div.navbar-collapse ul.navbar-nav li.dropdown ul.dropdown-menu li.dropdown-item:active {
+            background-color: transparent;
+            color: black;
+        }
+
+        .navbar-nav{
+            --bs-nav-link-padding-y: 0.25rem;
+        }
+
+        .custom-radioBtn{
+            margin-top: 3.5px;
+            margin-right: 5px;
+            width: 15px;
+            height: 15px;
+        }
+
+        .radio-container{
+            height: 2em;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar fixed-top navbar-expand-xl navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Chef" asp-action="Index"><i class="fa fa-bowl-food pe-2 text-primary"></i>SmileChef</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav nav-tabs flex-grow-1 gap-2">
+                        <li class="nav-item mt-2 mt-md-0">
+                            <a class="nav-link text-dark p-1" asp-action="Index" asp-controller="Chef">Browse Website</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid container-main pt-5 pt-sm-4 pt-xl-0">
+        <main role="main" class="pb-3">
+            @RenderBody()
+           @*  <div class="bg-black mb-2" style="width:500px; height:500px;"></div>
+            <div class="bg-primary mb-2" style="width:500px; height:500px;"></div>
+            <div class="bg-success mb-2" style="width:500px; height:500px;"></div> *@
+        </main>     
+    </div>
+
+    <footer class="border-top footer text-muted d-flex align-items-center">
+        <div class="container">
+            &copy; 2024 - ChefApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <div id="loadingSpinnerContainer" style="display:none">
+        <div class="loading-spinner">
+            <div class="spinner-border text-info spinner-large" role="status">
+            
+            </div>
+            <div class="text-info">
+                Recipe AI Loading
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/loadGoogleMap.js"></script>  @*Reference: Kaiser 2024, Myself. KingstonUniversity Project: https://github.com/kopilkaiser/BankApplicationKU/tree/master/BankingWebApp*@
+
+    
+    <!-- General scripts that need to run across all pages -->
+    <script>
+        console.log("This script runs before page-specific scripts.");
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <!-- Scripts that depend on page-specific scripts -->
+    <script>
+
+        
+    </script>
+</body>
+</html>
