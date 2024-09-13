@@ -26,6 +26,7 @@ namespace ChefApp.Models
         public DbSet<OrderLine> OrderLines { get; set; }
         public DbSet<Restaurant> Restaurants { get; set; }
 
+        public DbSet<SupportMessage> SupportMessages { get; set; }
         public ChefAppContext(DbContextOptions<ChefAppContext> options, IConfiguration config, ISqlSettings sqlSettings) : base(options)
         {
             _config = config;
@@ -89,14 +90,14 @@ namespace ChefApp.Models
 
             modelBuilder.Entity<SupportMessage>()
                 .HasOne(sm => sm.Sender)
-                .WithOne()  // Use WithOne() since a SupportMessage has one Chef as the sender
-                .HasForeignKey<SupportMessage>(sm => sm.ChefId)
+                .WithMany(c => c.SupportMessages)  // A Chef can have many SupportMessages
+                .HasForeignKey(sm => sm.ChefId)
                 .OnDelete(DeleteBehavior.NoAction); // or Cascade depending on your requirements
 
             modelBuilder.Entity<SupportMessage>()
                 .HasOne(sm => sm.AdminUser)
-                .WithOne()  // Use WithOne() since a SupportMessage has one AdminUser
-                .HasForeignKey<SupportMessage>(sm => sm.UserId)
+                .WithMany(u => u.HandledMessages) // AdminUser can handle many SupportMessages
+                .HasForeignKey(sm => sm.UserId)
                 .OnDelete(DeleteBehavior.NoAction); // or Cascade depending on your requirements
 
             modelBuilder.Entity<SupportMessage>()

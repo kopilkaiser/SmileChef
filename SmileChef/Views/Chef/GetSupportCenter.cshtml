@@ -1,0 +1,74 @@
+﻿@using SmileChef.Models.DbModels
+@model List<SupportMessage>
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@{
+    var ongoingIssues = Model.Where(sm => sm.SupportStatus == SupportStatus.Ongoing).ToList();
+    var resolvedIssues = Model.Except(ongoingIssues).ToList();
+}
+
+<style>
+    .issuesContainer > div.col-12:last-child{
+        border-bottom: none;
+    }
+</style>
+
+<div class="border mb-2 p-2">
+    <div class="fs-4 lead">On-going Issues</div>
+    <hr />
+    @if (ongoingIssues.Count > 0)
+    {
+        <div class="row gap-2 mx-auto issuesContainer">
+            @foreach (var issue in ongoingIssues)
+            {
+                <div class="col-12 border-bottom p-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fs-5">Subject: <b class="fw-semibold">@issue.Subject</b></span>
+                        <span clsas="fs-6">Status: <b class="fw-semibold text-danger">@issue.SupportStatus</b></span>
+                    </div>
+                    <div class="mb-1">
+                        Chef Message: <br />
+                        <b class="fw-semibold">@issue.Message</b>
+                    </div>
+                    <div>
+                        Issue created on: <b class="fw-semibold fst-italic">@(issue.Created.HasValue ? issue.Created.Value : "Not specified")</b>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<div class="border p-2">
+    <div class="fs-4 lead">Resolved Issues</div>
+    <hr />
+    @if (resolvedIssues.Count > 0)
+    {
+        <div class="row">
+            @foreach (var issue in resolvedIssues)
+            {
+                <div class="col-12 border-bottom p-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Subject: <b class="fw-semibold">@issue.Subject</b></span>
+                        <span>Status: <b class="fw-semibold text-danger">@issue.SupportStatus</b></span>
+                    </div>
+                    <div>
+                        Chef Message: <br />
+                        <b class="fw-semibold">@issue.Message</b>
+                    </div>
+                    <div class="mb-1">
+                        Admin Message: <br />
+                        <b class="fw-semibold">@issue.AdminMessage</b> <br />
+                        Resolved by Admin: <b class="fst-italic">@issue.AdminUser.Email</b>
+                    </div>
+                    <div>
+                        Issue closed on: <b class="fw-semibold fst-italic">@(issue.ClosedDate.HasValue ? issue.ClosedDate.Value : "Not specified")</b>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

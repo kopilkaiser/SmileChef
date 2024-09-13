@@ -1,0 +1,40 @@
+﻿@using SmileChef.Models.DbModels
+@model List<SupportMessage>
+
+@{
+
+}
+
+@if(Model.Count > 0)
+{
+    @foreach(var sm in Model)
+    {
+        <div class="row mb-2 border gap-1 p-3" data-support-id="@sm.SupportMessageId">
+            <div class="col-12 d-flex justify-content-between">
+                <span>Support ID: <b>@sm.SupportMessageId</b></span>
+                <div>
+                    @if(sm.SupportStatus == SupportStatus.Ongoing){
+                        <a class="btn btn-info btn-sm" href="javascript:void(0)" data-type="resolve">Resolve</a>
+                    }else{
+                        <a class="btn btn-success btn-sm" href="javascript:void(0)" data-type="open">Open</a>
+                    }
+                </div>
+            </div>
+            <div class="col-12">
+                <p class="mb-1">Submitted By: <b>@sm.Sender.User.Email</b></p>
+                <p class="mb-1">Subject: <b>@sm.Subject</b></p>
+                <p class="mb-1">Category: <b>@sm.SupportType</b></p>
+                <p class="mb-1">Message: <b>@sm.Message</b></p>
+                <p class="mb-1">Source Url: <b>@sm.SourceUrl</b></p>
+            </div>
+            <div class="col-12">
+                <input class="form-control" id="tbAdminMessage" type="text" value="" placeholder="Enter Admin Message" />
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div>No Support Messages found</div>
+}
+

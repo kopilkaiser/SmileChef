@@ -36,6 +36,15 @@ namespace SmileChef.Models.DbModels
         public int? UserId { get; set; }
 
         [ValidateNever]
+        public string? AdminMessage { get; set; }
+
+        [ValidateNever]
+        public DateTime? Created { get; set; }
+
+        [ValidateNever]
+        public DateTime? ClosedDate { get; set; }
+
+        [ValidateNever]
         public SupportStatus SupportStatus { get; set; }
     }
 

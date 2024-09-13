@@ -1,0 +1,39 @@
+﻿@using SmileChef.Models.DbModels
+@model List<SupportMessage>
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutAdmin";
+}
+
+<div id="issuesContainer" class="container-md">
+    @await Html.PartialAsync("_SupportMessagesPartial", Model)
+</div>
+
+
+@section Scripts {
+    <script>
+
+        // #region Functionalities for "Resolve Issues
+        $(document).on('click', 'div.row div.col-12 a[data-type="resolve"]', function () {
+            let anchorElem = $(this);
+            console.log(anchorElem)
+            let wrapperElem = anchorElem.closest('div.row');
+            let adminTextBox = wrapperElem.find('input#tbAdminMessage');
+
+            let supportId = wrapperElem.data('support-id');
+            var text = adminTextBox.val();
+            console.log(`value of text: ${text}`)
+            if (!text) {
+                Swal.fire({
+                    title : "Important notice",
+                    text: `Need valid Message from admin for Support ID: ${supportId}`,
+                    icon : "error"
+                })
+            }
+        });
+        // #endregion
+    </script>
+}

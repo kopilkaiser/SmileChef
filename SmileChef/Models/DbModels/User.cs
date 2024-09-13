@@ -22,5 +22,7 @@ namespace SmileChef.Models.DbModels
         public string Password { get; set; }
 
         public bool? IsAdmin { get; set; }
+
+        public List<SupportMessage> HandledMessages { get; set; } = new();
     }
 }

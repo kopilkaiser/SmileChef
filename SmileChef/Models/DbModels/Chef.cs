@@ -57,6 +57,8 @@ namespace ChefApp.Models.DbModels
 
         [NotMapped]
         public List<NotifySubscribers> Notifications { get; set; } = new();
+
+        public List<SupportMessage> SupportMessages { get; set; } = new();
     }
 
     public class CustomRangeAttribute : ValidationAttribute

@@ -4,6 +4,7 @@ using ChefApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SmileChef.Migrations
 {
     [DbContext(typeof(ChefAppContext))]
-    partial class ChefAppContextModelSnapshot : ModelSnapshot
+    [Migration("20240913094948_updated_SupportMessage_and_Chef_And_AdminUser_Relationship")]
+    partial class updated_SupportMessage_and_Chef_And_AdminUser_Relationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1270,17 +1273,8 @@ namespace SmileChef.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SupportMessageId"));
 
-                    b.Property<string>("AdminMessage")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("ChefId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("ClosedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("Created")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Message")
                         .IsRequired()

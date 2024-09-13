@@ -31,12 +31,20 @@ namespace SmileChef.Controllers
             _orderRepo = orderRepo;
             _supportRepo = supportRepo;
         }
+
         public IActionResult Index()
         {
             var currentUserId = HttpContext?.Session.GetInt32("CurrentChefId");
             var getChefAdmin = _chefRepo.GetAll().FirstOrDefault(c => c.UserId == currentUserId);
             var user = getChefAdmin.User;
             return View(user);
+        }
+
+        [HttpGet]
+        public IActionResult ShowIssues()
+        {
+            var issues = _supportRepo.GetAll();
+            return View(issues);
         }
     }
 }

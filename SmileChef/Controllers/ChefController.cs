@@ -80,7 +80,8 @@ namespace SmileChef.Controllers
             _supportRepo = supRepo;
         }
 
-        public IActionResult Index(int userId)
+        [HttpGet]
+        public IActionResult Index(int userId, bool showAdminWebsite = false)
         {
             AssignChefAndUserId(userId);
             AssignCurrentPageStatus("ChefIndex");
@@ -95,6 +96,10 @@ namespace SmileChef.Controllers
             vm.CurrentChef = getCurrentChef;
             vm.TopFiveChefs = allChefs.OrderByDescending(c => c.Rating).Take(5).ToList();
 
+            // Redirect to Admin Panel if current user is Admin
+            if (getCurrentChef.User.IsAdmin.HasValue && getCurrentChef.User.IsAdmin.Value == true && !showAdminWebsite) {
+                return RedirectToAction("Index", "Admin"); 
+            }
             return View("ChefIndex", vm);
         }
 
@@ -1199,12 +1204,12 @@ namespace SmileChef.Controllers
 
         #endregion
 
-        #region Support
+        #region Support Center
 
         [HttpGet]
         public async Task<IActionResult> GetSupportPage()
         {
-            AssignCurrentPageStatus(currentPageName: "GetSupportPage");
+            AssignCurrentPageStatus("");
             SupportMessage model = new SupportMessage();
             return View(model);
         }
@@ -1212,7 +1217,7 @@ namespace SmileChef.Controllers
         [HttpPost]
         public async Task<IActionResult> GetSupportPage(SupportMessage sm)
         {
-            AssignCurrentPageStatus(currentPageName: "GetSupportPage");
+            AssignCurrentPageStatus("");
 
             // Way 1: one way of making an invalid Selection of a dropDownList by having a 'None' enum value
             //if (sm.SupportType == SupportType.None)
@@ -1224,6 +1229,7 @@ namespace SmileChef.Controllers
             {
                 sm.SupportStatus = SupportStatus.Ongoing;
                 sm.Sender = GetCurrentChef();
+                sm.Created = DateTime.Now;
                 _supportRepo.Add(sm);
                 // Save the SupportMessage
                 // Your save logic here...
@@ -1233,6 +1239,14 @@ namespace SmileChef.Controllers
 
             // If validation fails, return the form with validation errors
             return View("GetSupportPage", sm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSupportCenter()
+        {
+            AssignCurrentPageStatus("");
+            var supportMessages = _supportRepo.GetAll().Where(sm => sm.ChefId == GetCurrentChef().ChefId).ToList();
+            return View(supportMessages);
         }
 
         #endregion
@@ -1280,7 +1294,7 @@ namespace SmileChef.Controllers
             {
                 _currentUserId = userId; // Default user ID if not set
                 _httpContextAccessor.HttpContext?.Session.SetObjectAsJson(key: "CurrentUserId", _currentUserId);
-
+                ViewBag.CurrentUserId = _currentUserId;
             }
 
             _chefId = _httpContextAccessor.HttpContext?.Session.GetInt32("CurrentChefId") ?? 0;

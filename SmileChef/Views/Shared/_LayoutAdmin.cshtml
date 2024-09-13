@@ -1,4 +1,25 @@
-﻿@using SmileChef.Models.DbModels
+﻿@using SmileChef.Extensions
+@using SmileChef.Models.DbModels
+
+@{
+    // Retrieve userId from session
+    int? userId = Context.Session.GetObjectFromJson<int>("CurrentUserId");
+    var currentChefId = Context.Session.GetInt32("CurrentChefId");
+    var currentUserName = Context.Session.GetObjectFromJson<string>("CurrentUserName");
+    var currentUserEmail = Context.Session.GetObjectFromJson<string>("CurrentUserEmail");
+    var currentUserBalance = Context.Session.GetObjectFromJson<string>("CurrentUserBalance");
+
+    // Use the userId in your layout
+    if (userId.HasValue)
+    {
+        <p>User ID: @userId</p>  <!-- Display the userId or use it in some logic -->
+    }
+    else
+    {
+        <p>No User Logged In</p>
+    }
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,7 +62,7 @@
     <header>
         <nav class="navbar fixed-top navbar-expand-xl navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Chef" asp-action="Index"><i class="fa fa-bowl-food pe-2 text-primary"></i>SmileChef</a>
+                <a class="navbar-brand"><i class="fa fa-bowl-food pe-2 text-primary"></i>SmileChef</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -49,14 +70,18 @@
                 <div class="navbar-collapse collapse">
                     <ul class="navbar-nav nav-tabs flex-grow-1 gap-2">
                         <li class="nav-item mt-2 mt-md-0">
-                            <a class="nav-link text-dark p-1" asp-action="Index" asp-controller="Chef">Browse Website</a>
+                            <a class="nav-link text-dark p-1" asp-action="Index" asp-controller="Chef" asp-route-userId="@userId" asp-route-showAdminWebsite="true">Browse Website</a>
                         </li>
+                        <li class="nav-item mt-2 mt-md-0">
+                            <a class="nav-link text-dark p-1" asp-action="ShowIssues" asp-controller="Admin">Show Issues</a>
+                        </li>
+                        <li class="nav-item mt-2 mt-md-0"><a class="nav-link text-dark p-1" asp-action="LoginPage" asp-controller="Chef">Log Out</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container-fluid container-main pt-5 pt-sm-4 pt-xl-0">
+    <div class="container-md container-main pt-5 pt-sm-4 pt-xl-0">
         <main role="main" class="pb-3">
             @RenderBody()
            @*  <div class="bg-black mb-2" style="width:500px; height:500px;"></div>
