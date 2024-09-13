@@ -16,9 +16,13 @@
     }
 </style>
 
-<div class="border mb-2 p-2">
-    <div class="fs-4 lead">On-going Issues</div>
-    <hr />
+<div>
+    <h1 class="lead fs-2">My Support Center</h1>
+    <hr class="mt-1"/>
+</div>
+<div class="border mb-2 p-2 rounded-1">
+    <div class="fs-4 lead text-danger">On-going Issues</div>
+    <hr class="my-1"/>
     @if (ongoingIssues.Count > 0)
     {
         <div class="row gap-2 mx-auto issuesContainer">
@@ -30,8 +34,12 @@
                         <span clsas="fs-6">Status: <b class="fw-semibold text-danger">@issue.SupportStatus</b></span>
                     </div>
                     <div class="mb-1">
-                        Chef Message: <br />
-                        <b class="fw-semibold">@issue.Message</b>
+                        <span class="border-bottom border-black mb-1 d-inline-block">
+                        Chef Message:
+                        </span>
+                        <p class="mb-0">
+                             <b class="fw-semibold">@issue.Message</b>
+                        </p>
                     </div>
                     <div>
                         Issue created on: <b class="fw-semibold fst-italic">@(issue.Created.HasValue ? issue.Created.Value : "Not specified")</b>
@@ -42,27 +50,37 @@
     }
 </div>
 
-<div class="border p-2">
-    <div class="fs-4 lead">Resolved Issues</div>
-    <hr />
+<div class="border p-2 rounded-1">
+    <div class="fs-4 lead text-success">Resolved Issues</div>
+    <hr class="my-1"/>
     @if (resolvedIssues.Count > 0)
     {
-        <div class="row">
+        <div class="row gap-2 mx-auto issuesContainer">
             @foreach (var issue in resolvedIssues)
             {
                 <div class="col-12 border-bottom p-2">
                     <div class="d-flex justify-content-between mb-1">
-                        <span>Subject: <b class="fw-semibold">@issue.Subject</b></span>
-                        <span>Status: <b class="fw-semibold text-danger">@issue.SupportStatus</b></span>
-                    </div>
-                    <div>
-                        Chef Message: <br />
-                        <b class="fw-semibold">@issue.Message</b>
+                        <span class="fs-5">Subject: <b class="fw-semibold">@issue.Subject</b></span>
+                        <span>Status: <b class="fw-semibold text-success">@issue.SupportStatus</b></span>
                     </div>
                     <div class="mb-1">
-                        Admin Message: <br />
-                        <b class="fw-semibold">@issue.AdminMessage</b> <br />
-                        Resolved by Admin: <b class="fst-italic">@issue.AdminUser.Email</b>
+                        <span class="border-bottom border-black mb-1 d-inline-block">
+                            Chef Message:
+                        </span>
+                        <p class="mb-0">
+                            <b class="fw-semibold">@issue.Message</b>
+                        </p>
+                    </div>
+                    <div class="mb-1">
+                        <span class="border-bottom border-black mb-1 d-inline-block">
+                            Admin Message:
+                        </span>
+                        <p class="mb-1">
+                            <b class="fw-semibold">@issue.AdminMessage</b>
+                        </p>
+                        <p class="mb-0">
+                            Resolved by Admin: <b class="fst-italic text-success">@issue.AdminUser.Email</b>
+                        </p>
                     </div>
                     <div>
                         Issue closed on: <b class="fw-semibold fst-italic">@(issue.ClosedDate.HasValue ? issue.ClosedDate.Value : "Not specified")</b>

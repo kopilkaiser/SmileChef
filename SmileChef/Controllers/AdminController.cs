@@ -63,10 +63,23 @@ namespace SmileChef.Controllers
             getSupportMessage.AdminUser = GetCurrentAdminUser();
             getSupportMessage.AdminMessage = adminMessage;
             getSupportMessage.SupportStatus = SupportStatus.Resolved;
-
+            getSupportMessage.ClosedDate = DateTime.Now;
             _supportRepo.Update(getSupportMessage);
             var supports = _supportRepo.GetAll();
 
+            return PartialView("_SupportMessagesPartial", supports);
+        }
+
+        [HttpPost]
+        public IActionResult OpenIssue(int supportMessageId)
+        {
+            var getSupportMessage = _supportRepo.GetById(supportMessageId);
+            getSupportMessage.AdminUser = null;
+            getSupportMessage.AdminMessage = null;
+            getSupportMessage.SupportStatus = SupportStatus.Ongoing;
+            getSupportMessage.Created = DateTime.Now;
+            _supportRepo.Update(getSupportMessage);
+            var supports = _supportRepo.GetAll();
             return PartialView("_SupportMessagesPartial", supports);
         }
 

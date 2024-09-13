@@ -87,10 +87,20 @@
         </main>     
     </div>
 
-    <footer class="border-top footer text-muted d-flex align-items-center">
-        <div class="container">
-            &copy; 2024 - ChefApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
+    <footer class="border-top footer text-muted d-flex justify-content-center justify-content-lg-start align-items-center gap-2">
+        @*  <div class="ps-4">
+        <span>
+        <a class="btn btn-info" asp-action="GetSupportPage" asp-controller="Chef">Submit Issue</a>
+        </span>
+        <span>
+        <a class="btn btn-info" asp-action="GetSupportCenter" asp-controller="Chef">My Support Center</a>
+        </span>
+        </div> *@
+        <span class="ps-0 ps-lg-4 fs-5">
+            &copy; 2024 - <b>SmileChef</b> @* - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
+        </span>
+        <span>| Developer: <b>Kopil Kaiser (K2360182)®</b></span>
+        <span>| Publisher: <b>Kingston University London®</b></span>
     </footer>
 
     <div id="loadingSpinnerContainer" style="display:none">

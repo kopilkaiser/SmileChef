@@ -24,13 +24,13 @@ namespace SmileChef.Models.DbModels
         public SupportType? SupportType { get; set; }
 
         [ValidateNever]
-        public Chef Sender { get; set; }
+        public Chef? Sender { get; set; }
 
         [ForeignKey(name: nameof(Sender))]
         public int ChefId { get; set; }
 
         [ValidateNever]
-        public User AdminUser { get; set; }
+        public User? AdminUser { get; set; }
 
         [ForeignKey(name: nameof(AdminUser))]
         public int? UserId { get; set; }

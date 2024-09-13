@@ -30,7 +30,36 @@
 @section Scripts {
     <script>
 
-        // #region Functionalities for "Resolve Issues
+
+        // #region Opening an Issue 
+        $(document).on('click', 'div.row div.col-12 a[data-type="ongoing"]', function () {
+            let anchorElem = $(this);
+            console.log(anchorElem)
+            let wrapperElem = anchorElem.closest('div.row');
+            let supportMessageId = wrapperElem.data('support-id');
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("OpenIssue")',
+                data: { supportMessageId: supportMessageId},
+                dataType: "html",
+                success: function (response) {
+                    $('#issuesContainer').empty().html(response);
+                },
+                error: function (xhr, status, error) {
+                    let errorMessage = `${xhr.status} : ${xhr.statusText} : ${xhr.responseText}`;
+                    console.log(`Error - ${errorMessage}`)
+                    Swal.fire({
+                        title: "Error Occurred",
+                        text: `An error occurred: ${xhr.statusText}. Please try again later.`,
+                        icon: "error"
+                    });
+                }
+            });
+        });
+        // #endregion
+
+        // #region Resolving an Issue
         $(document).on('click', 'div.row div.col-12 a[data-type="resolve"]', function () {
             let anchorElem = $(this);
             console.log(anchorElem)

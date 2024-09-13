@@ -4,7 +4,7 @@
 // Write your JavaScript code.
 
 $(function () {
-    $('#homeNavButton a').on('click', function (event) {
+    $('ul#homeNavButtons homeNavButton').on('click', function (event) {
 
         event.preventDefault(); // Prevent the default action
         $('#loadingSpinnerContainer').show(); // Show the loading spinner
