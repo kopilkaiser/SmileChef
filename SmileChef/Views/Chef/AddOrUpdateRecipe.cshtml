@@ -16,9 +16,10 @@
         @if (!string.IsNullOrEmpty(Model.ImageUrl))
         {
             <div class="fs-5 lead">Current Recipe Image</div>
-            <div class="col-md-6">
-                <img src="@Url.Content($"~/images/{Model.ImageUrl}")" title="@Model.ImageUrl" />
+            <div class="col-md-3">
+                <img src="@Url.Content($"~/images/{Model.ImageUrl}")" title="@Model.ImageUrl" style="width:100%;"/>
             </div>
+            <div class="w-100"></div>
         }
         <div class="col-6">
             <label class="lead pb-1" for="tbRecipeName">Enter Recipe Name</label>
@@ -29,9 +30,10 @@
             <label class="pb-1 lead" for="ImageUrl">Select your Recipe Image</label>
             <input id="hfImageUrl" type="hidden" name="ImageUrl" value="@Model.ImageUrl" />
             <input type="file" id="ImageUrl" onchange="previewFile()" />
-            <div class="my-2">
-                <img id="image-file-preview" src="#" alt="Image Preview" style="display: none; max-width: 200px; max-height: 200px;" />
+            <div class="col-md-3 mt-2">
+                <img id="image-file-preview" src="#" alt="Image Preview" style="display: none; width: 100%;" />
             </div>
+            <div class="w-100"></div>
         </div>
 
         <div class="row">
