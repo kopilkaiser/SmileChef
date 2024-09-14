@@ -1,5 +1,5 @@
-﻿@using SmileChef.ViewModels
-@model ChefViewModel
+﻿@using ChefApp.Models.DbModels
+@model Chef
 
 @{
     ViewData["Title"] = "Home Page";
@@ -13,7 +13,7 @@
 
 <div class="text-center">
     <h1 class="display-5">All Recipes for:</h1>
-    <p class="fs-3">@Model.ChefName</p>
+    <p class="fs-3">@($"{Model.FirstName} {Model.LastName}")</p>
     <p>Current User Email: @Model.User.Email</p>
 </div>
 

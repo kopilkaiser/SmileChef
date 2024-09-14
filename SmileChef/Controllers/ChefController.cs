@@ -137,13 +137,13 @@ namespace SmileChef.Controllers
             AssignCurrentPageStatus("");
 
             if (chefId == 0) chefId = HttpContext.Session.GetObjectFromJson<int>("ChefIdToSubscribe");
-            var chef = _chefRepo.GetById(chefId);
-            var loggedChef = GetCurrentChef();
 
+            var chef = _chefRepo.GetById(chefId);
+            chef.Rating = new Random().Next(1, 6);
+            var loggedChef = GetCurrentChef();
             bool isSubscribed = loggedChef.SubscribedTo.FirstOrDefault(s => s.Publisher.ChefId == chef.ChefId) != null;
 
             ViewBag.IsSubscribed = isSubscribed;
-
             ViewBag.ShowSubscriptionModal = showSubscriptionModal;
             ViewBag.SubscriptionCost = subscriptionCost;
             ViewBag.ShowUnsubscribedMessage = showUnsubscribedMessage;
@@ -509,7 +509,6 @@ namespace SmileChef.Controllers
             var chef = new Chef();
             chef.AccountBalance = 0;
             chef.User = new User();
-
             return View("RegisterPage", chef);
         }
 
@@ -526,6 +525,7 @@ namespace SmileChef.Controllers
                     return View(chef);
                 }
 
+                chef.Rating = new Random().Next(1, maxValue: 6);
                 _chefRepo.Add(chef);
                 UpdateChefDetails(chef.ChefId, "RegisterPage");
                 ViewBag.SuccessMessage = "You have been successfully registered. You can Login now.";
@@ -630,20 +630,20 @@ namespace SmileChef.Controllers
         public async Task<IActionResult> ManageRecipes(bool json = false)
         {
             AssignCurrentPageStatus("ManageRecipes");
-            var chefVM = (await _chefRepo.GetChefsWithDetailsAsync()).Find(c => c.User.UserId == _currentUserId);
-            if (chefVM == null)
+            var chef = _chefRepo.GetById(_chefId);
+            if (chef == null)
             {
                 // Handle the case where the chef is not found, perhaps redirect to an error page or return a default view.
                 return RedirectToAction("Error", "Home");
             }
 
-            if (json == true) return Json(chefVM);
+            if (json == true) return Json(chef);
 
             var recipeMessage = ViewBag.AddRecipeMessage;
             var recipeIsSuccess = ViewBag.RecipeSuccess;
             var tempRecipeMessage = TempData["RecipeSuccessMessage"];
             var tempRecipeSuccess = TempData["RecipeSuccess"];
-            return View(chefVM);
+            return View(chef);
         }
 
         [HttpGet]
@@ -819,21 +819,21 @@ namespace SmileChef.Controllers
         {
             var message = data.GetProperty("filterString").GetString();
 
-            var chefVM = _chefRepo.GetChefsWithDetails().FirstOrDefault(c => c.ChefId == _chefId);
+            var chef = _chefRepo.GetById(_chefId);
 
-            if (chefVM == null)
+            if (chef == null)
             {
                 return Json("Error");
             }
 
-            chefVM.Recipes = chefVM.Recipes.Where(r => r.Name.Contains(message, StringComparison.OrdinalIgnoreCase)).ToList();
+            chef.Recipes = chef.Recipes.Where(r => r.Name.Contains(message, StringComparison.OrdinalIgnoreCase)).ToList();
 
-            if (chefVM.Recipes.Count == 0)
+            if (chef.Recipes.Count == 0)
             {
                 return Json("Error");
             }
 
-            return PartialView("_RecipesPartial", chefVM);
+            return PartialView("_RecipesPartial", chef);
         }
 
         #endregion
@@ -1245,7 +1245,7 @@ namespace SmileChef.Controllers
                 _supportRepo.Add(sm);
                 // Save the SupportMessage
                 // Your save logic here...
-                TempData["Success"] = "Message has been submitted successfully";
+                TempData["Success"] = "Review has been submitted successfully";
                 return RedirectToAction("GetSupportPage"); // Redirect after successful submission
             }
 

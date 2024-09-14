@@ -1,5 +1,7 @@
-﻿@using SmileChef.ViewModels
-@model ChefViewModel
+﻿@using ChefApp.Models.DbModels
+@using SmileChef.Models.DbModels
+
+@model Chef
 
 <style>
     .card-header{
@@ -37,6 +39,10 @@
                                 <i class="fa-solid fa-bowl-food fs-4 pe-1 text-primary"></i>
                                 <span class="my-1">Recipe:</span>
                                 <a asp-action="ViewRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId"><span class="fw-bold recipe-name" title="@string.Format("View {0}", recipe.Name)">@recipe.Name</span></a>
+                                @if(recipe is PremiumRecipe pr)
+                                { 
+                                    <i class="ps-2 fa fa-dollar fs-5 text-warning"></i>
+                                }
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <a asp-action="AddOrUpdateRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId" title="@string.Format("Update {0}", recipe.Name)"><i class="fa-regular fa-pen-to-square text-warning fs-5"></i></a>

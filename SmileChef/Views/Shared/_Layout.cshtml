@@ -270,7 +270,7 @@
 
             // this did the trick to stop getting "predictedBalance" textBox showing NaN value
             if (isNaN(currentVal) || $elem.val().trim() === "") {
-                $elem.val('0');
+                $elem.val('');
                 currentVal = 0;
             }
 
@@ -324,8 +324,10 @@
                 $('#tbBalance').prop('disabled', true);
                 selectedBalance = parseFloat(selectedCheckElem.val());
             }
-            console.log(`value of selectedBalance : ${selectedBalance}`);
-            $('#predictedBalance').val(selectedBalance + userBalance);
+
+            // Round the predicted balance to two decimal places
+            let predictedBalance = (selectedBalance + userBalance).toFixed(2);
+            $('#predictedBalance').val(predictedBalance);
         });
 
         // Balance top-up process logic
