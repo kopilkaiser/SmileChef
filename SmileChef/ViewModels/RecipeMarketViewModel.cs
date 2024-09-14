@@ -8,6 +8,6 @@ namespace SmileChef.ViewModels
         public List<Recipe> Recipes { get; set; }
         public List<RecipeBookmark> CurrentBookmarks { get; set; }
         
-        public Chef? CurrentCHef { get; set; }
+        public Chef? CurrentChef { get; set; }
     }
 }

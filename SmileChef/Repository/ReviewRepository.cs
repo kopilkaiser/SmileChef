@@ -13,7 +13,9 @@ namespace SmileChef.Repository
 
         public override Review? GetById(int id)
         {
-            var review = _context.Reviews.Include(r => r.Reviewer)
+            var review = _context.Reviews
+                .Include(r => r.Reviewer)
+                .Include(r => r.Recipe)
                 .FirstOrDefault(r => r.Id == id);
 
             if (review == null) throw new Exception($"No Review has been found with id: {id}");

@@ -11,7 +11,7 @@
                                           Text = e.ToString(),
                                           Value = e.ToString()
                                       }).ToList();
-    supportTypeList.Insert(0, new SelectListItem { Text = "Select an option", Value = "" });
+    supportTypeList.Insert(0, new SelectListItem { Text = "Select Category of the Issue", Value = "" });
 }
 
 @if(TempData["Success"] != null)
@@ -51,7 +51,7 @@
     </div>
     <div class="row mb-2">
         <div class="col-md-6">
-            @Html.TextBoxFor(m => m.SourceUrl, new { @style = "resize: none;", @class = "form-control", @placeholder = "Paste page address of the issue"  })
+            @Html.TextBoxFor(m => m.SourceUrl, new { @style = "resize: none;", @class = "form-control", @placeholder = "Enter page address/url where the issue occurred"  })
             @Html.ValidationMessageFor(m => m.SourceUrl, "", new { @class = "text-danger" })
         </div>
     </div>

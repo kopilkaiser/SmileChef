@@ -11,7 +11,7 @@
     @foreach(var sm in Model)
     {
         <div class="row mb-2 border gap-1 p-3" data-support-id="@sm.SupportMessageId">
-            <div class="col-12 d-flex justify-content-between border p-1 rounded-2">
+            <div class="col-12 d-flex justify-content-between border p-2 rounded-2 mb-2">
                 <div><span class="me-4 fs-5">Support Id: <b>@sm.SupportMessageId</b></span><span>Current status: <b class="@(sm.SupportStatus == SupportStatus.Ongoing ? "text-danger" : "text-success")">@sm.SupportStatus</b></span></div>
                 <div>
                     @if(sm.SupportStatus == SupportStatus.Ongoing){
@@ -22,10 +22,12 @@
                 </div>
             </div>
             <div class="col-12">
-                <p class="mb-1">Submitted By: <b>@sm.Sender.User.Email</b></p>
+                <p class="mb-1">Submitted by: <b>@sm.Sender.User.Email</b></p>
                 <p class="mb-1">Subject: <b>@sm.Subject</b></p>
-                <p class="mb-1">Category: <b>@sm.SupportType</b></p>
-                <p class="mb-1">Chef Message: <b>@sm.Message</b></p>
+                <p class="mb-1">Issue Category: <b>@sm.SupportType</b></p>
+                <div class="mb-1">
+                    <span class="border-bottom border-black">Chef Message:</span> <br /> <b> @sm.Message</b>
+                </div>
                 <p class="mb-1">Source Url of Issue: <b>@sm.SourceUrl</b></p>
             </div>
             @if(sm.AdminUser != null)

@@ -21,10 +21,21 @@
             <li class="border-bottom pt-2">
                 <div class="d-flex justify-content-between">
                     <div class="d-flex flex-column">
-                        <h6>@review.Reviewer.FirstName @review.Reviewer.LastName</h6>
+                        <h6>@review.Reviewer.FirstName @review.Reviewer.LastName</h6>                          
                         <p>@review.Message</p>
                     </div>
-                    <div><b class="small">@string.Format("{0} {1}", review.ReviewDate.ToString("d"), review.ReviewDate.ToString("t"))</b></div>
+                    <div class="d-flex flex-column align-items-end gap-2">
+                        @if (review.ReviewerId == ViewBag.CurrentChefId)
+                        {
+                            <a class="btn btn-sm btn-danger" id="anchorDeleteReview" href="javascript:void(0)" data-review-id="@review.Id" style="padding: 2px 5px; font-size: 1em">X</a>
+                        }
+                        <span>
+                            Post date:
+                            <b class="small">
+                                @string.Format("{0} {1}", review.ReviewDate.ToString("d"), review.ReviewDate.ToString("t"))
+                            </b>
+                        </span>
+                    </div>
                 </div>
             </li>
         }

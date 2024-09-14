@@ -94,7 +94,7 @@ namespace SmileChef.Controllers
 
             IndexViewModel vm = new IndexViewModel();
             vm.CurrentChef = getCurrentChef;
-            vm.TopFiveChefs = allChefs.OrderByDescending(c => c.Rating).Take(5).ToList();
+            vm.TopFiveChefs = allChefs.Where(c=>c.User.IsAdmin != true).OrderByDescending(c => c.Rating).Take(5).ToList();
 
             // Redirect to Admin Panel if current user is Admin
             if (getCurrentChef.User.IsAdmin.HasValue && getCurrentChef.User.IsAdmin.Value == true && !showAdminWebsite) {
@@ -569,7 +569,7 @@ namespace SmileChef.Controllers
             RecipeMarketViewModel vm = new RecipeMarketViewModel();
             vm.Recipes = recipes;
             vm.CurrentBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
-            vm.CurrentCHef = _chefRepo.GetById(_chefId);
+            vm.CurrentChef = _chefRepo.GetById(_chefId);
             return View(vm);
         }
 
@@ -589,7 +589,7 @@ namespace SmileChef.Controllers
             RecipeMarketViewModel vm = new RecipeMarketViewModel();
             vm.Recipes = recipes;
             vm.CurrentBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
-            vm.CurrentCHef = _chefRepo.GetById(_chefId);
+            vm.CurrentChef = _chefRepo.GetById(_chefId);
 
             return PartialView("_RecipeMarketListPartial", vm);
         }
@@ -610,8 +610,7 @@ namespace SmileChef.Controllers
             RecipeMarketViewModel vm = new RecipeMarketViewModel();
             vm.Recipes = recipes;
             vm.CurrentBookmarks = _bookmarkRepo.GetAll().Where(bm => bm.ChefId == _chefId).ToList();
-            vm.CurrentCHef = _chefRepo.GetById(_chefId);
-
+            vm.CurrentChef = _chefRepo.GetById(_chefId);
             return PartialView("_RecipeMarketListPartial", vm);
         }
 
@@ -860,7 +859,20 @@ namespace SmileChef.Controllers
 
             ReviewViewModel vm = new ReviewViewModel();
             vm.Reviews = recipe!.Reviews;
+            ViewBag.CurrentChefId = _chefId;
             return PartialView("_ViewRecipeReviews", vm.Reviews);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteReview(int reviewId)
+        {
+            var review = _reviewRepo.GetById(reviewId);
+            ArgumentNullException.ThrowIfNull(review);
+            var recipe = _recipeRepo.GetById(review.RecipeId);
+            recipe.Reviews.Remove(review);
+            _recipeRepo.Update(recipe);
+            ViewBag.CurrentChefId = _chefId;
+            return PartialView("_ViewRecipeReviews", recipe.Reviews);
         }
         #endregion
 
