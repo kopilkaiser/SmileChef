@@ -11,12 +11,13 @@ namespace ChefApp.Extensions
         {
             // Seed User
             modelBuilder.Entity<User>().HasData(
-                new User { UserId = 1, Email = "gordan@gmail.com", Password = "123" },
-                new User { UserId = 2, Email = "jamie@gmail.com", Password = "123" },
-                new User { UserId = 3, Email = "wolfgang@gmail.com", Password = "123" },
-                new User { UserId = 4, Email = "alice@gmail.com", Password = "123" },
-                new User { UserId = 5, Email = "thomas@gmail.com", Password = "123" },
-                new User { UserId = 6, Email = "emeril@gmail.com", Password = "123" }
+                new User { UserId = 1, Email = "gordan@gmail.com", Password = "123", IsAdmin = false },
+                new User { UserId = 2, Email = "jamie@gmail.com", Password = "123", IsAdmin = false },
+                new User { UserId = 3, Email = "wolfgang@gmail.com", Password = "123", IsAdmin = false },
+                new User { UserId = 4, Email = "alice@gmail.com", Password = "123", IsAdmin = false },
+                new User { UserId = 5, Email = "thomas@gmail.com", Password = "123", IsAdmin = false },
+                new User { UserId = 6, Email = "emeril@gmail.com", Password = "123", IsAdmin = false },
+                new User { UserId = 7, Email = "admin@gg.com", Password = "admin123", IsAdmin = true }
             );
 
             // Seed Chefs
@@ -26,7 +27,8 @@ namespace ChefApp.Extensions
                 new Chef { ChefId = 3, FirstName = "Wolfgang", LastName = "Puck", UserId = 3, Rating = 5, SubscriptionCost = 5.99m, AccountBalance = 9000m },
                 new Chef { ChefId = 4, FirstName = "Alice", LastName = "Waters", UserId = 4, Rating = 4, SubscriptionCost = 6.99m, AccountBalance = 15000m },
                 new Chef { ChefId = 5, FirstName = "Thomas", LastName = "Keller", UserId = 5, Rating = 2, SubscriptionCost = 15.99m, AccountBalance = 8000m },
-                new Chef { ChefId = 6, FirstName = "Emeril", LastName = "Lagasse", UserId = 6, Rating = 5, SubscriptionCost = 10.99m, AccountBalance = 7000m }
+                new Chef { ChefId = 6, FirstName = "Emeril", LastName = "Lagasse", UserId = 6, Rating = 5, SubscriptionCost = 10.99m, AccountBalance = 7000m },
+                new Chef { ChefId = 7, FirstName = "Super", LastName = "Admin", UserId = 7, Rating = 5, SubscriptionCost = 999.99m, AccountBalance = 9999.99m }
             );
 
             // Seed Basic Recipes
