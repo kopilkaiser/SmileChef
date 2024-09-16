@@ -86,6 +86,7 @@ namespace SmileChef.Controllers
             AssignChefAndUserId(userId);
             AssignCurrentPageStatus("ChefIndex");
             var allChefs = _chefRepo.GetAll();
+            var allRecipes = _recipeRepo.GetAll();
 
             var getCurrentChef = allChefs.FirstOrDefault(c => c.User.UserId == _currentUserId);
             var userNotifications = _notifySubscribersRepo.GetAll().Where(n => n.SubscriberId == getCurrentChef.ChefId);
@@ -95,6 +96,7 @@ namespace SmileChef.Controllers
             IndexViewModel vm = new IndexViewModel();
             vm.CurrentChef = getCurrentChef;
             vm.TopFiveChefs = allChefs.Where(c=>c.User.IsAdmin != true).OrderByDescending(c => c.Rating).Take(5).ToList();
+            vm.TopFiveRecipes = allRecipes.Where(r => r is PremiumRecipe).OrderByDescending(r => r.Reviews.Count()).Take(5).ToList();
 
             // Redirect to Admin Panel if current user is Admin
             if (getCurrentChef.User.IsAdmin.HasValue && getCurrentChef.User.IsAdmin.Value == true && !showAdminWebsite) {
@@ -757,16 +759,43 @@ namespace SmileChef.Controllers
                 // Update logic for existing recipe
                 if (recipePrice != 0)
                 {
-                    // Update PremiumRecipe
-                    var existingPremiumRecipe = _recipeRepo.GetById(recipe.RecipeId) as PremiumRecipe; // Assuming you have a method to get by id
-                    if (existingPremiumRecipe != null)
+                    // First, check if the recipe is already a PremiumRecipe
+                    var existingRecipe = _recipeRepo.GetById(recipe.RecipeId);
+
+                    if (existingRecipe != null)
                     {
-                        existingPremiumRecipe.Name = recipe.Name;
-                        existingPremiumRecipe.ImageUrl = recipe.ImageUrl;
-                        existingPremiumRecipe.Price = (float)recipePrice;
-                        existingPremiumRecipe.Instructions = instructions;
-                        foreach (var i in existingPremiumRecipe.Instructions) i.Recipe = existingPremiumRecipe;
-                        _recipeRepo.Update(existingPremiumRecipe);
+                        if (existingRecipe is PremiumRecipe existingPremiumRecipe)
+                        {
+                            // If it's already a PremiumRecipe, update it
+                            existingPremiumRecipe.Name = recipe.Name;
+                            existingPremiumRecipe.ImageUrl = recipe.ImageUrl;
+                            existingPremiumRecipe.Price = (float)recipePrice;
+                            existingPremiumRecipe.Instructions = instructions;
+                            foreach (var i in existingPremiumRecipe.Instructions) i.Recipe = existingPremiumRecipe;
+                            _recipeRepo.Update(existingPremiumRecipe);
+                        }
+                        else
+                        {
+                            // If it's a basic recipe, convert it to a PremiumRecipe
+                            var premiumRecipe = new PremiumRecipe
+                            {
+                                Name = recipe.Name,
+                                ImageUrl = recipe.ImageUrl,
+                                ChefId = _chefId,
+                                Price = (float)recipePrice,
+                                Instructions = instructions,
+                                RecipeType = RecipeType.Premium
+                            };
+
+                            foreach (var i in premiumRecipe.Instructions) {
+                                i.InstructionId = 0;
+                                i.Recipe = premiumRecipe;
+                            };
+
+                            // Remove the existing basic recipe and add the new premium one
+                            _recipeRepo.Delete(existingRecipe);
+                            _recipeRepo.Add(premiumRecipe);
+                        }
                     }
                 }
                 else

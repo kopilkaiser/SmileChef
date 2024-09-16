@@ -77,7 +77,19 @@
                                 <li><a class="dropdown-item" href="#">Something else here</a></li> *@
                             </ul>
                         </li>
-                       
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Support Center
+                            </a>
+                            <ul class="dropdown-menu ps-1 pt-1 pb-0 border-0">
+                                <li class="dropdown-item p-0">
+                                    <a class="nav-link text-dark p-1 rounded-1" asp-action="GetSupportPage" asp-controller="Chef">Submit Issue</a>
+                                </li>
+                                <li class="dropdown-item p-0" id="homeNavButton">
+                                    <a class="nav-link text-dark p-1 rounded-1" asp-action="GetSupportCenter" asp-controller="Chef">My Support Center</a>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 My Account
@@ -97,19 +109,7 @@
                                 <li class="dropdown-item p-0"><a class="nav-link text-dark p-1" asp-action="LoginPage" asp-controller="Chef">Log Out</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Support Center
-                            </a>
-                            <ul class="dropdown-menu ps-1 pt-1 pb-0 border-0">
-                                <li class="dropdown-item p-0">
-                                    <a class="nav-link text-dark p-1 rounded-1" asp-action="GetSupportPage" asp-controller="Chef">Submit Issue</a>
-                                </li>
-                                <li class="dropdown-item p-0" id="homeNavButton">
-                                    <a class="nav-link text-dark p-1 rounded-1" asp-action="GetSupportCenter" asp-controller="Chef">My Support Center</a>
-                                </li>
-                            </ul>
-                        </li>
+                     
                         <li class="nav-item dropdown ms-xl-auto" id="cartLiElement">
                             <a id="anchorOrderDetails" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="false">
                                Show Order Details
