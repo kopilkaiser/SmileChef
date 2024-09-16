@@ -32,36 +32,36 @@ namespace ChefApp.Extensions
             );
 
             // Seed Basic Recipes
-            modelBuilder.Entity<Recipe>().HasData(
-                new Recipe { RecipeId = 1, Name = "Beef Wellington", ChefId = 1, RecipeType = RecipeType.Basic, ImageUrl = "recipe1.jpeg" },
+            modelBuilder.Entity<Recipe>().HasData(            
                 new Recipe { RecipeId = 2, Name = "Pasta Carbonara", ChefId = 2, RecipeType = RecipeType.Basic, ImageUrl = "recipe2.jpeg" },
-                new Recipe { RecipeId = 3, Name = "Spicy Tuna Rolls", ChefId = 3, RecipeType = RecipeType.Basic, ImageUrl = "recipe3.jpeg" },
-                new Recipe { RecipeId = 4, Name = "Lentil Soup", ChefId = 4, RecipeType = RecipeType.Basic, ImageUrl = "recipe4.jpeg" },
-                new Recipe { RecipeId = 5, Name = "Roast Chicken", ChefId = 5, RecipeType = RecipeType.Basic, ImageUrl = "recipe5.jpeg" },
-                new Recipe { RecipeId = 6, Name = "Bananas Foster", ChefId = 6, RecipeType = RecipeType.Basic, ImageUrl = "recipe6.jpeg" },
-                new Recipe { RecipeId = 7, Name = "Beef Bolognese", ChefId = 1, RecipeType = RecipeType.Basic, ImageUrl = "recipe7.jpeg" },
-                new Recipe { RecipeId = 8, Name = "Chicken Mushroom Soup", ChefId = 1, RecipeType = RecipeType.Basic, ImageUrl = "recipe8.jpeg" },
+                new Recipe { RecipeId = 3, Name = "Red Chicken Curry", ChefId = 3, RecipeType = RecipeType.Basic, ImageUrl = "recipe3.jpeg" },
+                new Recipe { RecipeId = 4, Name = "Egg & Tomato Shakshuka", ChefId = 4, RecipeType = RecipeType.Basic, ImageUrl = "recipe4.jpeg" },
+                new Recipe { RecipeId = 5, Name = "Roast Chicken Lasagna", ChefId = 5, RecipeType = RecipeType.Basic, ImageUrl = "recipe5.jpeg" },
+                new Recipe { RecipeId = 6, Name = "Salman White Sauce", ChefId = 6, RecipeType = RecipeType.Basic, ImageUrl = "recipe6.jpeg" },
+                new Recipe { RecipeId = 8, Name = "Sweet Strawberry Pancake", ChefId = 1, RecipeType = RecipeType.Basic, ImageUrl = "recipe8.jpeg" },
                 new Recipe { RecipeId = 15, Name = "Classic Margherita Pizza", ChefId = 2, RecipeType = RecipeType.Basic, ImageUrl = "recipe9.jpeg" }, // New basic recipe
-                new Recipe { RecipeId = 16, Name = "Seafood Paella", ChefId = 3, RecipeType = RecipeType.Basic, ImageUrl = "recipe10.jpeg" }, // New basic recipe
-                new Recipe { RecipeId = 17, Name = "Vegetarian Stir Fry", ChefId = 4, RecipeType = RecipeType.Basic, ImageUrl = "recipe11.jpeg" }, // New basic recipe
-                new Recipe { RecipeId = 18, Name = "Slow Cooked Lamb Shank", ChefId = 5, RecipeType = RecipeType.Basic, ImageUrl = "recipe12.jpeg" }, // New basic recipe
-                new Recipe { RecipeId = 19, Name = "Creole Gumbo", ChefId = 6, RecipeType = RecipeType.Basic, ImageUrl = "recipe13.jpeg" } // New basic recipe
+                new Recipe { RecipeId = 16, Name = "Grilled Beef Rolls", ChefId = 3, RecipeType = RecipeType.Basic, ImageUrl = "recipe10.jpeg" }, // New basic recipe
+                new Recipe { RecipeId = 17, Name = "Chicken & Chips", ChefId = 4, RecipeType = RecipeType.Basic, ImageUrl = "recipe11.jpeg" }, // New basic recipe
+                new Recipe { RecipeId = 18, Name = "Lamb Shank", ChefId = 5, RecipeType = RecipeType.Basic, ImageUrl = "recipe12.jpeg" }// New basic recipe      
             );
 
             // Seed Premium Recipes
             modelBuilder.Entity<PremiumRecipe>().HasData(
-                new PremiumRecipe { RecipeId = 9, Name = "Gourmet Beef Wellington", ChefId = 1, Price = 49.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe2.jpeg" },
-                new PremiumRecipe { RecipeId = 10, Name = "Truffle Risotto", ChefId = 2, Price = 39.99f, RecipeType = RecipeType.Premium,ImageUrl = "recipe3.jpeg" },
-                new PremiumRecipe { RecipeId = 11, Name = "Sushi Deluxe", ChefId = 3, Price = 29.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe4.jpeg" },
-                new PremiumRecipe { RecipeId = 12, Name = "Organic Farm-to-Table Salad", ChefId = 4, Price = 19.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe5.jpeg" },
+                new Recipe { RecipeId = 1, Name = "Turmeric Rice Chicken", ChefId = 1, RecipeType = RecipeType.Basic, ImageUrl = "recipe1.jpeg" },
+                new Recipe { RecipeId = 7, Name = "Aubergine Curry Vegetables", ChefId = 1, RecipeType = RecipeType.Basic, ImageUrl = "recipe7.jpeg" },
+                new Recipe { RecipeId = 19, Name = "Crispy Shredded Beef", ChefId = 6, RecipeType = RecipeType.Basic, ImageUrl = "recipe13.jpeg" }, // New basic recipe
+                new PremiumRecipe { RecipeId = 9, Name = "Beef Tomato Sphagetti", ChefId = 1, Price = 49.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe2.jpeg" },
+                new PremiumRecipe { RecipeId = 10, Name = "Butter Chicken Curry", ChefId = 2, Price = 39.99f, RecipeType = RecipeType.Premium,ImageUrl = "recipe3.jpeg" },
+                new PremiumRecipe { RecipeId = 11, Name = "Spicy Shashuka", ChefId = 3, Price = 29.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe4.jpeg" },
+                new PremiumRecipe { RecipeId = 12, Name = "Beef Lasagna", ChefId = 4, Price = 19.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe5.jpeg" },
                 new PremiumRecipe { RecipeId = 13, Name = "Foie Gras Terrine", ChefId = 5, Price = 59.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe6.jpeg" },
-                new PremiumRecipe { RecipeId = 14, Name = "Emeril's Essence Special", ChefId = 6, Price = 24.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe7.jpeg" },
-                new PremiumRecipe { RecipeId = 20, Name = "Lobster Thermidor", ChefId = 1, Price = 69.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe8.jpeg" }, // New premium recipe
-                new PremiumRecipe { RecipeId = 21, Name = "Caviar Blinis", ChefId = 2, Price = 99.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe9.jpeg" }, // New premium recipe
+                new PremiumRecipe { RecipeId = 14, Name = "Emeril's Special Beef", ChefId = 6, Price = 24.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe7.jpeg" },
+                new PremiumRecipe { RecipeId = 20, Name = "Pancake Ice-cream", ChefId = 1, Price = 69.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe8.jpeg" }, // New premium recipe
+                new PremiumRecipe { RecipeId = 21, Name = "Cod Tomato Spicey", ChefId = 2, Price = 99.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe9.jpeg" }, // New premium recipe
                 new PremiumRecipe { RecipeId = 22, Name = "Wagyu Beef Sushi", ChefId = 3, Price = 89.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe10.jpeg" }, // New premium recipe
-                new PremiumRecipe { RecipeId = 23, Name = "Truffle Mushroom Soup", ChefId = 4, Price = 34.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe11.jpeg" }, // New premium recipe
-                new PremiumRecipe { RecipeId = 24, Name = "Duck à l'Orange", ChefId = 5, Price = 54.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe14.jpeg" }, // New premium recipe
-                new PremiumRecipe { RecipeId = 25, Name = "Oysters Rockefeller", ChefId = 6, Price = 44.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe15.jpeg" } // New premium recipe
+                new PremiumRecipe { RecipeId = 23, Name = "Chicken Tartare Peas", ChefId = 4, Price = 34.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe11.jpeg" }, // New premium recipe
+                new PremiumRecipe { RecipeId = 24, Name = "Prawn Olives Pizza", ChefId = 5, Price = 54.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe14.jpeg" }, // New premium recipe
+                new PremiumRecipe { RecipeId = 25, Name = "Vegetable Sphagetti", ChefId = 6, Price = 44.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe15.jpeg" } // New premium recipe
             );
 
             // Seed Instructions with optional Time field
@@ -255,6 +255,38 @@ namespace ChefApp.Extensions
                 new Restaurant { RestaurantId = 4, Lat = 51.41133622965335, Lng = 0.014899074168950227, Location = "Located in Bromley", Title = "Alice Supermarket", Phone = "+447799991111", OperatingTime = "09:00 - 16:30", ChefId = 4 },
                 new Restaurant { RestaurantId = 5, Lat = 51.61474228028355, Lng = -0.25151937991059076, Location = "Located in Edgeware", Title = "Thomas Yummy Restaurant", Phone = "+447723456789", OperatingTime = "09:00 - 18:30", ChefId = 5 },
                 new Restaurant { RestaurantId = 6, Lat = 51.55244958656883, Lng = 0.07257729361227812, Location = "Located in Illford", Title = "Emeril Dirty Icecreams", Phone = "+447766662345", OperatingTime = "09:00 - 18:30", ChefId = 6 }
+            );
+
+            //Seed Reviews
+            modelBuilder.Entity<Review>().HasData(
+                new Review { Id = 1, Message = "Tasty sushi ever posted", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") } ,
+                new Review { Id = 2, Message = "This beef sushi is yummy and tender", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 3, Message = "This chicken and rice goes so well. I enjoyed cooking and eating it", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 4, Message = "Indian foods are indeed very delicious. They are full of spice and adventure.", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 5, Message = "I would surely cook this recipe and share it in my catering events", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 6, Message = "Some recipes are way too expensive for what they offer. Not worth the price.", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 7, Message = "The chef locator feature is incredibly useful. Found a great chef nearby within minutes!", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 8, Message = "The app crashed multiple times while I was browsing recipes. Very frustrating!", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 9, Message = "The service was excellent, and the recipe suggestions were spot on. My family loved the meals!", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 10, Message = "The variety of recipes available is amazing. I’ve learned so many new dishes!", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 11, Message = "The image recognition feature is fantastic. It nailed the recipe suggestion from just a picture.", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 12, Message = "I encountered bugs when trying to pay for a recipe. Really inconvenient!", ReviewerId = 1, RecipeId = 22, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 13, Message = "The notification system is helpful. I get alerts whenever a new recipe is published by my favorite chef.", ReviewerId = 1, RecipeId = 22, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 14, Message = "The recipe categorization could be better. It’s hard to find specific types of dishes.", ReviewerId = 1, RecipeId = 22, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 15, Message = "The balance management feature for chefs is really neat. It's easy to track earnings.", ReviewerId = 1, RecipeId = 22, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 16, Message = "The app’s design is sleek and modern. It makes using it enjoyable.", ReviewerId = 1, RecipeId = 22, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 17, Message = "The service was excellent, and the recipe suggestions were spot on. My family loved the meals!", ReviewerId = 1, RecipeId = 10, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 18, Message = "The chef locator feature is incredibly useful. Found a great chef nearby within minutes!", ReviewerId = 1, RecipeId = 10, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 19, Message = "The customer service is slow. I sent a query two days ago and still haven't heard back.", ReviewerId = 1, RecipeId = 10, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 20, Message = "The variety of recipes available is amazing. I’ve learned so many new dishes!", ReviewerId = 1, RecipeId = 10, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 21, Message = "The image recognition feature is fantastic. It nailed the recipe suggestion from just a picture.", ReviewerId = 1, RecipeId = 10, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 22, Message = "I found the app super intuitive and easy to use. Great for both beginners and experienced cooks.", ReviewerId = 1, RecipeId = 10, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 23, Message = "The subscription system works smoothly, and I get great value from my chef's content.", ReviewerId = 1, RecipeId = 10, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 24, Message = "The notification system is helpful. I get alerts whenever a new recipe is published by my favorite chef.", ReviewerId = 1, RecipeId = 21, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 25, Message = "The app’s design is sleek and modern. It makes using it enjoyable.", ReviewerId = 1, RecipeId = 21, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 26, Message = "The app’s design is sleek and modern. It makes using it enjoyable.", ReviewerId = 1, RecipeId = 21, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 27, Message = "The chicken curry was delicious, with just the right amount of spice. Loved it!", ReviewerId = 1, RecipeId = 23, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
+                new Review { Id = 28, Message = "The salad was bland, with wilted greens and barely any dressing.", ReviewerId = 1, RecipeId = 23, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") }
             );
         }
     }
