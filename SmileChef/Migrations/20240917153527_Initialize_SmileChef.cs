@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmileChef.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial_Migration : Migration
+    public partial class Initialize_SmileChef : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,7 +20,8 @@ namespace SmileChef.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
+                    Password = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
+                    IsAdmin = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -38,8 +39,7 @@ namespace SmileChef.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false),
                     Rating = table.Column<int>(type: "int", nullable: true),
                     SubscriptionCost = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    AccountBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    RestaurantId = table.Column<int>(type: "int", nullable: true)
+                    AccountBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -82,6 +82,7 @@ namespace SmileChef.Migrations
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ChefId = table.Column<int>(type: "int", nullable: false),
                     RecipeType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Price = table.Column<float>(type: "real", nullable: true)
                 },
                 constraints: table =>
@@ -103,9 +104,10 @@ namespace SmileChef.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Lat = table.Column<double>(type: "float", nullable: false),
                     Lng = table.Column<double>(type: "float", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OperatingTIme = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
+                    OperatingTime = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ChefId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -144,6 +146,38 @@ namespace SmileChef.Migrations
                         column: x => x.SubscriberId,
                         principalTable: "Chefs",
                         principalColumn: "ChefId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SupportMessages",
+                columns: table => new
+                {
+                    SupportMessageId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SourceUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Subject = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SupportType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ChefId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: true),
+                    AdminMessage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ClosedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SupportStatus = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SupportMessages", x => x.SupportMessageId);
+                    table.ForeignKey(
+                        name: "FK_SupportMessages_Chefs_ChefId",
+                        column: x => x.ChefId,
+                        principalTable: "Chefs",
+                        principalColumn: "ChefId");
+                    table.ForeignKey(
+                        name: "FK_SupportMessages_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -288,94 +322,108 @@ namespace SmileChef.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "UserId", "Email", "Password" },
+                columns: new[] { "UserId", "Email", "IsAdmin", "Password" },
                 values: new object[,]
                 {
-                    { 1, "gordan@gmail.com", "123" },
-                    { 2, "jamie@gmail.com", "123" },
-                    { 3, "wolfgang@gmail.com", "123" },
-                    { 4, "alice@gmail.com", "123" },
-                    { 5, "thomas@gmail.com", "123" },
-                    { 6, "emeril@gmail.com", "123" }
+                    { 1, "gordan@gmail.com", false, "123" },
+                    { 2, "jamie@gmail.com", false, "123" },
+                    { 3, "wolfgang@gmail.com", false, "123" },
+                    { 4, "alice@gmail.com", false, "123" },
+                    { 5, "thomas@gmail.com", false, "123" },
+                    { 6, "emeril@gmail.com", false, "123" },
+                    { 7, "admin@gg.com", true, "admin123" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Chefs",
-                columns: new[] { "ChefId", "AccountBalance", "FirstName", "LastName", "Rating", "RestaurantId", "SubscriptionCost", "UserId" },
+                columns: new[] { "ChefId", "AccountBalance", "FirstName", "LastName", "Rating", "SubscriptionCost", "UserId" },
                 values: new object[,]
                 {
-                    { 1, 10000m, "Gordon", "Ramsay", 3, null, 12.99m, 1 },
-                    { 2, 5500m, "Jamie", "Oliver", 1, null, 11.99m, 2 },
-                    { 3, 9000m, "Wolfgang", "Puck", 5, null, 5.99m, 3 },
-                    { 4, 15000m, "Alice", "Waters", 4, null, 6.99m, 4 },
-                    { 5, 8000m, "Thomas", "Keller", 2, null, 15.99m, 5 },
-                    { 6, 7000m, "Emeril", "Lagasse", 5, null, 10.99m, 6 }
+                    { 1, 10000m, "Gordon", "Ramsay", 3, 12.99m, 1 },
+                    { 2, 5500m, "Jamie", "Oliver", 1, 11.99m, 2 },
+                    { 3, 9000m, "Wolfgang", "Puck", 5, 5.99m, 3 },
+                    { 4, 15000m, "Alice", "Waters", 4, 6.99m, 4 },
+                    { 5, 8000m, "Thomas", "Keller", 2, 15.99m, 5 },
+                    { 6, 7000m, "Emeril", "Lagasse", 5, 10.99m, 6 },
+                    { 7, 9999.99m, "Super", "Admin", 5, 999.99m, 7 }
                 });
 
             migrationBuilder.InsertData(
                 table: "Recipes",
-                columns: new[] { "RecipeId", "ChefId", "Name", "RecipeType" },
+                columns: new[] { "RecipeId", "ChefId", "ImageUrl", "Name", "Price", "RecipeType" },
+                values: new object[] { 1, 1, "recipe1.jpeg", "Turmeric Rice Chicken", null, "Premium" });
+
+            migrationBuilder.InsertData(
+                table: "Recipes",
+                columns: new[] { "RecipeId", "ChefId", "ImageUrl", "Name", "RecipeType" },
                 values: new object[,]
                 {
-                    { 1, 1, "Beef Wellington", "Basic" },
-                    { 2, 2, "Pasta Carbonara", "Basic" },
-                    { 3, 3, "Spicy Tuna Rolls", "Basic" },
-                    { 4, 4, "Lentil Soup", "Basic" },
-                    { 5, 5, "Roast Chicken", "Basic" },
-                    { 6, 6, "Bananas Foster", "Basic" },
-                    { 7, 1, "Beef Bolognese", "Basic" },
-                    { 8, 1, "Chicken Mushroom Soup", "Basic" }
+                    { 2, 2, "recipe2.jpeg", "Pasta Carbonara", "Basic" },
+                    { 3, 3, "recipe3.jpeg", "Red Chicken Curry", "Basic" },
+                    { 4, 4, "recipe4.jpeg", "Egg & Tomato Shakshuka", "Basic" },
+                    { 5, 5, "recipe5.jpeg", "Roast Chicken Lasagna", "Basic" },
+                    { 6, 6, "recipe6.jpeg", "Salman White Sauce", "Basic" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Recipes",
-                columns: new[] { "RecipeId", "ChefId", "Name", "Price", "RecipeType" },
+                columns: new[] { "RecipeId", "ChefId", "ImageUrl", "Name", "Price", "RecipeType" },
+                values: new object[] { 7, 1, "recipe7.jpeg", "Aubergine Curry Vegetables", null, "Premium" });
+
+            migrationBuilder.InsertData(
+                table: "Recipes",
+                columns: new[] { "RecipeId", "ChefId", "ImageUrl", "Name", "RecipeType" },
+                values: new object[] { 8, 1, "recipe8.jpeg", "Sweet Strawberry Pancake", "Basic" });
+
+            migrationBuilder.InsertData(
+                table: "Recipes",
+                columns: new[] { "RecipeId", "ChefId", "ImageUrl", "Name", "Price", "RecipeType" },
                 values: new object[,]
                 {
-                    { 9, 1, "Gourmet Beef Wellington", 49.99f, "Premium" },
-                    { 10, 2, "Truffle Risotto", 39.99f, "Premium" },
-                    { 11, 3, "Sushi Deluxe", 29.99f, "Premium" },
-                    { 12, 4, "Organic Farm-to-Table Salad", 19.99f, "Premium" },
-                    { 13, 5, "Foie Gras Terrine", 59.99f, "Premium" },
-                    { 14, 6, "Emeril's Essence Special", 24.99f, "Premium" }
+                    { 9, 1, "recipe2.jpeg", "Beef Tomato Sphagetti", 49.99f, "Premium" },
+                    { 10, 2, "recipe3.jpeg", "Butter Chicken Curry", 39.99f, "Premium" },
+                    { 11, 3, "recipe4.jpeg", "Spicy Shashuka", 29.99f, "Premium" },
+                    { 12, 4, "recipe5.jpeg", "Beef Lasagna", 19.99f, "Premium" },
+                    { 13, 5, "recipe6.jpeg", "Foie Gras Terrine", 59.99f, "Premium" },
+                    { 14, 6, "recipe7.jpeg", "Emeril's Special Beef", 24.99f, "Premium" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Recipes",
-                columns: new[] { "RecipeId", "ChefId", "Name", "RecipeType" },
+                columns: new[] { "RecipeId", "ChefId", "ImageUrl", "Name", "RecipeType" },
                 values: new object[,]
                 {
-                    { 15, 2, "Classic Margherita Pizza", "Basic" },
-                    { 16, 3, "Seafood Paella", "Basic" },
-                    { 17, 4, "Vegetarian Stir Fry", "Basic" },
-                    { 18, 5, "Slow Cooked Lamb Shank", "Basic" },
-                    { 19, 6, "Creole Gumbo", "Basic" }
+                    { 15, 2, "recipe9.jpeg", "Classic Margherita Pizza", "Basic" },
+                    { 16, 3, "recipe10.jpeg", "Grilled Beef Rolls", "Basic" },
+                    { 17, 4, "recipe11.jpeg", "Chicken & Chips", "Basic" },
+                    { 18, 5, "recipe12.jpeg", "Lamb Shank", "Basic" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Recipes",
-                columns: new[] { "RecipeId", "ChefId", "Name", "Price", "RecipeType" },
+                columns: new[] { "RecipeId", "ChefId", "ImageUrl", "Name", "Price", "RecipeType" },
                 values: new object[,]
                 {
-                    { 20, 1, "Lobster Thermidor", 69.99f, "Premium" },
-                    { 21, 2, "Caviar Blinis", 99.99f, "Premium" },
-                    { 22, 3, "Wagyu Beef Sushi", 89.99f, "Premium" },
-                    { 23, 4, "Truffle Mushroom Soup", 34.99f, "Premium" },
-                    { 24, 5, "Duck à l'Orange", 54.99f, "Premium" },
-                    { 25, 6, "Oysters Rockefeller", 44.99f, "Premium" }
+                    { 19, 6, "recipe13.jpeg", "Crispy Shredded Beef", null, "Premium" },
+                    { 20, 1, "recipe8.jpeg", "Pancake Ice-cream", 69.99f, "Premium" },
+                    { 21, 2, "recipe9.jpeg", "Cod Tomato Spicey", 99.99f, "Premium" },
+                    { 22, 3, "recipe10.jpeg", "Wagyu Beef Sushi", 89.99f, "Premium" },
+                    { 23, 4, "recipe11.jpeg", "Chicken Tartare Peas", 34.99f, "Premium" },
+                    { 24, 5, "recipe14.jpeg", "Prawn Olives Pizza", 54.99f, "Premium" },
+                    { 25, 6, "recipe15.jpeg", "Vegetable Sphagetti", 44.99f, "Premium" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Restaurants",
-                columns: new[] { "RestaurantId", "ChefId", "Lat", "Lng", "OperatingTIme", "Phone", "Title" },
+                columns: new[] { "RestaurantId", "ChefId", "Lat", "Lng", "Location", "OperatingTime", "Phone", "Title" },
                 values: new object[,]
                 {
-                    { 1, 1, 51.407856342781869, -0.29675218001524584, "09:00 - 17:00", "+447745566123", "Kingston Upon Thames - FastBank" },
-                    { 2, 2, 51.498995498502502, -0.11582109991560025, "09:00 - 18:00", "+447711223334", "Central London - FastBank" },
-                    { 3, 3, 51.509680652979817, -0.30602189042240918, "09:00 - 15:30", "+447733332222", "Ealing - FastBank" },
-                    { 4, 4, 51.411336229653351, 0.014899074168950227, "09:00 - 16:30", "+447799991111", "Bromley - FastBank" },
-                    { 5, 5, 51.614742280283551, -0.25151937991059076, "09:00 - 18:30", "+447723456789", "Edgware - FastBank" },
-                    { 6, 6, 51.552449586568827, 0.072577293612278118, "09:00 - 18:30", "+447766662345", "Illford - FastBank" }
+                    { 1, 1, 51.407856342781869, -0.29675218001524584, "Located in Kingston Upon Thames", "09:00 - 17:00", "+447745566123", "Gordon Restaurant" },
+                    { 2, 2, 51.48230385097871, 0.16090573471658554, "Located in Erith", "09:00 - 18:00", "+447711223334", "Oliver Cake shop" },
+                    { 3, 3, 51.509680652979817, -0.30602189042240918, "Located in Ealing", "09:00 - 15:30", "+447733332222", "Wolfgang Barbeque Zone" },
+                    { 4, 4, 51.411336229653351, 0.014899074168950227, "Located in Bromley", "09:00 - 16:30", "+447799991111", "Alice Supermarket" },
+                    { 5, 5, 51.614742280283551, -0.25151937991059076, "Located in Edgeware", "09:00 - 18:30", "+447723456789", "Thomas Yummy Restaurant" },
+                    { 6, 6, 51.552449586568827, 0.072577293612278118, "Located in Illford", "09:00 - 18:30", "+447766662345", "Emeril Dirty Icecreams" }
                 });
 
             migrationBuilder.InsertData(
@@ -479,10 +527,40 @@ namespace SmileChef.Migrations
                     { 77, "Bake oysters", new TimeSpan(0, 0, 8, 0, 0), 3, 25 }
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Chefs_RestaurantId",
-                table: "Chefs",
-                column: "RestaurantId");
+            migrationBuilder.InsertData(
+                table: "Reviews",
+                columns: new[] { "Id", "Message", "RecipeId", "ReviewDate", "ReviewerId" },
+                values: new object[,]
+                {
+                    { 1, "Tasty sushi ever posted", 1, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 2, "This beef sushi is yummy and tender", 1, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 3, "This chicken and rice goes so well. I enjoyed cooking and eating it", 1, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 4, "Indian foods are indeed very delicious. They are full of spice and adventure.", 1, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 5, "I would surely cook this recipe and share it in my catering events", 1, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 6, "Some recipes are way too expensive for what they offer. Not worth the price.", 1, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 7, "The chef locator feature is incredibly useful. Found a great chef nearby within minutes!", 1, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 8, "The app crashed multiple times while I was browsing recipes. Very frustrating!", 1, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 9, "The service was excellent, and the recipe suggestions were spot on. My family loved the meals!", 1, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 10, "The variety of recipes available is amazing. I’ve learned so many new dishes!", 1, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 11, "The image recognition feature is fantastic. It nailed the recipe suggestion from just a picture.", 1, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 12, "I encountered bugs when trying to pay for a recipe. Really inconvenient!", 22, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 13, "The notification system is helpful. I get alerts whenever a new recipe is published by my favorite chef.", 22, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 14, "The recipe categorization could be better. It’s hard to find specific types of dishes.", 22, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 15, "The balance management feature for chefs is really neat. It's easy to track earnings.", 22, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 16, "The app’s design is sleek and modern. It makes using it enjoyable.", 22, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 17, "The service was excellent, and the recipe suggestions were spot on. My family loved the meals!", 10, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 18, "The chef locator feature is incredibly useful. Found a great chef nearby within minutes!", 10, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 19, "The customer service is slow. I sent a query two days ago and still haven't heard back.", 10, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 20, "The variety of recipes available is amazing. I’ve learned so many new dishes!", 10, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 21, "The image recognition feature is fantastic. It nailed the recipe suggestion from just a picture.", 10, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 22, "I found the app super intuitive and easy to use. Great for both beginners and experienced cooks.", 10, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 23, "The subscription system works smoothly, and I get great value from my chef's content.", 10, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 24, "The notification system is helpful. I get alerts whenever a new recipe is published by my favorite chef.", 21, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 25, "The app’s design is sleek and modern. It makes using it enjoyable.", 21, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 26, "The app’s design is sleek and modern. It makes using it enjoyable.", 21, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 27, "The chicken curry was delicious, with just the right amount of spice. Loved it!", 23, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 },
+                    { 28, "The salad was bland, with wilted greens and barely any dressing.", 23, new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified), 1 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Chefs_UserId",
@@ -542,7 +620,8 @@ namespace SmileChef.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Restaurants_ChefId",
                 table: "Restaurants",
-                column: "ChefId");
+                column: "ChefId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_RecipeId",
@@ -564,21 +643,20 @@ namespace SmileChef.Migrations
                 table: "Subscriptions",
                 column: "SubscriberId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Chefs_Restaurants_RestaurantId",
-                table: "Chefs",
-                column: "RestaurantId",
-                principalTable: "Restaurants",
-                principalColumn: "RestaurantId");
+            migrationBuilder.CreateIndex(
+                name: "IX_SupportMessages_ChefId",
+                table: "SupportMessages",
+                column: "ChefId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupportMessages_UserId",
+                table: "SupportMessages",
+                column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Chefs_Restaurants_RestaurantId",
-                table: "Chefs");
-
             migrationBuilder.DropTable(
                 name: "Instructions");
 
@@ -592,19 +670,22 @@ namespace SmileChef.Migrations
                 name: "RecipeBookmarks");
 
             migrationBuilder.DropTable(
+                name: "Restaurants");
+
+            migrationBuilder.DropTable(
                 name: "Reviews");
 
             migrationBuilder.DropTable(
                 name: "Subscriptions");
 
             migrationBuilder.DropTable(
+                name: "SupportMessages");
+
+            migrationBuilder.DropTable(
                 name: "Orders");
 
             migrationBuilder.DropTable(
                 name: "Recipes");
-
-            migrationBuilder.DropTable(
-                name: "Restaurants");
 
             migrationBuilder.DropTable(
                 name: "Chefs");

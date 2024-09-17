@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SmileChef.Migrations
 {
     [DbContext(typeof(ChefAppContext))]
-    [Migration("20240904224622_Initial_Migration")]
-    partial class Initial_Migration
+    [Migration("20240917153527_Initialize_SmileChef")]
+    partial class Initialize_SmileChef
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,9 +49,6 @@ namespace SmileChef.Migrations
                     b.Property<int?>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<int?>("RestaurantId")
-                        .HasColumnType("int");
-
                     b.Property<decimal?>("SubscriptionCost")
                         .HasColumnType("decimal(18,2)");
 
@@ -59,8 +56,6 @@ namespace SmileChef.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ChefId");
-
-                    b.HasIndex("RestaurantId");
 
                     b.HasIndex("UserId");
 
@@ -126,6 +121,16 @@ namespace SmileChef.Migrations
                             Rating = 5,
                             SubscriptionCost = 10.99m,
                             UserId = 6
+                        },
+                        new
+                        {
+                            ChefId = 7,
+                            AccountBalance = 9999.99m,
+                            FirstName = "Super",
+                            LastName = "Admin",
+                            Rating = 5,
+                            SubscriptionCost = 999.99m,
+                            UserId = 7
                         });
                 });
 
@@ -754,6 +759,9 @@ namespace SmileChef.Migrations
                     b.Property<int>("ChefId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -776,15 +784,9 @@ namespace SmileChef.Migrations
                     b.HasData(
                         new
                         {
-                            RecipeId = 1,
-                            ChefId = 1,
-                            Name = "Beef Wellington",
-                            RecipeType = "Basic"
-                        },
-                        new
-                        {
                             RecipeId = 2,
                             ChefId = 2,
+                            ImageUrl = "recipe2.jpeg",
                             Name = "Pasta Carbonara",
                             RecipeType = "Basic"
                         },
@@ -792,48 +794,47 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 3,
                             ChefId = 3,
-                            Name = "Spicy Tuna Rolls",
+                            ImageUrl = "recipe3.jpeg",
+                            Name = "Red Chicken Curry",
                             RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 4,
                             ChefId = 4,
-                            Name = "Lentil Soup",
+                            ImageUrl = "recipe4.jpeg",
+                            Name = "Egg & Tomato Shakshuka",
                             RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 5,
                             ChefId = 5,
-                            Name = "Roast Chicken",
+                            ImageUrl = "recipe5.jpeg",
+                            Name = "Roast Chicken Lasagna",
                             RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 6,
                             ChefId = 6,
-                            Name = "Bananas Foster",
-                            RecipeType = "Basic"
-                        },
-                        new
-                        {
-                            RecipeId = 7,
-                            ChefId = 1,
-                            Name = "Beef Bolognese",
+                            ImageUrl = "recipe6.jpeg",
+                            Name = "Salman White Sauce",
                             RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 8,
                             ChefId = 1,
-                            Name = "Chicken Mushroom Soup",
+                            ImageUrl = "recipe8.jpeg",
+                            Name = "Sweet Strawberry Pancake",
                             RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 15,
                             ChefId = 2,
+                            ImageUrl = "recipe9.jpeg",
                             Name = "Classic Margherita Pizza",
                             RecipeType = "Basic"
                         },
@@ -841,28 +842,24 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 16,
                             ChefId = 3,
-                            Name = "Seafood Paella",
+                            ImageUrl = "recipe10.jpeg",
+                            Name = "Grilled Beef Rolls",
                             RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 17,
                             ChefId = 4,
-                            Name = "Vegetarian Stir Fry",
+                            ImageUrl = "recipe11.jpeg",
+                            Name = "Chicken & Chips",
                             RecipeType = "Basic"
                         },
                         new
                         {
                             RecipeId = 18,
                             ChefId = 5,
-                            Name = "Slow Cooked Lamb Shank",
-                            RecipeType = "Basic"
-                        },
-                        new
-                        {
-                            RecipeId = 19,
-                            ChefId = 6,
-                            Name = "Creole Gumbo",
+                            ImageUrl = "recipe12.jpeg",
+                            Name = "Lamb Shank",
                             RecipeType = "Basic"
                         });
                 });
@@ -1129,18 +1126,30 @@ namespace SmileChef.Migrations
                     b.Property<double>("Lng")
                         .HasColumnType("float");
 
-                    b.Property<string>("OperatingTIme")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("OperatingTime")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("RestaurantId");
 
-                    b.HasIndex("ChefId");
+                    b.HasIndex("ChefId")
+                        .IsUnique();
 
                     b.ToTable("Restaurants");
 
@@ -1151,19 +1160,21 @@ namespace SmileChef.Migrations
                             ChefId = 1,
                             Lat = 51.407856342781869,
                             Lng = -0.29675218001524584,
-                            OperatingTIme = "09:00 - 17:00",
+                            Location = "Located in Kingston Upon Thames",
+                            OperatingTime = "09:00 - 17:00",
                             Phone = "+447745566123",
-                            Title = "Kingston Upon Thames - FastBank"
+                            Title = "Gordon Restaurant"
                         },
                         new
                         {
                             RestaurantId = 2,
                             ChefId = 2,
-                            Lat = 51.498995498502502,
-                            Lng = -0.11582109991560025,
-                            OperatingTIme = "09:00 - 18:00",
+                            Lat = 51.48230385097871,
+                            Lng = 0.16090573471658554,
+                            Location = "Located in Erith",
+                            OperatingTime = "09:00 - 18:00",
                             Phone = "+447711223334",
-                            Title = "Central London - FastBank"
+                            Title = "Oliver Cake shop"
                         },
                         new
                         {
@@ -1171,9 +1182,10 @@ namespace SmileChef.Migrations
                             ChefId = 3,
                             Lat = 51.509680652979817,
                             Lng = -0.30602189042240918,
-                            OperatingTIme = "09:00 - 15:30",
+                            Location = "Located in Ealing",
+                            OperatingTime = "09:00 - 15:30",
                             Phone = "+447733332222",
-                            Title = "Ealing - FastBank"
+                            Title = "Wolfgang Barbeque Zone"
                         },
                         new
                         {
@@ -1181,9 +1193,10 @@ namespace SmileChef.Migrations
                             ChefId = 4,
                             Lat = 51.411336229653351,
                             Lng = 0.014899074168950227,
-                            OperatingTIme = "09:00 - 16:30",
+                            Location = "Located in Bromley",
+                            OperatingTime = "09:00 - 16:30",
                             Phone = "+447799991111",
-                            Title = "Bromley - FastBank"
+                            Title = "Alice Supermarket"
                         },
                         new
                         {
@@ -1191,9 +1204,10 @@ namespace SmileChef.Migrations
                             ChefId = 5,
                             Lat = 51.614742280283551,
                             Lng = -0.25151937991059076,
-                            OperatingTIme = "09:00 - 18:30",
+                            Location = "Located in Edgeware",
+                            OperatingTime = "09:00 - 18:30",
                             Phone = "+447723456789",
-                            Title = "Edgware - FastBank"
+                            Title = "Thomas Yummy Restaurant"
                         },
                         new
                         {
@@ -1201,9 +1215,10 @@ namespace SmileChef.Migrations
                             ChefId = 6,
                             Lat = 51.552449586568827,
                             Lng = 0.072577293612278118,
-                            OperatingTIme = "09:00 - 18:30",
+                            Location = "Located in Illford",
+                            OperatingTime = "09:00 - 18:30",
                             Phone = "+447766662345",
-                            Title = "Illford - FastBank"
+                            Title = "Emeril Dirty Icecreams"
                         });
                 });
 
@@ -1234,6 +1249,284 @@ namespace SmileChef.Migrations
                     b.HasIndex("ReviewerId");
 
                     b.ToTable("Reviews");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Message = "Tasty sushi ever posted",
+                            RecipeId = 1,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Message = "This beef sushi is yummy and tender",
+                            RecipeId = 1,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Message = "This chicken and rice goes so well. I enjoyed cooking and eating it",
+                            RecipeId = 1,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Message = "Indian foods are indeed very delicious. They are full of spice and adventure.",
+                            RecipeId = 1,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Message = "I would surely cook this recipe and share it in my catering events",
+                            RecipeId = 1,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Message = "Some recipes are way too expensive for what they offer. Not worth the price.",
+                            RecipeId = 1,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Message = "The chef locator feature is incredibly useful. Found a great chef nearby within minutes!",
+                            RecipeId = 1,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Message = "The app crashed multiple times while I was browsing recipes. Very frustrating!",
+                            RecipeId = 1,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Message = "The service was excellent, and the recipe suggestions were spot on. My family loved the meals!",
+                            RecipeId = 1,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Message = "The variety of recipes available is amazing. I’ve learned so many new dishes!",
+                            RecipeId = 1,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Message = "The image recognition feature is fantastic. It nailed the recipe suggestion from just a picture.",
+                            RecipeId = 1,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Message = "I encountered bugs when trying to pay for a recipe. Really inconvenient!",
+                            RecipeId = 22,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Message = "The notification system is helpful. I get alerts whenever a new recipe is published by my favorite chef.",
+                            RecipeId = 22,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Message = "The recipe categorization could be better. It’s hard to find specific types of dishes.",
+                            RecipeId = 22,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Message = "The balance management feature for chefs is really neat. It's easy to track earnings.",
+                            RecipeId = 22,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Message = "The app’s design is sleek and modern. It makes using it enjoyable.",
+                            RecipeId = 22,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Message = "The service was excellent, and the recipe suggestions were spot on. My family loved the meals!",
+                            RecipeId = 10,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Message = "The chef locator feature is incredibly useful. Found a great chef nearby within minutes!",
+                            RecipeId = 10,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Message = "The customer service is slow. I sent a query two days ago and still haven't heard back.",
+                            RecipeId = 10,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Message = "The variety of recipes available is amazing. I’ve learned so many new dishes!",
+                            RecipeId = 10,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Message = "The image recognition feature is fantastic. It nailed the recipe suggestion from just a picture.",
+                            RecipeId = 10,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Message = "I found the app super intuitive and easy to use. Great for both beginners and experienced cooks.",
+                            RecipeId = 10,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Message = "The subscription system works smoothly, and I get great value from my chef's content.",
+                            RecipeId = 10,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Message = "The notification system is helpful. I get alerts whenever a new recipe is published by my favorite chef.",
+                            RecipeId = 21,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Message = "The app’s design is sleek and modern. It makes using it enjoyable.",
+                            RecipeId = 21,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Message = "The app’s design is sleek and modern. It makes using it enjoyable.",
+                            RecipeId = 21,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Message = "The chicken curry was delicious, with just the right amount of spice. Loved it!",
+                            RecipeId = 23,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Message = "The salad was bland, with wilted greens and barely any dressing.",
+                            RecipeId = 23,
+                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 1
+                        });
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.SupportMessage", b =>
+                {
+                    b.Property<int>("SupportMessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SupportMessageId"));
+
+                    b.Property<string>("AdminMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ChefId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ClosedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SourceUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SupportStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SupportType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SupportMessageId");
+
+                    b.HasIndex("ChefId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SupportMessages");
                 });
 
             modelBuilder.Entity("SmileChef.Models.DbModels.User", b =>
@@ -1247,6 +1540,9 @@ namespace SmileChef.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsAdmin")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -1262,37 +1558,50 @@ namespace SmileChef.Migrations
                         {
                             UserId = 1,
                             Email = "gordan@gmail.com",
+                            IsAdmin = false,
                             Password = "123"
                         },
                         new
                         {
                             UserId = 2,
                             Email = "jamie@gmail.com",
+                            IsAdmin = false,
                             Password = "123"
                         },
                         new
                         {
                             UserId = 3,
                             Email = "wolfgang@gmail.com",
+                            IsAdmin = false,
                             Password = "123"
                         },
                         new
                         {
                             UserId = 4,
                             Email = "alice@gmail.com",
+                            IsAdmin = false,
                             Password = "123"
                         },
                         new
                         {
                             UserId = 5,
                             Email = "thomas@gmail.com",
+                            IsAdmin = false,
                             Password = "123"
                         },
                         new
                         {
                             UserId = 6,
                             Email = "emeril@gmail.com",
+                            IsAdmin = false,
                             Password = "123"
+                        },
+                        new
+                        {
+                            UserId = 7,
+                            Email = "admin@gg.com",
+                            IsAdmin = true,
+                            Password = "admin123"
                         });
                 });
 
@@ -1310,9 +1619,34 @@ namespace SmileChef.Migrations
                     b.HasData(
                         new
                         {
+                            RecipeId = 1,
+                            ChefId = 1,
+                            ImageUrl = "recipe1.jpeg",
+                            Name = "Turmeric Rice Chicken",
+                            RecipeType = "Basic"
+                        },
+                        new
+                        {
+                            RecipeId = 7,
+                            ChefId = 1,
+                            ImageUrl = "recipe7.jpeg",
+                            Name = "Aubergine Curry Vegetables",
+                            RecipeType = "Basic"
+                        },
+                        new
+                        {
+                            RecipeId = 19,
+                            ChefId = 6,
+                            ImageUrl = "recipe13.jpeg",
+                            Name = "Crispy Shredded Beef",
+                            RecipeType = "Basic"
+                        },
+                        new
+                        {
                             RecipeId = 9,
                             ChefId = 1,
-                            Name = "Gourmet Beef Wellington",
+                            ImageUrl = "recipe2.jpeg",
+                            Name = "Beef Tomato Sphagetti",
                             RecipeType = "Premium",
                             Price = 49.99f
                         },
@@ -1320,7 +1654,8 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 10,
                             ChefId = 2,
-                            Name = "Truffle Risotto",
+                            ImageUrl = "recipe3.jpeg",
+                            Name = "Butter Chicken Curry",
                             RecipeType = "Premium",
                             Price = 39.99f
                         },
@@ -1328,7 +1663,8 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 11,
                             ChefId = 3,
-                            Name = "Sushi Deluxe",
+                            ImageUrl = "recipe4.jpeg",
+                            Name = "Spicy Shashuka",
                             RecipeType = "Premium",
                             Price = 29.99f
                         },
@@ -1336,7 +1672,8 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 12,
                             ChefId = 4,
-                            Name = "Organic Farm-to-Table Salad",
+                            ImageUrl = "recipe5.jpeg",
+                            Name = "Beef Lasagna",
                             RecipeType = "Premium",
                             Price = 19.99f
                         },
@@ -1344,6 +1681,7 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 13,
                             ChefId = 5,
+                            ImageUrl = "recipe6.jpeg",
                             Name = "Foie Gras Terrine",
                             RecipeType = "Premium",
                             Price = 59.99f
@@ -1352,7 +1690,8 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 14,
                             ChefId = 6,
-                            Name = "Emeril's Essence Special",
+                            ImageUrl = "recipe7.jpeg",
+                            Name = "Emeril's Special Beef",
                             RecipeType = "Premium",
                             Price = 24.99f
                         },
@@ -1360,7 +1699,8 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 20,
                             ChefId = 1,
-                            Name = "Lobster Thermidor",
+                            ImageUrl = "recipe8.jpeg",
+                            Name = "Pancake Ice-cream",
                             RecipeType = "Premium",
                             Price = 69.99f
                         },
@@ -1368,7 +1708,8 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 21,
                             ChefId = 2,
-                            Name = "Caviar Blinis",
+                            ImageUrl = "recipe9.jpeg",
+                            Name = "Cod Tomato Spicey",
                             RecipeType = "Premium",
                             Price = 99.99f
                         },
@@ -1376,6 +1717,7 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 22,
                             ChefId = 3,
+                            ImageUrl = "recipe10.jpeg",
                             Name = "Wagyu Beef Sushi",
                             RecipeType = "Premium",
                             Price = 89.99f
@@ -1384,7 +1726,8 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 23,
                             ChefId = 4,
-                            Name = "Truffle Mushroom Soup",
+                            ImageUrl = "recipe11.jpeg",
+                            Name = "Chicken Tartare Peas",
                             RecipeType = "Premium",
                             Price = 34.99f
                         },
@@ -1392,7 +1735,8 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 24,
                             ChefId = 5,
-                            Name = "Duck à l'Orange",
+                            ImageUrl = "recipe14.jpeg",
+                            Name = "Prawn Olives Pizza",
                             RecipeType = "Premium",
                             Price = 54.99f
                         },
@@ -1400,7 +1744,8 @@ namespace SmileChef.Migrations
                         {
                             RecipeId = 25,
                             ChefId = 6,
-                            Name = "Oysters Rockefeller",
+                            ImageUrl = "recipe15.jpeg",
+                            Name = "Vegetable Sphagetti",
                             RecipeType = "Premium",
                             Price = 44.99f
                         });
@@ -1408,17 +1753,11 @@ namespace SmileChef.Migrations
 
             modelBuilder.Entity("ChefApp.Models.DbModels.Chef", b =>
                 {
-                    b.HasOne("SmileChef.Models.DbModels.Restaurant", "Restaurant")
-                        .WithMany()
-                        .HasForeignKey("RestaurantId");
-
                     b.HasOne("SmileChef.Models.DbModels.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Restaurant");
 
                     b.Navigation("User");
                 });
@@ -1543,8 +1882,8 @@ namespace SmileChef.Migrations
             modelBuilder.Entity("SmileChef.Models.DbModels.Restaurant", b =>
                 {
                     b.HasOne("ChefApp.Models.DbModels.Chef", "Chef")
-                        .WithMany()
-                        .HasForeignKey("ChefId")
+                        .WithOne("Restaurant")
+                        .HasForeignKey("SmileChef.Models.DbModels.Restaurant", "ChefId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1570,6 +1909,24 @@ namespace SmileChef.Migrations
                     b.Navigation("Reviewer");
                 });
 
+            modelBuilder.Entity("SmileChef.Models.DbModels.SupportMessage", b =>
+                {
+                    b.HasOne("ChefApp.Models.DbModels.Chef", "Sender")
+                        .WithMany("SupportMessages")
+                        .HasForeignKey("ChefId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("SmileChef.Models.DbModels.User", "AdminUser")
+                        .WithMany("HandledMessages")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("AdminUser");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("ChefApp.Models.DbModels.Chef", b =>
                 {
                     b.Navigation("Orders");
@@ -1580,7 +1937,12 @@ namespace SmileChef.Migrations
 
                     b.Navigation("Recipes");
 
+                    b.Navigation("Restaurant")
+                        .IsRequired();
+
                     b.Navigation("SubscribedTo");
+
+                    b.Navigation("SupportMessages");
                 });
 
             modelBuilder.Entity("ChefApp.Models.DbModels.Recipe", b =>
@@ -1593,6 +1955,11 @@ namespace SmileChef.Migrations
             modelBuilder.Entity("SmileChef.Models.DbModels.Order", b =>
                 {
                     b.Navigation("OrderLines");
+                });
+
+            modelBuilder.Entity("SmileChef.Models.DbModels.User", b =>
+                {
+                    b.Navigation("HandledMessages");
                 });
 #pragma warning restore 612, 618
         }
