@@ -4,6 +4,7 @@ using ChefApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SmileChef.Migrations
 {
     [DbContext(typeof(ChefAppContext))]
-    partial class ChefAppContextModelSnapshot : ModelSnapshot
+    [Migration("20240920073922_Reviews_Fix")]
+    partial class Reviews_Fix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1246,232 +1249,6 @@ namespace SmileChef.Migrations
                     b.HasIndex("ReviewerId");
 
                     b.ToTable("Reviews");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Message = "Tasty sushi ever posted",
-                            RecipeId = 1,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Message = "This beef sushi is yummy and tender",
-                            RecipeId = 1,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Message = "This chicken and rice goes so well. I enjoyed cooking and eating it",
-                            RecipeId = 1,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Message = "Indian foods are indeed very delicious. They are full of spice and adventure.",
-                            RecipeId = 1,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Message = "I would surely cook this recipe and share it in my catering events",
-                            RecipeId = 1,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Message = "Some recipes are way too expensive for what they offer. Not worth the price.",
-                            RecipeId = 1,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Message = "The chef locator feature is incredibly useful. Found a great chef nearby within minutes!",
-                            RecipeId = 1,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Message = "The app crashed multiple times while I was browsing recipes. Very frustrating!",
-                            RecipeId = 1,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Message = "The service was excellent, and the recipe suggestions were spot on. My family loved the meals!",
-                            RecipeId = 1,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Message = "The variety of recipes available is amazing. I’ve learned so many new dishes!",
-                            RecipeId = 1,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Message = "The image recognition feature is fantastic. It nailed the recipe suggestion from just a picture.",
-                            RecipeId = 1,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Message = "I encountered bugs when trying to pay for a recipe. Really inconvenient!",
-                            RecipeId = 22,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Message = "The notification system is helpful. I get alerts whenever a new recipe is published by my favorite chef.",
-                            RecipeId = 22,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Message = "The recipe categorization could be better. It’s hard to find specific types of dishes.",
-                            RecipeId = 22,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Message = "The balance management feature for chefs is really neat. It's easy to track earnings.",
-                            RecipeId = 22,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Message = "The app’s design is sleek and modern. It makes using it enjoyable.",
-                            RecipeId = 22,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Message = "The service was excellent, and the recipe suggestions were spot on. My family loved the meals!",
-                            RecipeId = 10,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 18,
-                            Message = "The chef locator feature is incredibly useful. Found a great chef nearby within minutes!",
-                            RecipeId = 10,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 19,
-                            Message = "The customer service is slow. I sent a query two days ago and still haven't heard back.",
-                            RecipeId = 10,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 20,
-                            Message = "The variety of recipes available is amazing. I’ve learned so many new dishes!",
-                            RecipeId = 10,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 21,
-                            Message = "The image recognition feature is fantastic. It nailed the recipe suggestion from just a picture.",
-                            RecipeId = 10,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 22,
-                            Message = "I found the app super intuitive and easy to use. Great for both beginners and experienced cooks.",
-                            RecipeId = 10,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 23,
-                            Message = "The subscription system works smoothly, and I get great value from my chef's content.",
-                            RecipeId = 10,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 24,
-                            Message = "The notification system is helpful. I get alerts whenever a new recipe is published by my favorite chef.",
-                            RecipeId = 21,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 25,
-                            Message = "The app’s design is sleek and modern. It makes using it enjoyable.",
-                            RecipeId = 21,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 26,
-                            Message = "The app’s design is sleek and modern. It makes using it enjoyable.",
-                            RecipeId = 21,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 27,
-                            Message = "The chicken curry was delicious, with just the right amount of spice. Loved it!",
-                            RecipeId = 23,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        },
-                        new
-                        {
-                            Id = 28,
-                            Message = "The salad was bland, with wilted greens and barely any dressing.",
-                            RecipeId = 23,
-                            ReviewDate = new DateTime(2024, 9, 16, 12, 27, 28, 0, DateTimeKind.Unspecified),
-                            ReviewerId = 1
-                        });
                 });
 
             modelBuilder.Entity("SmileChef.Models.DbModels.SupportMessage", b =>

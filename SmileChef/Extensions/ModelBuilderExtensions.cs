@@ -32,7 +32,7 @@ namespace ChefApp.Extensions
             );
 
             // Seed Basic Recipes
-            modelBuilder.Entity<Recipe>().HasData(            
+            modelBuilder.Entity<Recipe>().HasData(
                 new Recipe { RecipeId = 2, Name = "Pasta Carbonara", ChefId = 2, RecipeType = RecipeType.Basic, ImageUrl = "recipe2.jpeg" },
                 new Recipe { RecipeId = 3, Name = "Red Chicken Curry", ChefId = 3, RecipeType = RecipeType.Basic, ImageUrl = "recipe3.jpeg" },
                 new Recipe { RecipeId = 4, Name = "Egg & Tomato Shakshuka", ChefId = 4, RecipeType = RecipeType.Basic, ImageUrl = "recipe4.jpeg" },
@@ -45,13 +45,20 @@ namespace ChefApp.Extensions
                 new Recipe { RecipeId = 18, Name = "Lamb Shank", ChefId = 5, RecipeType = RecipeType.Basic, ImageUrl = "recipe12.jpeg" }// New basic recipe      
             );
 
+            /*
+             
+                      new PremiumRecipe { RecipeId = 1, Name = "Turmeric Rice Chicken", ChefId = 1, Price = 40.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe1.jpeg" },
+                new PremiumRecipe { RecipeId = 7, Name = "Aubergine Curry Vegetables", ChefId = 1, Price = 58.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe7.jpeg" },
+                new PremiumRecipe { RecipeId = 19, Name = "Crispy Shredded Beef", ChefId = 6, Price = 25.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe13.jpeg" }, // New basic recipe
+             
+             */
             // Seed Premium Recipes
             modelBuilder.Entity<PremiumRecipe>().HasData(
-                new Recipe { RecipeId = 1, Name = "Turmeric Rice Chicken", ChefId = 1, RecipeType = RecipeType.Basic, ImageUrl = "recipe1.jpeg" },
-                new Recipe { RecipeId = 7, Name = "Aubergine Curry Vegetables", ChefId = 1, RecipeType = RecipeType.Basic, ImageUrl = "recipe7.jpeg" },
-                new Recipe { RecipeId = 19, Name = "Crispy Shredded Beef", ChefId = 6, RecipeType = RecipeType.Basic, ImageUrl = "recipe13.jpeg" }, // New basic recipe
+            new PremiumRecipe { RecipeId = 1, Name = "Turmeric Rice Chicken", ChefId = 1, Price = 40.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe1.jpeg" },
+                new PremiumRecipe { RecipeId = 7, Name = "Aubergine Curry Vegetables", ChefId = 1, Price = 58.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe7.jpeg" },
+                new PremiumRecipe { RecipeId = 19, Name = "Crispy Shredded Beef", ChefId = 6, Price = 25.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe13.jpeg" },
                 new PremiumRecipe { RecipeId = 9, Name = "Beef Tomato Sphagetti", ChefId = 1, Price = 49.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe2.jpeg" },
-                new PremiumRecipe { RecipeId = 10, Name = "Butter Chicken Curry", ChefId = 2, Price = 39.99f, RecipeType = RecipeType.Premium,ImageUrl = "recipe3.jpeg" },
+                new PremiumRecipe { RecipeId = 10, Name = "Butter Chicken Curry", ChefId = 2, Price = 39.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe3.jpeg" },
                 new PremiumRecipe { RecipeId = 11, Name = "Spicy Shashuka", ChefId = 3, Price = 29.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe4.jpeg" },
                 new PremiumRecipe { RecipeId = 12, Name = "Beef Lasagna", ChefId = 4, Price = 19.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe5.jpeg" },
                 new PremiumRecipe { RecipeId = 13, Name = "Foie Gras Terrine", ChefId = 5, Price = 59.99f, RecipeType = RecipeType.Premium, ImageUrl = "recipe6.jpeg" },
@@ -259,7 +266,7 @@ namespace ChefApp.Extensions
 
             //Seed Reviews
             modelBuilder.Entity<Review>().HasData(
-                new Review { Id = 1, Message = "Tasty sushi ever posted", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") } ,
+                new Review { Id = 1, Message = "Tasty sushi ever posted", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
                 new Review { Id = 2, Message = "This beef sushi is yummy and tender", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
                 new Review { Id = 3, Message = "This chicken and rice goes so well. I enjoyed cooking and eating it", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
                 new Review { Id = 4, Message = "Indian foods are indeed very delicious. They are full of spice and adventure.", ReviewerId = 1, RecipeId = 1, ReviewDate = DateTime.Parse("16/09/2024 12:27:28 PM") },
