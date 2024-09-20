@@ -10,7 +10,7 @@
         <div class="row mx-auto mb-4 align-items-center rounded-2 bg-body-tertiary p-2 position-relative" data-bookmark-id="@bm.RecipeBookmarkId">
             <div class="col-auto"><span class="fs-5">@(Model.IndexOf(bm) + 1)</span></div>
             <div class="col-md-3 pb-2 pb-md-0"><span class="fs-6">Recipe: </span><a asp-action="ViewRecipe" asp-route-recipeId="@bm.RecipeId" class="btn btn-sm btn-secondary">@bm.Recipe.Name</a></div>
-            <div class="col-md-3"><span class="fs-6">Publisher: </span><a asp-action="ViewChefDetails" asp-route-chefId="@bm.ChefId" class="btn btn-sm btn-secondary">@bm.Chef.FirstName @bm.Chef.LastName </a></div>
+            <div class="col-md-3"><span class="fs-6">Publisher: </span><a asp-action="ViewChefDetails" asp-route-chefId="@bm.Recipe.ChefId" class="btn btn-sm btn-secondary">@bm.Recipe.Chef.FirstName @bm.Recipe.Chef.LastName </a></div>
             <button class="col-auto ms-auto btn btn-outline-warning text-black" onclick="removeBookmark(@bm.RecipeBookmarkId)">Remove</button>
         </div>
     }
