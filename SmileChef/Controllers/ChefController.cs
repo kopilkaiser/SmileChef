@@ -85,7 +85,7 @@ namespace SmileChef.Controllers
         {
             AssignChefAndUserId(userId);
             AssignCurrentPageStatus("ChefIndex");
-            var allChefs = _chefRepo.GetAll();
+            var allChefs = _chefRepo.GetAll().ToList();
             var allRecipes = _recipeRepo.GetAll();
 
             var getCurrentChef = allChefs.FirstOrDefault(c => c.User.UserId == _currentUserId);
@@ -95,7 +95,7 @@ namespace SmileChef.Controllers
 
             IndexViewModel vm = new IndexViewModel();
             vm.CurrentChef = getCurrentChef;
-            vm.TopFiveChefs = allChefs.Where(c=>c.User.IsAdmin != true).OrderByDescending(c => c.Rating).Take(5).ToList();
+            vm.TopFiveChefs = allChefs.Where(c=>c.User.IsAdmin != true).Where(c => c.ChefId != _chefId).OrderByDescending(c => c.Rating).Take(5).ToList();
             vm.TopFiveRecipes = allRecipes.Where(r => r is PremiumRecipe).OrderByDescending(r => r.Reviews.Count()).Take(5).ToList();
 
             // Redirect to Admin Panel if current user is Admin
