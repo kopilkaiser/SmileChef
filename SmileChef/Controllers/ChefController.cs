@@ -114,7 +114,9 @@ namespace SmileChef.Controllers
             {
                 currentChefUserId = _httpContextAccessor.HttpContext.Session.GetObjectFromJson<int>("CurrentUserId");
             }
-            var chefs = _chefRepo.GetAll().Where(c => c.User.UserId != currentChefUserId && c.User.IsAdmin != true).OrderByDescending(c => c.Rating).ToList();
+
+            var chefs = (await _chefRepo.GetAllAsync()).Where(c => c.User.UserId != currentChefUserId && c.User.IsAdmin != true).OrderByDescending(c => c.Rating).ToList();
+
             var currentChef = GetCurrentChef();
 
             ChefSubsciptionViewModel vm = new();
@@ -1286,7 +1288,7 @@ namespace SmileChef.Controllers
         public async Task<IActionResult> GetSupportCenter()
         {
             AssignCurrentPageStatus("");
-            var supportMessages = _supportRepo.GetAll().Where(sm => sm.ChefId == GetCurrentChef().ChefId).ToList();
+            var supportMessages = (await _supportRepo.GetAllAsync()).Where(sm => sm.ChefId == _chefId).ToList();
             return View(supportMessages);
         }
 
@@ -1354,7 +1356,7 @@ namespace SmileChef.Controllers
 
         private Chef GetCurrentChef()
         {
-            var chef = _chefRepo.GetAll().FirstOrDefault(c => c.User.UserId == _currentUserId);
+            var chef = _chefRepo.GetChefByUserId((int) _currentUserId);
             return chef;
         }
 
@@ -1378,8 +1380,9 @@ namespace SmileChef.Controllers
 
         private void AssignCurrentPageStatus(string currentPageName)
         {
-            if (_currentUserId == 0) return;
-            var chef = _chefRepo.GetAll().FirstOrDefault(c => c.User.UserId == _currentUserId);
+            if (_currentUserId == null || _currentUserId == 0) return;
+
+            var chef = _chefRepo.GetChefByUserId((int)_currentUserId);
 
             if (HttpContext.Session.GetObjectFromJson<string>("CurrentUserEmail") == null)
             {

@@ -3,6 +3,7 @@
     public interface IRepository<T> where T : class
     {
         List<T>? GetAll();
+        Task<List<T>>? GetAllAsync();
         T? GetById(int id);
         void Add(T entity);
         void Update(T entity);

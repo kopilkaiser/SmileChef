@@ -20,6 +20,16 @@ namespace SmileChef.Repository
             return supports;
         }
 
+        public override async Task<List<SupportMessage>>? GetAllAsync()
+        {
+            var supports = await _context.SupportMessages
+                .Include(sm => sm.Sender)
+                .ThenInclude(s => s.User)
+                .Include(sm => sm.AdminUser)
+                .ToListAsync();
+            return supports;
+        }
+
         public override SupportMessage? GetById(int id)
         {
             var support = _context.SupportMessages

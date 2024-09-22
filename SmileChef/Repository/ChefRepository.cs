@@ -170,6 +170,32 @@ namespace SmileChef.Repository
             return chefs;
         }
 
+        public override async Task<List<Chef>>? GetAllAsync()
+        {
+            var chefs = await _context.Chefs
+                 .Include(c => c.User)
+                 .Include(c => c.Recipes)
+                 .ThenInclude(r => r.Instructions)
+                 .Include(c => c.SubscribedTo)
+                 .Include(c => c.PublishedSubscriptions)
+                 .Include(navigationPropertyPath: c => c.User)
+                 .Include(c => c.Restaurant)
+                 .ToListAsync();
+
+            return chefs;
+        }
+
+        public Chef GetChefByUserId(int chefUserId)
+        {
+            var chef = _context.Chefs
+                .Include(c => c.User)
+                .Where(c => c.UserId == chefUserId)
+                .FirstOrDefault();
+
+            ArgumentNullException.ThrowIfNull(chef);
+            return chef;
+        }
+
         public List<Restaurant> GetAllRestaurants()
         {
             var restaurants = _context.Restaurants

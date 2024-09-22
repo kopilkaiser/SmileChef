@@ -19,6 +19,11 @@ namespace SmileChef.Repository
             return _dbSet.ToList();
         }
 
+        public virtual async Task<List<T>>? GetAllAsync()
+        {
+            return await _dbSet.ToListAsync();
+        }
+
         public virtual T? GetById(int id)
         {
             T? foundEntity = _dbSet.Find(id);

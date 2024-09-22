@@ -10,6 +10,8 @@ namespace SmileChef.Repository
 
         Task<List<ChefViewModel>> GetChefsWithDetailsAsync();
 
+        Chef GetChefByUserId(int chefUserId);
+
         List<Restaurant> GetAllRestaurants();
 
         Restaurant GetRestaurantByChefId(int chefId);
