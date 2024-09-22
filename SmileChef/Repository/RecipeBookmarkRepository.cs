@@ -14,7 +14,9 @@ namespace SmileChef.Repository
         {
             var recipeBookmarks = _context.RecipeBookmarks
                 .Include(b => b.Chef)
-                .Include(b => b.Recipe).ToList();
+                .Include(b => b.Recipe)
+                 .ThenInclude(r => r.Chef)
+                .ToList();
             return recipeBookmarks;
         }
     }
