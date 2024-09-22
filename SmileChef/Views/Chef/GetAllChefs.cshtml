@@ -1,0 +1,181 @@
+﻿@using ChefApp.Models.DbModels
+
+@model List<Chef>
+
+@{
+    var currentChef = ViewBag.CurrentChef as Chef;
+}
+
+@* #region ShowSubscriptionModel *@
+<div id="subscriptionModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Subscription Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="hfPublisherChefId" />
+                <p>
+                    <label class="form-label" for="selectSubAmount">Amount To Pay:</label>
+                    <select class="form-select" id="selectSubAmount">
+                        @*  <option value="10.99">£10.99</option>
+                        <option value="15.99">£15.99</option> *@
+                    </select>
+                </p>
+                <p>
+                    <label class="form-label" for="selectSubType">Subscription Type:</label>
+                    <select class="form-select" id="selectSubType">
+                        <option value="Weekly" selected>Weekly</option>
+                        <option value="Monthly">Monthly</option>
+                        <option value="Yearly">Yearly</option>
+                    </select>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="btnProcessSubscription" type="button" class="btn btn-primary">Process Subscription</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* #endregion *@
+
+<div class="d-flex gap2">
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 gx-3 gy-4 mt-3 pb-4 bg-secondary-subtle rounded-3">
+
+            @foreach (var chef in Model)
+            {
+                <div class="col">
+                    <div class="card" data-chef-id="@chef.ChefId">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <img class="img-thumbnail" src="~/images/chef.png" width="90" height="100" alt="@(chef.FirstName + " " + chef.LastName) Picture">
+                                </div>
+                                <div class="col-auto">
+                                    <div class="col-12"><b class="pe-1">Name:</b> @(chef.FirstName + " " + chef.LastName)</div>
+                                    <div class="col-12">
+                                        <b class="pe-1">Rating:</b>
+                                        @for (int i = 0; i < @chef.Rating; i++)
+                                        {
+                                            @Html.Raw("<b class=\"fs-5\">*</b>")
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div>Something about this chef <b>IS NICE</b>. He has total @chef.Recipes.Count() recipes.</div>
+                        </div>
+                        <div class="card-footer d-flex gap-2 align-items-center">
+                            @Html.ActionLink("View More", "ViewChefDetails", "Chef", new { chefId = chef.ChefId}, new { @class = "btn btn-info btn-sm"})
+                            <div id="buttonContainer">
+                                @if(currentChef.SubscribedTo.FirstOrDefault(c => c.PublisherId == chef.ChefId) != null)
+                                {
+                                    var subscription = currentChef.SubscribedTo.FirstOrDefault(c => c.PublisherId == chef.ChefId);
+                                    <button class="btn btn-danger btn-sm" id="btnUnsubscribe" data-publisher-chef-id="@subscription.PublisherId" data-subscription-cost="@chef.SubscriptionCost" data-subscription-id="@subscription.SubscriptionId">Unsubscribe</button>
+                                }else{
+                                    <button class="btn btn-success btn-sm" id="btnSubscribe" data-subscription-cost="@chef.SubscriptionCost" data-publisher-chef-id="@chef.ChefId">Subscribe</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            }
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-auto">
+                <div class="text-bg-danger fst-italic p-2 rounded-3">No Chefs found. We will need to register new chefs</div>
+            </div>
+        </div>
+    }
+</div>
+
+
+@section Scripts{
+    <script>
+        $(() => {
+            // unsubscribing to chef (Delete Subscription)
+            $(document).on('click', '#btnUnsubscribe', function () {
+                let publisherChefId = $(this).data('publisher-chef-id');
+                let subscriptionId = $(this).data('subscription-id');
+                let subscriptionCost = $(this).data('subscription-cost');
+                console.log(`Unsubscribing chef with Id: ${publisherChefId}, by deleting subscription id: ${subscriptionId}`);
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("UnsubscribeChef", "Chef")",
+                    data: { publisherChefId, subscriptionId, subscriptionCost },
+                    success: function (response) {
+                        console.log(`subscription have been done: `)
+                        $('.d-flex .col .card').each((idx, elem) => {
+                            let chefId = $(elem).data('chef-id');
+                            if (chefId === response.publisherChefId) { 
+                                Swal.fire({
+                                    title: "Unsubscribed",
+                                    text: "You have Unsubscribed to the Chef",
+                                    icon: "success"
+                                }).then((result) => {
+                                    $(elem).find('#btnUnsubscribe').remove();
+                                $(elem).find('#buttonContainer').append(`<button class="btn btn-success btn-sm" id="btnSubscribe" data-subscription-cost="${response.subscriptionCost}" data-publisher-chef-id="${response.publisherChefId}">Subscribe</button>`);
+                                });
+                            }
+                        })
+                    },
+                    error: function (xhr, status, error) {
+
+                    }
+                });
+            });
+
+            // Part 1: Subscribing to the chef (Ready to show SubscriptionModal)
+            $(document).on('click', '#btnSubscribe', function () {
+                let publisherChefId = $(this).data('publisher-chef-id');
+                let subscriptionCost = $(this).data('subscription-cost');
+                $('#selectSubAmount').append(`<option value="${subscriptionCost}" selected>£${subscriptionCost}</option>`)
+                $('#hfPublisherChefId').val(publisherChefId);
+                $('#subscriptionModal').modal('show');
+            });
+
+            // Part 2: Process Subscription (Create new Subscription)
+            $('#btnProcessSubscription').on('click', function () {
+                let subscriptionType = $('#selectSubType').find(':selected').val();
+                let subscriptionCost = $('#selectSubAmount').find(':selected').val();
+                let publisherChefId = $('#hfPublisherChefId').val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("SubscribeChef",  "Chef")",
+                    data: { publisherChefId, subscriptionCost, subscriptionType },
+                    success: function (response) {
+                        $('#subscriptionModal').modal('hide');
+                        $('.d-flex .col .card').each((idx, elem) => {
+                            let chefId = $(elem).data('chef-id');
+                            if (chefId === response.publisherChefId) {
+                                Swal.fire({
+                                    title : "Subscribed",
+                                    text : "You have been Subscribed to the Chef",
+                                    icon : "success"
+                                }).then((result) => {
+                                    $(elem).find('#btnSubscribe').remove();
+                                    $(elem).find('#buttonContainer').append(`<button class="btn btn-danger btn-sm" id="btnUnsubscribe" data-publisher-chef-id="${response.publisherChefId}" data-subscription-cost="${response.subscriptionCost}" data-subscription-id="${response.subscriptionId}">Unsubscribe</button>`);
+                                });
+                            }
+                        })
+                    },
+                    error: function (xhr, status, error) {
+
+                    }
+                });
+
+            });
+        });
+    </script>
+}

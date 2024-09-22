@@ -3,10 +3,10 @@
 @model Chef
 
 @{
-    var currentAction = Url.ActionContext.RouteData.Values["action"].ToString();
-    var currentController = Url.ActionContext.RouteData.Values["controller"].ToString();
-    var currentUrl = Url.ActionContext.HttpContext.Request.Path + Url.ActionContext.HttpContext.Request.QueryString;
+    var currentChef = ViewBag.CurrentChef as Chef;
+
 }
+
 <style>
     #chefDetailsContainer {
         background-color: #cecece;
@@ -34,11 +34,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <input type="hidden" id="hfPublisherChefId" />
                 <p>
-                    <label class="form-label" for="selectSubAmount">Amount to Pay:</label>
+                    <label class="form-label" for="selectSubAmount">Amount To Pay:</label>
                     <select class="form-select" id="selectSubAmount">
-                        <option value="@ViewBag.SubscriptionCost" selected>@ViewBag.SubscriptionCost.ToString("C2")</option>
-                       @*  <option value="10.99">£10.99</option>
+                        @*  <option value="10.99">£10.99</option>
                         <option value="15.99">£15.99</option> *@
                     </select>
                 </p>
@@ -73,19 +73,16 @@
                 @Html.Raw($"<span class=\"fw-bold text-primary\" style=\"height:25px; width:25px; color:black;\">*</span>")
             }
         </div>
-        <div class="col-12">
-            <p class="mt-2 mb-0">
-                @if (ViewBag.IsSubscribed != null && ViewBag.IsSubscribed is bool)
-                {
-                    <a class="btn btn-success" asp-action="ManageSubscription" asp-route-chefId="@Model.ChefId" asp-route-returnUrl="@currentAction" asp-route-subscriptionCost="@Model.SubscriptionCost">
-                        @(Convert.ToBoolean(ViewBag.IsSubscribed) ? "Unsubscribe" : "Subscribe")
-                    </a>
-                }
-                else
-                {
-                    <p><span class="text-danger">Error:</span> Subscription status not available</p>
-                }
-            </p>
+        <div id="buttonContainer" class="col-12">
+            @if (currentChef.SubscribedTo.FirstOrDefault(c => c.PublisherId == Model.ChefId) != null)
+            {
+                var subscription = currentChef.SubscribedTo.FirstOrDefault(c => c.PublisherId == Model.ChefId);
+                <button class="btn btn-danger btn-sm" id="btnUnsubscribe" data-publisher-chef-id="@subscription.PublisherId" data-subscription-cost="@Model.SubscriptionCost" data-subscription-id="@subscription.SubscriptionId">Unsubscribe</button>
+            }
+            else
+            {
+                <button class="btn btn-success btn-sm" id="btnSubscribe" data-subscription-cost="@Model.SubscriptionCost" data-publisher-chef-id="@Model.ChefId">Subscribe</button>
+            }
         </div>
     </div>
     <div class="row">
@@ -95,134 +92,133 @@
         <h3>All The Recipes:</h3>
         <div class="col-12">
             <div class="row gap-2 gap-md-0 g-md-3 py-3">
-                @if(Model.Recipes.Count > 0){
-                @foreach (var recipe in Model.Recipes)
+                @if (Model.Recipes.Count > 0)
                 {
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <p>@(Model.Recipes.IndexOf(recipe)+1). @recipe.Name</p>
-                            </div>
-                            <div class="card-body">
-                                @if (recipe.Instructions.Count > 0)
-                                {
-                                    <ul>
-                                        @for (int i = 0; i < recipe.Instructions.Count(); i++)
-                                        {
+                    @foreach (var recipe in Model.Recipes)
+                    {
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <p>@(Model.Recipes.IndexOf(recipe) + 1). @recipe.Name</p>
+                                </div>
+                                <div class="card-body">
+                                    @if (recipe.Instructions.Count > 0)
+                                    {
+                                        <ul>
+                                            @for (int i = 0; i < recipe.Instructions.Count(); i++)
+                                            {
 
-                                            <li>@recipe.Instructions[i].Description -   @(recipe.Instructions[i].Duration.HasValue ? recipe.Instructions[i].Duration.Value.Minutes.ToString() + " mins" : "NA")</li>
-                                        }
-                                    </ul>
-                                }
-                                else
-                                {
-                                    <p>No Instructions given for this recipe...</p>
-                                }
-                            </div>
-                            <div class="card-footer p-3">
-                                <p class="border-bottom pb-2" style="border-bottom-color: #cecece !important; border-bottom-width: 2px !important;">Total Reviews: <span class="fw-bold">@recipe.Reviews.Count</span> </p>
-                                @if (recipe.Reviews.Count > 0)
-                                {
-                                    <ol style="list-style:lower-roman;">
-                                        @for (int i = 0; i < recipe.Reviews.Take(2).Count(); i++)
-                                        {
-                                            <li>
-                                                <p class="mb-0">@recipe.Reviews[i].Reviewer.FirstName @recipe.Reviews[i].Reviewer.LastName </p>
-                                                <p class="my-0 border-bottom"><span class="small">@recipe.Reviews[i].ReviewDate</span></p>
-                                                <p id="reviewMessagePara">@recipe.Reviews[i].Message</p>
-                                            </li>
-                                        }
-                                    </ol>
-                                }
-                                else
-                                {
-                                    <p>No Reviews posted for this recipe...</p>
-                                }
+                                                <li>@recipe.Instructions[i].Description -   @(recipe.Instructions[i].Duration.HasValue ? recipe.Instructions[i].Duration.Value.Minutes.ToString() + " mins" : "NA")</li>
+                                            }
+                                        </ul>
+                                    }
+                                    else
+                                    {
+                                        <p>No Instructions given for this recipe...</p>
+                                    }
+                                </div>
+                                <div class="card-footer p-3">
+                                    <p class="border-bottom pb-2" style="border-bottom-color: #cecece !important; border-bottom-width: 2px !important;">Total Reviews: <span class="fw-bold">@recipe.Reviews.Count</span> </p>
+                                    @if (recipe.Reviews.Count > 0)
+                                    {
+                                        <ol style="list-style:lower-roman;">
+                                            @for (int i = 0; i < recipe.Reviews.Take(2).Count(); i++)
+                                            {
+                                                <li>
+                                                    <p class="mb-0">@recipe.Reviews[i].Reviewer.FirstName @recipe.Reviews[i].Reviewer.LastName </p>
+                                                    <p class="my-0 border-bottom"><span class="small">@recipe.Reviews[i].ReviewDate</span></p>
+                                                    <p id="reviewMessagePara">@recipe.Reviews[i].Message</p>
+                                                </li>
+                                            }
+                                        </ol>
+                                    }
+                                    else
+                                    {
+                                        <p>No Reviews posted for this recipe...</p>
+                                    }
 
-                                <div><a class="btn btn-outline-dark" asp-action="ViewRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId">Show More Details</a></div>
+                                    <div><a class="btn btn-outline-dark" asp-action="ViewRecipe" asp-controller="Chef" asp-route-recipeId="@recipe.RecipeId">Show More Details</a></div>
+                                </div>
                             </div>
-                        </div>
                         </div>
                     }
                 }
                 else
                 {
-                   <div>No Recipes has been posted yet...</div>   
+                    <div>No Recipes has been posted yet...</div>
                 }
             </div>
         </div>
-        
+
     </div>
 </div>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // unsubscribing to chef (Delete Subscription)
+            $(document).on('click', '#btnUnsubscribe', function () {
+                let publisherChefId = $(this).data('publisher-chef-id');
+                let subscriptionId = $(this).data('subscription-id');
+                let subscriptionCost = $(this).data('subscription-cost');
+                console.log(`Unsubscribing chef with Id: ${publisherChefId}, by deleting subscription id: ${subscriptionId}`);
 
-            // #region Handling unsubscribing pop-up message
-            let showUnsubscribedMessage = "@ViewBag.ShowUnsubscribedMessage".toLowerCase() === "true";
-            if (showUnsubscribedMessage) {
-                Swal.fire({
-                    title: "Unsubscribed",
-                    text: "You have successfully unsubscribed the chef",
-                    icon: "success"
-                })
-            }
-            // #endregion
-
-            let showModal = @(ViewBag.ShowSubscriptionModal.ToString().ToLower());
-            console.log("show subscription modal: " + showModal)
-            if (showModal) {
-                $('#subscriptionModal').modal('show');
-            }
-
-            $('#btnProcessSubscription').click(function () {
-                let subAmount = $('#selectSubAmount').val();
-                let subType = $('#selectSubType').val();
-                let urlLink = '@Url.ActionLink("ProcessSubscription", "Chef")';
-                console.log($`urlLink being posted: ${urlLink}`);
-                let dataObj = {
-                    subAmount: subAmount,
-                    subType: subType
-                }
                 $.ajax({
                     type: "POST",
-                    url: urlLink,
-                    //data: JSON.stringify({ someValue : "Hello World", givenAge : 55}),
-                    data: JSON.stringify(dataObj),
-                    contentType: "application/json", // This needs to be set correctly
-                    dataType: "json", // or "json" depending on what response you expect
+                    url: "@Url.Action("UnsubscribeChef", "Chef")",
+                    data: { publisherChefId, subscriptionId, subscriptionCost },
                     success: function (response) {
-                        if (response.success) {
-                            $('#subscriptionModal').modal('hide');
-                            Swal.fire({
-                                title: "Subscribed",
-                                text: "You have successfully subscribed to the chef",
-                                icon: "success"
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    console.log(`window.location.protocol: ${window.location.protocol}//`);
-                                    console.log(`window.location.host: ${window.location.host}`);
-                                    console.log(`window.location.pathname: ${window.location.pathname}`);
-                                    console.log(`window.location.search: ${window.location.search}`);
-                                    console.log(`window.location.hash: ${window.location.hash}`);
-
-                                    window.location.href = window.location.pathname;
-                                }
-                            });
-                        }
+                        Swal.fire({
+                            title: "Unsubscribed",
+                            text: "You have Unsubscribed to the Chef",
+                            icon: "success"
+                        }).then((result) => {
+                            $('#btnUnsubscribe').remove();
+                            $('#buttonContainer').append(`<button class="btn btn-success btn-sm" id="btnSubscribe" data-subscription-cost="${response.subscriptionCost}" data-publisher-chef-id="${response.publisherChefId}">Subscribe</button>`);
+                        });                                                
                     },
                     error: function (xhr, status, error) {
-                        var errorMessage = xhr.status + ': ' + xhr.statusText;
-                        console.log('Error - ' + errorMessage);
-                        Swal.fire({
-                            title: "Error Occurred",
-                            text: errorMessage,
-                            icon: "error"
-                        });
+
                     }
                 });
-            })
+            });
+
+            // Part 1: Subscribing to the chef (Ready to show SubscriptionModal)
+            $(document).on('click', '#btnSubscribe', function () {
+                let publisherChefId = $(this).data('publisher-chef-id');
+                let subscriptionCost = $(this).data('subscription-cost');
+                $('#selectSubAmount').append(`<option value="${subscriptionCost}" selected>£${subscriptionCost}</option>`)
+                $('#hfPublisherChefId').val(publisherChefId);
+                $('#subscriptionModal').modal('show');
+            });
+
+            // Part 2: Process Subscription (Create new Subscription)
+            $('#btnProcessSubscription').on('click', function () {
+                let subscriptionType = $('#selectSubType').find(':selected').val();
+                let subscriptionCost = $('#selectSubAmount').find(':selected').val();
+                let publisherChefId = $('#hfPublisherChefId').val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("SubscribeChef", "Chef")",
+                    data: { publisherChefId, subscriptionCost, subscriptionType },
+                    success: function (response) {
+                        $('#subscriptionModal').modal('hide');
+                        Swal.fire({
+                            title : "Subscribed",
+                            text : "You have been Subscribed to the Chef",
+                            icon : "success"
+                        }).then((result) => {
+                            $('#btnSubscribe').remove();
+                            $('#buttonContainer').append(`<button class="btn btn-danger btn-sm" id="btnUnsubscribe" data-publisher-chef-id="${response.publisherChefId}" data-subscription-cost="${response.subscriptionCost}" data-subscription-id="${response.subscriptionId}">Unsubscribe</button>`);
+                        });         
+                    },
+                    error: function (xhr, status, error) {
+
+                    }
+                });
+
+            });
         });
     </script>
 }

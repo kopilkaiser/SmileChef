@@ -79,7 +79,7 @@ namespace SmileChef.Controllers
 
             _supportRepo = supRepo;
         }
-
+   
         [HttpGet]
         public IActionResult Index(int userId, bool showAdminWebsite = false)
         {
@@ -135,71 +135,56 @@ namespace SmileChef.Controllers
             return View(vm);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ViewChefDetails(int chefId, bool showSubscriptionModal = false, bool showUnsubscribedMessage = false, decimal subscriptionCost = 0m)
+        #region Implement V2 of Subscription Functionalities
+
+        public async Task<IActionResult> GetAllChefs()
         {
-            AssignCurrentPageStatus("");
+            AssignCurrentPageStatus("GetAllChefs");
+            var chefs = (await _chefRepo.GetAllAsync()).Where(c => c.User.IsAdmin != true).Where(c => c.ChefId != _chefId).ToList();
 
-            if (chefId == 0) chefId = HttpContext.Session.GetObjectFromJson<int>("ChefIdToSubscribe");
+            ViewBag.CurrentCHef = GetCurrentChef();
 
-            var chef = _chefRepo.GetById(chefId);
-            chef.Rating = new Random().Next(1, 6);
-            var loggedChef = GetCurrentChef();
-            bool isSubscribed = loggedChef.SubscribedTo.FirstOrDefault(s => s.Publisher.ChefId == chef.ChefId) != null;
-
-            ViewBag.IsSubscribed = isSubscribed;
-            ViewBag.ShowSubscriptionModal = showSubscriptionModal;
-            ViewBag.SubscriptionCost = subscriptionCost;
-            ViewBag.ShowUnsubscribedMessage = showUnsubscribedMessage;
-
-            return View(chef);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ManageSubscription(int chefId, string returnUrl, decimal subscriptionCost = 0m)
-        {
-            bool showUnsubscribedMessage = false;
-
-            var currentChef = GetCurrentChef();
-            var destChef = _chefRepo.GetById(chefId);
-
-            var subscription = currentChef.SubscribedTo.FirstOrDefault(s => s.Publisher.ChefId == destChef.ChefId);
-            HttpContext.Session.SetObjectAsJson(key: "ChefIdToSubscribe", destChef.ChefId);
-
-            if (subscription == null)
-            {
-                // means currentChef will subscribe to destChef (Subscript to subscription)
-                return RedirectToAction(returnUrl, new { showSubscriptionModal = true, subscriptionCost = subscriptionCost });
-            }
-            else
-            {
-                // means currentChef will unsubscribe to destChef (Unscribe to subscription)
-                var sub = _subscriptionRepo.GetById(subscription.SubscriptionId);
-                _subscriptionRepo.Delete(sub);
-                showUnsubscribedMessage = true;
-            }
-
-            return RedirectToAction(returnUrl, new { showUnsubscribedMessage });
+            return View(chefs);
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProcessSubscription([FromBody] JsonElement query)
+        public async Task<IActionResult> UnsubscribeChef(int publisherChefId, int subscriptionId, decimal subscriptionCost)
         {
-            //create subscription
-            var destChefId = HttpContext.Session.GetObjectFromJson<int>("ChefIdToSubscribe");
-            var subscription = new Subscription();
-            subscription.PublisherId = destChefId;
-            subscription.SubscriberId = GetCurrentChef().ChefId;
-            subscription.SubscriptionDate = DateTime.Now;
-            subscription.Amount = Convert.ToDecimal(query.GetProperty("subAmount").GetString());
-            if (Enum.TryParse<SubscriptionType>(query.GetProperty("subType").GetString(), out var subType))
+
+            var subscription = _subscriptionRepo.GetById(subscriptionId);
+            _subscriptionRepo.Delete(subscription);
+            return Json(new { success = true, publisherChefId, subscriptionCost });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SubscribeChef(int publisherChefId, decimal subscriptionCost, string subscriptionType)
+        {
+            Subscription subscription = new Subscription()
             {
-                subscription.SubscriptionType = subType;
-            }
+                SubscriptionType = Enum.Parse<SubscriptionType>(subscriptionType),
+                SubscriptionDate = DateTime.Now,
+                Amount = subscriptionCost,
+                PublisherId = publisherChefId,
+                SubscriberId = _chefId
+            };
 
             _subscriptionRepo.Add(subscription);
-            return Json(new { success = true });
+
+            return Json(new { subscriptionId = subscription.SubscriptionId, publisherChefId, subscriptionCost });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewChefDetails(int chefId)
+        {
+            AssignCurrentPageStatus("");
+            var chef = _chefRepo.GetById(chefId);
+            chef.Rating = new Random().Next(1, 6);
+            ViewBag.CurrentChef = GetCurrentChef();
+            return View(chef);
+        }
+        #endregion
+
+
 
         [HttpPost]
         public IActionResult DismissNotification(int notificationId)
